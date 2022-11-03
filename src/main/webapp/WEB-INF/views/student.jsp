@@ -35,7 +35,7 @@
             </div>
 
             <div class="form-group">
-                <label class="control-label col-lg-2" for="date">Date</label>
+                <label class="control-label col-lg-2" for="email">Date</label>
 
                 <form:input id="email" path="email" />
                 <form:errors path="email" cssClass="error"/>
