@@ -21,12 +21,13 @@
 </div>
 <section class="container">
 
+    <%--@elvariable id="studentForm" type="de.oth.seproject.model.Student"--%>
     <form:form  method="POST" modelAttribute="studentForm" class="form-horizontal" action="/student/add/process">
         <fieldset>
             <legend>Add new Student </legend>
 
             <div class="form-group">
-                <label class="control-label col-lg-2" for="name">Title</label>
+                <label class="control-label col-lg-2" for="name">Name</label>
 
                 <form:input id="name" path="name"/>
                 <form:errors path="name" cssClass="error"/>
@@ -35,7 +36,7 @@
             </div>
 
             <div class="form-group">
-                <label class="control-label col-lg-2" for="email">Date</label>
+                <label class="control-label col-lg-2" for="email">Email</label>
 
                 <form:input id="email" path="email" />
                 <form:errors path="email" cssClass="error"/>
