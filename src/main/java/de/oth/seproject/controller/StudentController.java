@@ -29,7 +29,8 @@ public class StudentController {
     public ModelAndView addStudentProcess(@ModelAttribute Student student) {
         studentRepository.save(student);
         var mv = new ModelAndView();
-        mv.setViewName("/student/student-added");
+        mv.setViewName("/student-added");
+        mv.addObject("studentForm", student);
         return mv;
     }
 }
