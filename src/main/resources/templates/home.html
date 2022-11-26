@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Home</title>
+</head>
+<body>
+
+<div th:insert="fragments/header"></div>
+
+<h1>Hallo!</h1>
+<p>Willkommen bei <span th:text="${appName}">App Name</span></p>
+<p>Hier findest du alle Clubs: <a href="/api/v1/clubs">Clubs Api</a></p>
+
+</body>
+</html>
