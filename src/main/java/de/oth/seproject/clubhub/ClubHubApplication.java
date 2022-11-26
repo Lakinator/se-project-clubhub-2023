@@ -1,13 +1,13 @@
-package de.oth.seproject;
+package de.oth.seproject.clubhub;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SeProjectApplication {
+public class ClubHubApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SeProjectApplication.class, args);
+        SpringApplication.run(ClubHubApplication.class, args);
     }
 
 }
