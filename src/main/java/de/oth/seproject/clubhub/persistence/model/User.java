@@ -21,6 +21,10 @@ public class User {
 
     private Boolean active;
 
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "club_id")
+    private Club club;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<Announcement> announcements = new ArrayList<>();
 
@@ -28,13 +32,14 @@ public class User {
         // -- //
     }
 
-    public User(Long id, String firstName, String lastName, String email, String password, Boolean active, List<Announcement> announcements) {
+    public User(Long id, String firstName, String lastName, String email, String password, Boolean active, Club club, List<Announcement> announcements) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
         this.active = active;
+        this.club = club;
         this.announcements = announcements;
     }
 
@@ -84,6 +89,14 @@ public class User {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public Club getClub() {
+        return club;
+    }
+
+    public void setClub(Club club) {
+        this.club = club;
     }
 
     public List<Announcement> getAnnouncements() {

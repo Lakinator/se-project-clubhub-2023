@@ -15,15 +15,19 @@ public class Club {
     private String name;
 
     @OneToMany(mappedBy = "club", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<User> users = new ArrayList<>();
+
+    @OneToMany(mappedBy = "club", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<Announcement> announcements = new ArrayList<>();
 
     public Club() {
         // -- //
     }
 
-    public Club(long id, String name, List<Announcement> announcements) {
+    public Club(long id, String name, List<User> users, List<Announcement> announcements) {
         this.id = id;
         this.name = name;
+        this.users = users;
         this.announcements = announcements;
     }
 
@@ -41,6 +45,14 @@ public class Club {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 
     public List<Announcement> getAnnouncements() {
