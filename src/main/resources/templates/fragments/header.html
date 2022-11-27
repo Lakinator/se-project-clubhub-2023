@@ -1,11 +1,18 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <body>
 <header>
     <nav>
         <ul style="padding:0;">
-            <li>Home</li>
-            <li>Über uns</li>
+            <li>
+                <a href="/home">Home</a>
+            </li>
+            <li sec:authorize="isAuthenticated()">
+                Authenticated as <span sec:authentication="name"></span>
+            </li>
+            <li sec:authorize="isAuthenticated()">
+                <a href="/logout">Logout</a>
+            </li>
         </ul>
     </nav>
 </header>
