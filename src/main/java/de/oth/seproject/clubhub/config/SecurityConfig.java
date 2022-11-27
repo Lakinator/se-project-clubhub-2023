@@ -14,12 +14,28 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        http.csrf().disable();
+
+        // everyone can access these sites
+        http.authorizeRequests()
+                .antMatchers("/", "/login", "/registration").permitAll();
+
+        // the user needs to be logged in to access any other site
         http.authorizeRequests()
                 .anyRequest()
-                .permitAll()
-                .and()
-                .csrf()
-                .disable();
+                .authenticated();
+
+        // configure login
+        http.formLogin()
+                .loginPage("/login")
+                .defaultSuccessUrl("/home");
+
+        // configure logout
+        http.logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/");
+
         return http.build();
     }
 
