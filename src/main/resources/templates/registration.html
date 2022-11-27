@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Registrierung</title>
+</head>
+<body>
+<h1>Registriere dich bei ClubHub</h1>
+<form action="/registration" th:object="${user}" method="POST">
+    <div>
+        <label>Vorname</label>
+        <input th:field="*{firstName}"/>
+    </div>
+    <div>
+        <label>Nachname</label>
+        <input th:field="*{lastName}"/>
+    </div>
+    <div>
+        <label>E-Mail</label>
+        <input type="email" th:field="*{email}"/>
+    </div>
+    <div>
+        <label>Passwort</label>
+        <input type="password" th:field="*{password}"/>
+    </div>
+    <button type="submit">Registrieren</button>
+</form>
+
+<a th:href="@{/login}">Login</a>
+</body>
+</html>
