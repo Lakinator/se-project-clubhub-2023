@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Login</title>
+</head>
+<body>
+
+<div th:if="${param.error}">
+    Ungültige Kombination aus E-Mail and Passwort.
+</div>
+<div th:if="${param.logout}">
+    Du wurdest erfolgreich ausgeloggt.
+</div>
+<form th:action="@{/login}" method="post">
+    <div>
+        <label> E-Mail: <input type="text" name="username"/></label>
+    </div>
+    <div>
+        <label> Passwort: <input type="password" name="password"/></label>
+    </div>
+    <div>
+        <input type="submit" value="Einloggen"/>
+    </div>
+</form>
+
+</body>
+</html>
