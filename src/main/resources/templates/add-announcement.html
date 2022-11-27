@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Add Announcement</title>
+</head>
+<body>
+
+<div th:insert="fragments/header"></div>
+
+<h2>Add an announcement the club <span th:text="${clubName}"></span></h2>
+
+<form action="#" th:action="@{/add-announcement}" th:object="${announcement}" method="post">
+    <label for="message">Message</label>
+    <input type="text" th:field="*{message}" id="message" placeholder="Blabla...">
+    <span th:if="${#fields.hasErrors('message')}" th:errors="*{message}"></span>
+    <input type="submit" value="Add announcement">
+</form>
+
+</body>
+</html>

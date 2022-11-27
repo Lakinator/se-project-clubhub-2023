@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Announcements</title>
+</head>
+<body>
+
+<div th:insert="fragments/header"></div>
+
+<h2>All announcements from the club <span th:text="${club.name}"></span></h2>
+
+<div th:switch="${announcements.isEmpty()}">
+    <h2 th:case="true">No announcements for this club yet!</h2>
+    <div th:case="false">
+        <h2>Announcements</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Message</th>
+                <th>User</th>
+                <th>Created on</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="announcement : ${announcements}">
+                <td th:text="${announcement.message}"></td>
+                <td th:text="${announcement.user.firstName + ' ' + announcement.user.lastName}"></td>
+                <td th:text="${announcement.createdOn}"></td>
+                <td th:if="${announcement.user.id == user.id}" ><a th:href="@{/edit/{id}(id=${announcement.id})}">Edit</a></td>
+                <td th:if="${announcement.user.id != user.id}" >You can't edit this announcement</td>
+                <td th:if="${announcement.user.id == user.id}"><a th:href="@{/delete/{id}(id=${announcement.id})}">Delete</a></td>
+                <td th:if="${announcement.user.id != user.id}" >You can't delete this announcement</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <p><a href="/add-announcement">Add a new announcement</a></p>
+</div>
+
+</body>
+</html>
