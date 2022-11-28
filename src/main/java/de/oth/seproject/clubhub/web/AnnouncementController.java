@@ -46,14 +46,6 @@ public class AnnouncementController {
 
         Page<Announcement> announcementPage = announcementRepository.findAllByClub(userDetails.getUser().getClub(), pageRequest);
 
-        int totalPages = announcementPage.getTotalPages();
-        if (totalPages > 0) {
-            List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
-                    .boxed()
-                    .collect(Collectors.toList());
-            model.addAttribute("pageNumbers", pageNumbers);
-        }
-
         model.addAttribute("user", userDetails.getUser());
         model.addAttribute("club", userDetails.getUser().getClub());
         model.addAttribute("announcementPage", announcementPage);

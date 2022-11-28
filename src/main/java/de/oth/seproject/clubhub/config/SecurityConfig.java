@@ -21,6 +21,15 @@ public class SecurityConfig {
         http.authorizeRequests()
                 .antMatchers("/", "/login", "/registration", "/create-user").permitAll();
 
+        // manage access to announcement sites
+        http.authorizeRequests()
+                .antMatchers("/add-announcement/**", "/create-announcement/**", "/edit-announcement/**", "/update-announcement/**", "/delete-announcement/**")
+                .hasAuthority("TRAINER")
+                .and()
+                .authorizeRequests()
+                .antMatchers("/announcements")
+                .authenticated();
+
         // the user needs to be logged in to access any other site
         http.authorizeRequests()
                 .anyRequest()

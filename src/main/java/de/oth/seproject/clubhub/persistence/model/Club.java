@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Table(name = "clubs")
 @Entity
 public class Club {
 
@@ -20,15 +21,11 @@ public class Club {
     @OneToMany(mappedBy = "club", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<Announcement> announcements = new ArrayList<>();
 
+    @OneToMany(mappedBy = "club", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<Group> groups = new ArrayList<>();
+
     public Club() {
         // -- //
-    }
-
-    public Club(long id, String name, List<User> users, List<Announcement> announcements) {
-        this.id = id;
-        this.name = name;
-        this.users = users;
-        this.announcements = announcements;
     }
 
     public long getId() {
@@ -61,5 +58,13 @@ public class Club {
 
     public void setAnnouncements(List<Announcement> announcements) {
         this.announcements = announcements;
+    }
+
+    public List<Group> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(List<Group> groups) {
+        this.groups = groups;
     }
 }

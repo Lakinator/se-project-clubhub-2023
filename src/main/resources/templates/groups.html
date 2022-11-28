@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Groups</title>
+</head>
+<body>
+
+<div th:insert="fragments/header"></div>
+
+<h2>All groups from the club <span th:text="${club.name}"></span></h2>
+</h2>
+
+<div th:switch="${groupDTOPage.hasContent()}">
+    <h2 th:case="false">No groups for this club yet!</h2>
+    <div th:case="true">
+        <h2>Groups</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>User Count</th>
+                <th>Join</th>
+                <th>Members</th>
+                <th>Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="groupDTO : ${groupDTOPage.getContent()}">
+                <td th:text="${groupDTO.name}"></td>
+                <td th:text="${groupDTO.userCount}"></td>
+
+                <div th:switch="${groupDTO.hasJoined}">
+                    <td th:case="true">You already joined this group</td>
+                    <td th:case="false">
+                        <a th:href="@{/join-group/{id}(id=${groupDTO.id})}">Join</a></td>
+                </div>
+
+                <div th:switch="${groupDTO.isTrainer}">
+                    <td th:case="false">
+                        <a th:href="@{/show-group/{id}(id=${groupDTO.id})}">Show</a></td>
+                    <td th:case="true">
+                        <a th:href="@{/edit-group/{id}(id=${groupDTO.id})}">Edit</a></td>
+                </div>
+
+                <div th:switch="${groupDTO.isTrainer}">
+                    <td th:case="false">You are not a trainer of this group</td>
+                    <td th:case="true">
+                        <a th:href="@{/delete-group/{id}(id=${groupDTO.id})}">Delete</a></td>
+                </div>
+            </tr>
+            </tbody>
+        </table>
+        <div th:if="${groupDTOPage.totalPages > 0}" class="pagination"
+             th:each="pageNumber : ${#numbers.sequence(1, groupDTOPage.totalPages)}">
+            <a th:href="@{/groups(size=${groupDTOPage.size}, page=${pageNumber})}"
+               th:text="${pageNumber}"
+               th:class="${pageNumber == groupDTOPage.number + 1} ? active"></a>
+        </div>
+    </div>
+    <p><a href="/add-group">Add a new group</a></p>
+</div>
+
+</body>
+</html>

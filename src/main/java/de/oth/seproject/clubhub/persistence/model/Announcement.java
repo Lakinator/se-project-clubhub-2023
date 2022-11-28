@@ -3,6 +3,7 @@ package de.oth.seproject.clubhub.persistence.model;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Table(name = "announcements")
 @Entity
 public class Announcement {
 
@@ -18,25 +19,16 @@ public class Announcement {
     @JoinColumn(name = "club_id")
     private Club club;
 
-    @Column( name = "created_on" )
+    @Column(name = "created_on")
     private LocalDateTime createdOn;
 
-    @Column( name = "updated_on" )
+    @Column(name = "updated_on")
     private LocalDateTime updatedOn;
 
     private String message;
 
     public Announcement() {
         // -- //
-    }
-
-    public Announcement(long id, User user, Club club, LocalDateTime createdOn, LocalDateTime updatedOn, String message) {
-        this.id = id;
-        this.user = user;
-        this.club = club;
-        this.createdOn = createdOn;
-        this.updatedOn = updatedOn;
-        this.message = message;
     }
 
     public long getId() {
@@ -87,3 +79,4 @@ public class Announcement {
         this.message = message;
     }
 }
+
