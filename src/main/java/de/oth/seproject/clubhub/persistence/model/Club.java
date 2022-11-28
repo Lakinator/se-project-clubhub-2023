@@ -20,15 +20,19 @@ public class Club {
     @OneToMany(mappedBy = "club", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<Announcement> announcements = new ArrayList<>();
 
+    @OneToMany(mappedBy = "club", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<Group> groups = new ArrayList<>();
+
     public Club() {
         // -- //
     }
 
-    public Club(long id, String name, List<User> users, List<Announcement> announcements) {
+    public Club(long id, String name, List<User> users, List<Announcement> announcements, List<Group> groups) {
         this.id = id;
         this.name = name;
         this.users = users;
         this.announcements = announcements;
+        this.groups = groups;
     }
 
     public long getId() {
@@ -61,5 +65,13 @@ public class Club {
 
     public void setAnnouncements(List<Announcement> announcements) {
         this.announcements = announcements;
+    }
+
+    public List<Group> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(List<Group> groups) {
+        this.groups = groups;
     }
 }
