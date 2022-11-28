@@ -29,9 +29,9 @@
                 <td th:text="${announcement.message}"></td>
                 <td th:text="${announcement.user.firstName + ' ' + announcement.user.lastName}"></td>
                 <td th:text="${announcement.createdOn}"></td>
-                <td th:if="${announcement.user.id == user.id}" ><a th:href="@{/edit/{id}(id=${announcement.id})}">Edit</a></td>
+                <td th:if="${announcement.user.id == user.id}" ><a th:href="@{/edit-announcement/{id}(id=${announcement.id})}">Edit</a></td>
                 <td th:if="${announcement.user.id != user.id}" >You can't edit this announcement</td>
-                <td th:if="${announcement.user.id == user.id}"><a th:href="@{/delete/{id}(id=${announcement.id})}">Delete</a></td>
+                <td th:if="${announcement.user.id == user.id}"><a th:href="@{/delete-announcement/{id}(id=${announcement.id})}">Delete</a></td>
                 <td th:if="${announcement.user.id != user.id}" >You can't delete this announcement</td>
             </tr>
             </tbody>

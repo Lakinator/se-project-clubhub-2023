@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
@@ -68,6 +69,14 @@ public class AnnouncementController {
             return "redirect:/logout";
         }
 
+        return "redirect:/announcements";
+    }
+
+    @GetMapping("/delete-announcement/{id}")
+    public String deleteUser(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
+        Announcement announcement = announcementRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid announcement Id:" + id));
+        announcementRepository.delete(announcement);
         return "redirect:/announcements";
     }
 
