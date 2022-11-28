@@ -68,8 +68,8 @@ public class AnnouncementController {
         return "add-announcement";
     }
 
-    @PostMapping("/add-announcement")
-    public String addAnnouncementPage(@AuthenticationPrincipal ClubUserDetails userDetails, @Valid Announcement announcement, BindingResult result, Model model) {
+    @PostMapping("/create-announcement")
+    public String createAnnouncement(@AuthenticationPrincipal ClubUserDetails userDetails, @Valid Announcement announcement, BindingResult result, Model model) {
 
         // TODO: validation
 
@@ -93,12 +93,12 @@ public class AnnouncementController {
     }
 
     @GetMapping("/edit-announcement/{id}")
-    public String updateAnnouncementPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
+    public String editAnnouncementPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
         Announcement announcement = announcementRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid announcement Id:" + id));
 
         model.addAttribute("announcement", announcement);
-        return "update-announcement";
+        return "edit-announcement";
     }
 
     @PostMapping("/update-announcement/{id}")

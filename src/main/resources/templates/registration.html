@@ -6,26 +6,26 @@
 </head>
 <body>
 <h1>Registriere dich bei ClubHub</h1>
-<form action="/registration" th:object="${user}" method="POST" id="registration-form">
+<form action="#" th:action="@{/create-user}" th:object="${user}" method="POST" id="registration-form">
     <div>
-        <label>Vorname</label>
-        <input th:field="*{firstName}"/>
+        <label for="firstNameInput">Vorname</label>
+        <input id="firstNameInput" th:field="*{firstName}"/>
     </div>
     <div>
-        <label>Nachname</label>
-        <input th:field="*{lastName}"/>
+        <label for="lastNameInput">Nachname</label>
+        <input id="lastNameInput" th:field="*{lastName}"/>
     </div>
     <div>
-        <label>E-Mail</label>
-        <input type="email" th:field="*{email}"/>
+        <label for="emailInput">E-Mail</label>
+        <input id="emailInput" type="email" th:field="*{email}"/>
     </div>
     <div>
-        <label>Passwort</label>
-        <input type="password" th:field="*{password}"/>
+        <label for="passwordInput">Passwort</label>
+        <input id="passwordInput" type="password" th:field="*{password}"/>
     </div>
     <div>
-        <label>Club</label>
-        <select th:field="*{club}">
+        <label for="clubSelect">Club</label>
+        <select id="clubSelect" th:field="*{club}">
             <option value="0">Wähle einen Club</option>
             <option th:each="club : ${clubs}" th:value="${club.id}" th:text="${club.name}"></option>
         </select>

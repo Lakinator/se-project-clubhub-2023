@@ -10,7 +10,7 @@
 
 <h2>Add an announcement for <span th:text="${clubName}"></span></h2>
 
-<form action="#" th:action="@{/add-announcement}" th:object="${announcement}" method="post">
+<form action="#" th:action="@{/create-announcement}" th:object="${announcement}" method="post">
     <label for="message">Message</label>
     <input type="text" th:field="*{message}" id="message" placeholder="Blabla...">
     <span th:if="${#fields.hasErrors('message')}" th:errors="*{message}"></span>
