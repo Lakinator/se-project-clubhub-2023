@@ -2,6 +2,7 @@ package de.oth.seproject.clubhub.web;
 
 import de.oth.seproject.clubhub.config.ClubUserDetails;
 import de.oth.seproject.clubhub.persistence.model.Announcement;
+import de.oth.seproject.clubhub.persistence.model.User;
 import de.oth.seproject.clubhub.persistence.repository.AnnouncementRepository;
 import de.oth.seproject.clubhub.persistence.repository.UserRepository;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class AnnouncementController {
@@ -50,9 +52,21 @@ public class AnnouncementController {
 
         // TODO: validation
 
-        announcement.setCreatedOn(LocalDateTime.now());
+        // need to retrieve user again because user from principal is a detached reference
+        Optional<User> optionalUser = userRepository.findById(userDetails.getUser().getId());
 
-//        announcementRepository.save(announcement); // TODO: doesn't work, org.hibernate.PersistentObjectException: detached entity passed to persist: de.oth.seproject.clubhub.persistence.model.Club
+        optionalUser.ifPresent(user -> {
+            announcement.setUser(user);
+            announcement.setClub(user.getClub());
+            announcement.setCreatedOn(LocalDateTime.now());
+
+            announcementRepository.save(announcement);
+        });
+
+        if (optionalUser.isEmpty()) {
+            // user doesn't exist
+            return "redirect:/logout";
+        }
 
         return "redirect:/announcements";
     }
