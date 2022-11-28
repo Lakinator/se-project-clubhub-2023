@@ -25,13 +25,6 @@ public class Role implements GrantedAuthority {
         // -- //
     }
 
-    public Role(long id, User user, Group group, String name) {
-        this.id = id;
-        this.user = user;
-        this.group = group;
-        this.name = name;
-    }
-
     public long getId() {
         return id;
     }

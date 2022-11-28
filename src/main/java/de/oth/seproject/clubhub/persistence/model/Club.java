@@ -27,14 +27,6 @@ public class Club {
         // -- //
     }
 
-    public Club(long id, String name, List<User> users, List<Announcement> announcements, List<Group> groups) {
-        this.id = id;
-        this.name = name;
-        this.users = users;
-        this.announcements = announcements;
-        this.groups = groups;
-    }
-
     public long getId() {
         return id;
     }

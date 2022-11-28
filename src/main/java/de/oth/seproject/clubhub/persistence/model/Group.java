@@ -24,13 +24,6 @@ public class Group {
         // -- //
     }
 
-    public Group(long id, Club club, List<Role> roles, String name) {
-        this.id = id;
-        this.club = club;
-        this.roles = roles;
-        this.name = name;
-    }
-
     public long getId() {
         return id;
     }

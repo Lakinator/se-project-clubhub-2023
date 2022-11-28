@@ -30,15 +30,6 @@ public class Announcement {
         // -- //
     }
 
-    public Announcement(long id, User user, Club club, LocalDateTime createdOn, LocalDateTime updatedOn, String message) {
-        this.id = id;
-        this.user = user;
-        this.club = club;
-        this.createdOn = createdOn;
-        this.updatedOn = updatedOn;
-        this.message = message;
-    }
-
     public long getId() {
         return id;
     }
