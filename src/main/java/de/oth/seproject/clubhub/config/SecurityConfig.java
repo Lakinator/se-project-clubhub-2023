@@ -19,7 +19,7 @@ public class SecurityConfig {
 
         // everyone can access these sites
         http.authorizeRequests()
-                .antMatchers("/", "/login", "/registration").permitAll();
+                .antMatchers("/", "/login", "/registration", "/create-user").permitAll();
 
         // the user needs to be logged in to access any other site
         http.authorizeRequests()

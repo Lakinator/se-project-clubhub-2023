@@ -4,9 +4,13 @@ import de.oth.seproject.clubhub.persistence.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serial;
 import java.util.Collection;
 
 public class ClubUserDetails implements UserDetails {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final User user;
 
@@ -47,5 +51,9 @@ public class ClubUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return user.getActive();
+    }
+
+    public User getUser() {
+        return user;
     }
 }

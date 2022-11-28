@@ -1,6 +1,8 @@
 package de.oth.seproject.clubhub.persistence.model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Club {
@@ -12,12 +14,21 @@ public class Club {
     @Column(nullable = false)
     private String name;
 
+    @OneToMany(mappedBy = "club", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<User> users = new ArrayList<>();
+
+    @OneToMany(mappedBy = "club", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<Announcement> announcements = new ArrayList<>();
+
     public Club() {
         // -- //
     }
-    public Club(long id, String name) {
+
+    public Club(long id, String name, List<User> users, List<Announcement> announcements) {
         this.id = id;
         this.name = name;
+        this.users = users;
+        this.announcements = announcements;
     }
 
     public long getId() {
@@ -34,5 +45,21 @@ public class Club {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
+
+    public List<Announcement> getAnnouncements() {
+        return announcements;
+    }
+
+    public void setAnnouncements(List<Announcement> announcements) {
+        this.announcements = announcements;
     }
 }
