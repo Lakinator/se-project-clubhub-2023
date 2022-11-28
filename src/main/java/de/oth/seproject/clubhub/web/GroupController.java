@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -159,15 +160,39 @@ public class GroupController {
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
         final boolean isTrainer = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
 
-        if (isTrainer) {
-            // TODO
+        if (!isTrainer) {
+            return "redirect:/show-group/" + id;
         }
 
         model.addAttribute("group", group);
-        return "edit-announcement";
+        model.addAttribute("roleNames", List.of("TRAINER", "MEMBER"));
+        return "edit-group";
     }
 
-    // TODO: post mapping for update
+    @PostMapping("/update-group/{id}")
+    public String updateGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, @Valid Group group,
+                              BindingResult result, Model model) {
+
+        Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
+        final boolean isTrainer = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+
+        if (!isTrainer) {
+            return "redirect:/show-group/" + id;
+        }
+
+        if (!result.hasErrors()) {
+            group.getRoles().forEach(role -> {
+                Optional<Role> persistedRole = roleRepository.findById(role.getId());
+
+                persistedRole.ifPresent(r -> {
+                    r.setName(role.getName());
+                    roleRepository.save(r);
+                });
+            });
+        }
+
+        return "redirect:/show-group/" + id;
+    }
 
     @GetMapping("/delete-group/{id}")
     public String deleteGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
