@@ -72,8 +72,32 @@ public class AnnouncementController {
         return "redirect:/announcements";
     }
 
+    @GetMapping("/edit-announcement/{id}")
+    public String updateAnnouncementPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
+        Announcement announcement = announcementRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid announcement Id:" + id));
+
+        model.addAttribute("announcement", announcement);
+        return "update-announcement";
+    }
+
+    @PostMapping("/update-announcement/{id}")
+    public String updateAnnouncement(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, @Valid Announcement announcement,
+                                     BindingResult result, Model model) {
+
+        if (!result.hasErrors()) {
+            announcementRepository.findById(id).ifPresent(persistedAnnouncement -> {
+                persistedAnnouncement.setMessage(announcement.getMessage());
+                persistedAnnouncement.setUpdatedOn(LocalDateTime.now());
+                announcementRepository.save(persistedAnnouncement);
+            });
+        }
+
+        return "redirect:/announcements";
+    }
+
     @GetMapping("/delete-announcement/{id}")
-    public String deleteUser(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
+    public String deleteAnnouncement(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
         Announcement announcement = announcementRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid announcement Id:" + id));
         announcementRepository.delete(announcement);
