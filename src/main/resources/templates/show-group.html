@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Group</title>
+</head>
+<body>
+
+<div th:insert="fragments/header"></div>
+
+<h2><span th:text="${group.name}"></span> from the club <span th:text="${group.club.name}"></span></h2>
+</h2>
+
+<div th:switch="${rolePage.hasContent()}">
+    <h2 th:case="false">Empty in here, isn't it?</h2>
+    <div th:case="true">
+        <h2>Members</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="role : ${rolePage.getContent()}">
+                <td th:text="${role.user.firstName + ' ' + role.user.lastName}"></td>
+                <td th:text="${role.name}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <div th:if="${rolePage.totalPages > 0}" class="pagination"
+             th:each="pageNumber : ${#numbers.sequence(1, rolePage.totalPages)}">
+            <a th:href="@{/show-group/{id}(id=${group.id}, size=${rolePage.size}, page=${pageNumber})}"
+               th:text="${pageNumber}"
+               th:class="${pageNumber == rolePage.number + 1} ? active"></a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
