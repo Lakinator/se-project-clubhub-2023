@@ -180,6 +180,8 @@ public class GroupController {
             return "redirect:/show-group/" + id;
         }
 
+        // TODO: check that at least one trainer is in a group
+
         if (!result.hasErrors()) {
             group.getRoles().forEach(role -> {
                 Optional<Role> persistedRole = roleRepository.findById(role.getId());
