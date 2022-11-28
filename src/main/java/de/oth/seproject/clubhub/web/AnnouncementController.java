@@ -5,6 +5,8 @@ import de.oth.seproject.clubhub.persistence.model.Announcement;
 import de.oth.seproject.clubhub.persistence.model.User;
 import de.oth.seproject.clubhub.persistence.repository.AnnouncementRepository;
 import de.oth.seproject.clubhub.persistence.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,11 +14,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 public class AnnouncementController {
@@ -31,12 +36,27 @@ public class AnnouncementController {
     }
 
     @GetMapping("/announcements")
-    public String announcementPage(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
-        // TODO: pagination https://www.baeldung.com/spring-thymeleaf-pagination
-        List<Announcement> announcementList = announcementRepository.findAllByClub(userDetails.getUser().getClub());
+    public String announcementPage(@AuthenticationPrincipal ClubUserDetails userDetails, @RequestParam("page") Optional<Integer> page,
+                                   @RequestParam("size") Optional<Integer> size, Model model) {
+        int currentPage = page.orElse(1);
+        int pageSize = size.orElse(5);
+
+        final PageRequest pageRequest = PageRequest.of(currentPage - 1, pageSize);
+
+        // TODO: sort by createdOn/updatedOn
+        Page<Announcement> announcementPage = announcementRepository.findAllByClub(userDetails.getUser().getClub(), pageRequest);
+
+        int totalPages = announcementPage.getTotalPages();
+        if (totalPages > 0) {
+            List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
+                    .boxed()
+                    .collect(Collectors.toList());
+            model.addAttribute("pageNumbers", pageNumbers);
+        }
+
         model.addAttribute("user", userDetails.getUser());
         model.addAttribute("club", userDetails.getUser().getClub());
-        model.addAttribute("announcements", announcementList);
+        model.addAttribute("announcementPage", announcementPage);
         return "announcements";
     }
 

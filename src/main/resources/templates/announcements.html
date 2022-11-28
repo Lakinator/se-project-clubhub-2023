@@ -10,9 +10,9 @@
 
 <h2>All announcements from the club <span th:text="${club.name}"></span></h2>
 
-<div th:switch="${announcements.isEmpty()}">
-    <h2 th:case="true">No announcements for this club yet!</h2>
-    <div th:case="false">
+<div th:switch="${announcementPage.hasContent()}">
+    <h2 th:case="false">No announcements for this club yet!</h2>
+    <div th:case="true">
         <h2>Announcements</h2>
         <table>
             <thead>
@@ -26,18 +26,26 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="announcement : ${announcements}">
+            <tr th:each="announcement : ${announcementPage.getContent()}">
                 <td th:text="${announcement.message}"></td>
                 <td th:text="${announcement.user.firstName + ' ' + announcement.user.lastName}"></td>
                 <td th:text="${announcement.createdOn}"></td>
                 <td th:text="${announcement.updatedOn}"></td>
-                <td th:if="${announcement.user.id == user.id}" ><a th:href="@{/edit-announcement/{id}(id=${announcement.id})}">Edit</a></td>
-                <td th:if="${announcement.user.id != user.id}" >You can't edit this announcement</td>
-                <td th:if="${announcement.user.id == user.id}"><a th:href="@{/delete-announcement/{id}(id=${announcement.id})}">Delete</a></td>
-                <td th:if="${announcement.user.id != user.id}" >You can't delete this announcement</td>
+                <td th:if="${announcement.user.id == user.id}"><a
+                        th:href="@{/edit-announcement/{id}(id=${announcement.id})}">Edit</a></td>
+                <td th:if="${announcement.user.id != user.id}">You can't edit this announcement</td>
+                <td th:if="${announcement.user.id == user.id}"><a
+                        th:href="@{/delete-announcement/{id}(id=${announcement.id})}">Delete</a></td>
+                <td th:if="${announcement.user.id != user.id}">You can't delete this announcement</td>
             </tr>
             </tbody>
         </table>
+        <div th:if="${announcementPage.totalPages > 0}" class="pagination"
+             th:each="pageNumber : ${pageNumbers}">
+            <a th:href="@{/announcements(size=${announcementPage.size}, page=${pageNumber})}"
+               th:text="${pageNumber}"
+               th:class="${pageNumber == announcementPage.number + 1} ? active"></a>
+        </div>
     </div>
     <p><a href="/add-announcement">Add a new announcement</a></p>
 </div>
