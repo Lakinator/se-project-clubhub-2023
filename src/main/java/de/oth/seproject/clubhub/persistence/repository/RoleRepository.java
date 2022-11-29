@@ -17,4 +17,6 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
 
     Page<Role> findAllByGroup(Group group, Pageable pageable);
 
+    Boolean existsAllByGroup(Group group);
+
 }

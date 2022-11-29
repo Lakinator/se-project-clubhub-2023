@@ -20,7 +20,7 @@
             <tr>
                 <th>Name</th>
                 <th>User Count</th>
-                <th>Join</th>
+                <th>Status</th>
                 <th>Members</th>
                 <th>Delete</th>
             </tr>
@@ -31,7 +31,8 @@
                 <td th:text="${groupDTO.userCount}"></td>
 
                 <div th:switch="${groupDTO.hasJoined}">
-                    <td th:case="true">You already joined this group</td>
+                    <td th:case="true">
+                        <a th:href="@{/leave-group/{id}(id=${groupDTO.id})}">Leave</a></td>
                     <td th:case="false">
                         <a th:href="@{/join-group/{id}(id=${groupDTO.id})}">Join</a></td>
                 </div>

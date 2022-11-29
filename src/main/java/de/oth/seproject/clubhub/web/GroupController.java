@@ -127,6 +127,25 @@ public class GroupController {
         return "redirect:/groups";
     }
 
+    @GetMapping("/leave-group/{id}")
+    public String leaveGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
+        Group group = groupRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
+
+        Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
+
+        roleInGroup.ifPresent(role -> {
+            roleRepository.delete(role);
+
+            // check if there are any members remaining
+            if (!roleRepository.existsAllByGroup(group)) {
+                groupRepository.delete(group);
+            }
+        });
+
+        return "redirect:/groups";
+    }
+
     @GetMapping("/show-group/{id}")
     public String showGroupPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, @RequestParam("page") Optional<Integer> page,
                                 @RequestParam("size") Optional<Integer> size, Model model) {
