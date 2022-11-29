@@ -11,7 +11,7 @@
 <h2>Edit <span th:text="${group.name}"></span> from the club <span th:text="${group.club.name}"></span></h2>
 </h2>
 
-<form action="#" th:action="@{/update-group/{id}(id=${group.id})}" th:object="${group}"
+<form action="#" th:action="@{/group/{id}/update(id=${group.id})}" th:object="${group}"
       method="post">
     <fieldset>
         <h3>Details</h3>
@@ -45,7 +45,7 @@
                 </td>
                 <div th:switch="${role.user.id == activeRole.user.id}">
                     <td th:case="true">
-                        <a th:href="@{/leave-group/{id}(id=${group.id})}">Leave</a></td>
+                        <a th:href="@{/group/{id}/leave(id=${group.id})}">Leave</a></td>
                     <td th:case="false">
                         <a th:href="@{/groups/{groupId}/kick/{userId}(groupId=${group.id}, userId=${role.user.id})}">Kick</a>
                     </td>

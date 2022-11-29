@@ -32,22 +32,22 @@
 
                 <div th:switch="${groupDTO.hasJoined}">
                     <td th:case="true">
-                        <a th:href="@{/leave-group/{id}(id=${groupDTO.id})}">Leave</a></td>
+                        <a th:href="@{/group/{id}/leave(id=${groupDTO.id})}">Leave</a></td>
                     <td th:case="false">
-                        <a th:href="@{/join-group/{id}(id=${groupDTO.id})}">Join</a></td>
+                        <a th:href="@{/group/{id}/join(id=${groupDTO.id})}">Join</a></td>
                 </div>
 
                 <div th:switch="${groupDTO.isTrainer}">
                     <td th:case="false">
-                        <a th:href="@{/show-group/{id}(id=${groupDTO.id})}">Show</a></td>
+                        <a th:href="@{/group/{id}/show(id=${groupDTO.id})}">Show</a></td>
                     <td th:case="true">
-                        <a th:href="@{/edit-group/{id}(id=${groupDTO.id})}">Edit</a></td>
+                        <a th:href="@{/group/{id}/edit(id=${groupDTO.id})}">Edit</a></td>
                 </div>
 
                 <div th:switch="${groupDTO.isTrainer}">
                     <td th:case="false">You are not a trainer of this group</td>
                     <td th:case="true">
-                        <a th:href="@{/delete-group/{id}(id=${groupDTO.id})}">Delete</a></td>
+                        <a th:href="@{/group/{id}/delete(id=${groupDTO.id})}">Delete</a></td>
                 </div>
             </tr>
             </tbody>
@@ -59,7 +59,7 @@
                th:class="${pageNumber == groupDTOPage.number + 1} ? active"></a>
         </div>
     </div>
-    <p><a href="/add-group">Add a new group</a></p>
+    <p><a href="/groups/add">Add a new group</a></p>
 </div>
 
 </body>

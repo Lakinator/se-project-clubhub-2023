@@ -60,7 +60,7 @@ public class GroupController {
         return "groups";
     }
 
-    @GetMapping("/add-group")
+    @GetMapping("/groups/add")
     public String addGroupPage(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
         Group group = new Group();
         model.addAttribute("group", group);
@@ -68,7 +68,7 @@ public class GroupController {
         return "add-group";
     }
 
-    @PostMapping("/create-group")
+    @PostMapping("/group/create")
     public String createGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @Valid Group group, BindingResult result, Model model) {
 
         // TODO: validation
@@ -97,7 +97,7 @@ public class GroupController {
         return "redirect:/groups";
     }
 
-    @GetMapping("/join-group/{id}")
+    @GetMapping("/group/{id}/join")
     public String joinGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
@@ -127,7 +127,7 @@ public class GroupController {
         return "redirect:/groups";
     }
 
-    @GetMapping("/leave-group/{id}")
+    @GetMapping("/group/{id}/leave")
     public String leaveGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
@@ -143,10 +143,10 @@ public class GroupController {
             }
         });
 
-        return "redirect:/show-group/" + id;
+        return "redirect:/groups";
     }
 
-    @GetMapping("/show-group/{id}")
+    @GetMapping("/group/{id}/show")
     public String showGroupPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, @RequestParam("page") Optional<Integer> page,
                                 @RequestParam("size") Optional<Integer> size, Model model) {
         int currentPage = page.orElse(1);
@@ -160,7 +160,7 @@ public class GroupController {
 
         // user has to be a trainer of this group
         if (isTrainerInGroup) {
-            return "redirect:/edit-group/" + id;
+            return "redirect:/group/" + id + "/edit";
         }
 
         final PageRequest pageRequest = PageRequest.of(currentPage - 1, pageSize);
@@ -172,7 +172,7 @@ public class GroupController {
         return "show-group";
     }
 
-    @GetMapping("/edit-group/{id}")
+    @GetMapping("/group/{id}/edit")
     public String editGroupPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
@@ -182,7 +182,7 @@ public class GroupController {
 
         // user has to be a trainer of this group
         if (!isTrainerInGroup) {
-            return "redirect:/show-group/" + id;
+            return "redirect:/group/" + id + "/show";
         }
 
         model.addAttribute("activeRole", roleInGroup.get());
@@ -191,7 +191,7 @@ public class GroupController {
         return "edit-group";
     }
 
-    @PostMapping("/update-group/{id}")
+    @PostMapping("/group/{id}/update")
     public String updateGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, @Valid Group group,
                               BindingResult result, Model model) {
 
@@ -200,7 +200,7 @@ public class GroupController {
 
         // user has to be a trainer of this group
         if (!isTrainerInGroup) {
-            return "redirect:/show-group/" + id;
+            return "redirect:/group/" + id + "/show";
         }
 
         if (!result.hasErrors()) {
@@ -224,7 +224,7 @@ public class GroupController {
             });
         }
 
-        return "redirect:/show-group/" + id;
+        return "redirect:/group/" + id + "/show";
     }
 
     @GetMapping("/groups/{groupId}/kick/{userId}")
@@ -253,10 +253,10 @@ public class GroupController {
 
         }
 
-        return "redirect:/edit-group/" + groupId;
+        return "redirect:/group/" + groupId + "/edit";
     }
 
-    @GetMapping("/delete-group/{id}")
+    @GetMapping("/group/{id}/delete")
     public String deleteGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));

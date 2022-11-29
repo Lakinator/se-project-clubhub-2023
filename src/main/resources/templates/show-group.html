@@ -31,7 +31,7 @@
         </table>
         <div th:if="${rolePage.totalPages > 0}" class="pagination"
              th:each="pageNumber : ${#numbers.sequence(1, rolePage.totalPages)}">
-            <a th:href="@{/show-group/{id}(id=${group.id}, size=${rolePage.size}, page=${pageNumber})}"
+            <a th:href="@{/group/{id}/show(id=${group.id}, size=${rolePage.size}, page=${pageNumber})}"
                th:text="${pageNumber}"
                th:class="${pageNumber == rolePage.number + 1} ? active"></a>
         </div>
