@@ -6,7 +6,7 @@
 </head>
 <body>
 <h1>Registriere dich bei ClubHub</h1>
-<form action="#" th:action="@{/create-user}" th:object="${user}" method="POST" id="registration-form">
+<form action="#" th:action="@{/user/create}" th:object="${user}" method="POST" id="registration-form">
     <div>
         <label for="firstNameInput">Vorname</label>
         <input id="firstNameInput" th:field="*{firstName}"/>

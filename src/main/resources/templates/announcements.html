@@ -32,10 +32,10 @@
                 <td th:text="${announcement.createdOn}"></td>
                 <td th:text="${announcement.updatedOn}"></td>
                 <td th:if="${announcement.user.id == user.id}"><a
-                        th:href="@{/edit-announcement/{id}(id=${announcement.id})}">Edit</a></td>
+                        th:href="@{/announcement/{id}/edit(id=${announcement.id})}">Edit</a></td>
                 <td th:if="${announcement.user.id != user.id}">You can't edit this announcement</td>
                 <td th:if="${announcement.user.id == user.id}"><a
-                        th:href="@{/delete-announcement/{id}(id=${announcement.id})}">Delete</a></td>
+                        th:href="@{/announcement/{id}/delete(id=${announcement.id})}">Delete</a></td>
                 <td th:if="${announcement.user.id != user.id}">You can't delete this announcement</td>
             </tr>
             </tbody>
@@ -47,7 +47,7 @@
                th:class="${pageNumber == announcementPage.number + 1} ? active"></a>
         </div>
     </div>
-    <p><a href="/add-announcement">Add a new announcement</a></p>
+    <p><a href="/announcements/add">Add a new announcement</a></p>
 </div>
 
 </body>

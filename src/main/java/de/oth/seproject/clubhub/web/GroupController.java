@@ -60,7 +60,7 @@ public class GroupController {
         return "groups";
     }
 
-    @GetMapping("/add-group")
+    @GetMapping("/groups/add")
     public String addGroupPage(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
         Group group = new Group();
         model.addAttribute("group", group);
@@ -68,7 +68,7 @@ public class GroupController {
         return "add-group";
     }
 
-    @PostMapping("/create-group")
+    @PostMapping("/group/create")
     public String createGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @Valid Group group, BindingResult result, Model model) {
 
         // TODO: validation
@@ -97,7 +97,7 @@ public class GroupController {
         return "redirect:/groups";
     }
 
-    @GetMapping("/join-group/{id}")
+    @GetMapping("/group/{id}/join")
     public String joinGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
@@ -127,7 +127,26 @@ public class GroupController {
         return "redirect:/groups";
     }
 
-    @GetMapping("/show-group/{id}")
+    @GetMapping("/group/{id}/leave")
+    public String leaveGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
+        Group group = groupRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
+
+        Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
+
+        roleInGroup.ifPresent(role -> {
+            roleRepository.delete(role);
+
+            // check if there are any members remaining
+            if (!roleRepository.existsAllByGroup(group)) {
+                groupRepository.delete(group);
+            }
+        });
+
+        return "redirect:/groups";
+    }
+
+    @GetMapping("/group/{id}/show")
     public String showGroupPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, @RequestParam("page") Optional<Integer> page,
                                 @RequestParam("size") Optional<Integer> size, Model model) {
         int currentPage = page.orElse(1);
@@ -137,10 +156,11 @@ public class GroupController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
 
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainer = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
 
-        if (isTrainer) {
-            return "redirect:/edit-group/" + id;
+        // user has to be a trainer of this group
+        if (isTrainerInGroup) {
+            return "redirect:/group/" + id + "/edit";
         }
 
         final PageRequest pageRequest = PageRequest.of(currentPage - 1, pageSize);
@@ -152,59 +172,99 @@ public class GroupController {
         return "show-group";
     }
 
-    @GetMapping("/edit-group/{id}")
+    @GetMapping("/group/{id}/edit")
     public String editGroupPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
 
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainer = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
 
-        if (!isTrainer) {
-            return "redirect:/show-group/" + id;
+        // user has to be a trainer of this group
+        if (!isTrainerInGroup) {
+            return "redirect:/group/" + id + "/show";
         }
 
+        model.addAttribute("activeRole", roleInGroup.get());
         model.addAttribute("group", group);
         model.addAttribute("roleNames", List.of("TRAINER", "MEMBER"));
         return "edit-group";
     }
 
-    @PostMapping("/update-group/{id}")
+    @PostMapping("/group/{id}/update")
     public String updateGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, @Valid Group group,
                               BindingResult result, Model model) {
 
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainer = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
 
-        if (!isTrainer) {
-            return "redirect:/show-group/" + id;
+        // user has to be a trainer of this group
+        if (!isTrainerInGroup) {
+            return "redirect:/group/" + id + "/show";
         }
-
-        // TODO: check that at least one trainer is in a group
 
         if (!result.hasErrors()) {
             group.getRoles().forEach(role -> {
                 Optional<Role> persistedRole = roleRepository.findById(role.getId());
 
                 persistedRole.ifPresent(r -> {
-                    r.setName(role.getName());
-                    roleRepository.save(r);
+
+                    // member can't change its own role
+                    if (!r.getUser().getId().equals(userDetails.getUser().getId())) {
+                        r.setName(role.getName());
+                        roleRepository.save(r);
+                    }
+
                 });
+            });
+
+            groupRepository.findById(id).ifPresent(g -> {
+                g.setName(group.getName());
+                groupRepository.save(g);
             });
         }
 
-        return "redirect:/show-group/" + id;
+        return "redirect:/group/" + id + "/show";
     }
 
-    @GetMapping("/delete-group/{id}")
+    @GetMapping("/groups/{groupId}/kick/{userId}")
+    public String kickMemberFromGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("userId") long userId, Model model) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
+
+        Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
+        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+
+        if (isTrainerInGroup) {
+            Optional<User> kickedUser = userRepository.findById(userId);
+
+            if (kickedUser.isPresent()) {
+                Optional<Role> kickedUserRoleInGroup = roleRepository.findByUserAndGroup(kickedUser.get(), group);
+
+                kickedUserRoleInGroup.ifPresent(role -> {
+                    roleRepository.delete(role);
+
+                    // check if there are any members remaining
+                    if (!roleRepository.existsAllByGroup(group)) {
+                        groupRepository.delete(group);
+                    }
+                });
+            }
+
+        }
+
+        return "redirect:/group/" + groupId + "/edit";
+    }
+
+    @GetMapping("/group/{id}/delete")
     public String deleteGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
 
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainer = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
 
-        if (isTrainer) {
+        if (isTrainerInGroup) {
             groupRepository.delete(group);
         }
 
