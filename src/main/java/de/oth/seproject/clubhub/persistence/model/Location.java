@@ -4,9 +4,10 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Table(name = "event_places")
+@Table(name = "locations")
 @Entity
-public class EventPlace {
+@Inheritance(strategy = InheritanceType.JOINED) // TODO: maybe attach some locations to clubs with table 'club_locations' for improved search?
+public class Location {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,10 +27,10 @@ public class EventPlace {
 
     private String description;
 
-    @OneToMany(mappedBy = "eventPlace", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToMany(mappedBy = "location", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<GenericEvent> genericEvents = new ArrayList<>();
 
-    public EventPlace() {
+    public Location() {
         // -- //
     }
 

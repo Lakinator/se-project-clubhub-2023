@@ -1,4 +1,4 @@
-CREATE TABLE `event_places`
+CREATE TABLE `locations`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT,
     `country`       varchar(255) DEFAULT NULL,
