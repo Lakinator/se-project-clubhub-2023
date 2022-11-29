@@ -3,6 +3,7 @@ package de.oth.seproject.clubhub.web;
 import de.oth.seproject.clubhub.config.ClubUserDetails;
 import de.oth.seproject.clubhub.persistence.model.Group;
 import de.oth.seproject.clubhub.persistence.model.Role;
+import de.oth.seproject.clubhub.persistence.model.RoleType;
 import de.oth.seproject.clubhub.persistence.model.User;
 import de.oth.seproject.clubhub.persistence.repository.GroupRepository;
 import de.oth.seproject.clubhub.persistence.repository.RoleRepository;
@@ -82,7 +83,7 @@ public class GroupController {
             groupRepository.save(group);
 
             Role role = new Role();
-            role.setName("TRAINER");
+            role.setName(RoleType.TRAINER);
             role.setUser(user);
             role.setGroup(group);
 
@@ -110,7 +111,7 @@ public class GroupController {
             // check if user is already a member of this group
             if (!roleRepository.existsByUserAndGroup(user, group)) {
                 Role role = new Role();
-                role.setName("MEMBER");
+                role.setName(RoleType.MEMBER);
                 role.setUser(user);
                 role.setGroup(group);
 
@@ -187,7 +188,7 @@ public class GroupController {
 
         model.addAttribute("activeRole", roleInGroup.get());
         model.addAttribute("group", group);
-        model.addAttribute("roleNames", List.of("TRAINER", "MEMBER"));
+        model.addAttribute("roleNames", RoleType.values());
         return "edit-group";
     }
 

@@ -1,5 +1,6 @@
 package de.oth.seproject.clubhub.config;
 
+import de.oth.seproject.clubhub.persistence.model.RoleType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,7 +25,7 @@ public class SecurityConfig {
         // manage access to announcement sites
         http.authorizeRequests()
                 .antMatchers("/announcement/**", "/announcements/add/**")
-                .hasAuthority("TRAINER")
+                .hasAuthority(RoleType.TRAINER.name())
                 .and()
                 .authorizeRequests()
                 .antMatchers("/announcements")
