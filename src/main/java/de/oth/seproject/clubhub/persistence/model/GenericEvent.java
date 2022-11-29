@@ -18,7 +18,7 @@ public class GenericEvent {
     private User user;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "place_id")
+    @JoinColumn(name = "location_id")
     private Location location;
 
     private LocalDate eventDate;
@@ -51,11 +51,11 @@ public class GenericEvent {
         this.user = user;
     }
 
-    public Location getEventPlace() {
+    public Location getLocation() {
         return location;
     }
 
-    public void setEventPlace(Location location) {
+    public void setLocation(Location location) {
         this.location = location;
     }
 
