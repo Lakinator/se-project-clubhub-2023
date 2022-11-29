@@ -19,11 +19,11 @@ public class SecurityConfig {
 
         // everyone can access these sites
         http.authorizeRequests()
-                .antMatchers("/", "/login", "/registration", "/create-user").permitAll();
+                .antMatchers("/", "/login", "/registration", "/user/create").permitAll();
 
         // manage access to announcement sites
         http.authorizeRequests()
-                .antMatchers("/add-announcement/**", "/create-announcement/**", "/edit-announcement/**", "/update-announcement/**", "/delete-announcement/**")
+                .antMatchers("/announcement/**", "/announcements/add/**")
                 .hasAuthority("TRAINER")
                 .and()
                 .authorizeRequests()

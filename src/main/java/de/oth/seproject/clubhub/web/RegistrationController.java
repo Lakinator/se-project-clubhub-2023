@@ -41,7 +41,7 @@ public class RegistrationController {
         return "registration";
     }
 
-    @PostMapping("/create-user")
+    @PostMapping("/user/create")
     public String createUser(@ModelAttribute("user") @Valid final User user, BindingResult result, Model model) {
 
         // TODO: user validation
