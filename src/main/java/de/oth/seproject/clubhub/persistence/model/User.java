@@ -32,6 +32,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<Role> roles = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<GenericEvent> genericEvents = new ArrayList<>();
+
     public User() {
         // -- //
     }
@@ -106,5 +109,13 @@ public class User {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    public List<GenericEvent> getGenericEvents() {
+        return genericEvents;
+    }
+
+    public void setGenericEvents(List<GenericEvent> genericEvents) {
+        this.genericEvents = genericEvents;
     }
 }

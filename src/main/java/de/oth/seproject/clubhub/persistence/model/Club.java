@@ -24,6 +24,9 @@ public class Club {
     @OneToMany(mappedBy = "club", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<Group> groups = new ArrayList<>();
 
+    @OneToMany(mappedBy = "club", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<ClubEvent> clubEvents = new ArrayList<>();
+
     public Club() {
         // -- //
     }
@@ -66,5 +69,13 @@ public class Club {
 
     public void setGroups(List<Group> groups) {
         this.groups = groups;
+    }
+
+    public List<ClubEvent> getClubEvents() {
+        return clubEvents;
+    }
+
+    public void setClubEvents(List<ClubEvent> clubEvents) {
+        this.clubEvents = clubEvents;
     }
 }
