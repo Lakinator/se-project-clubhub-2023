@@ -52,7 +52,7 @@ public class AnnouncementController {
         return "announcements";
     }
 
-    @GetMapping("/add-announcement")
+    @GetMapping("/announcements/add")
     public String addAnnouncementPage(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
         Announcement announcement = new Announcement();
         model.addAttribute("announcement", announcement);
@@ -60,7 +60,7 @@ public class AnnouncementController {
         return "add-announcement";
     }
 
-    @PostMapping("/create-announcement")
+    @PostMapping("/announcement/create")
     public String createAnnouncement(@AuthenticationPrincipal ClubUserDetails userDetails, @Valid Announcement announcement, BindingResult result, Model model) {
 
         // TODO: validation
@@ -84,7 +84,7 @@ public class AnnouncementController {
         return "redirect:/announcements";
     }
 
-    @GetMapping("/edit-announcement/{id}")
+    @GetMapping("/announcement/{id}/edit")
     public String editAnnouncementPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
         Announcement announcement = announcementRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid announcement Id:" + id));
@@ -93,7 +93,7 @@ public class AnnouncementController {
         return "edit-announcement";
     }
 
-    @PostMapping("/update-announcement/{id}")
+    @PostMapping("/announcement/{id}/update")
     public String updateAnnouncement(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, @Valid Announcement announcement,
                                      BindingResult result, Model model) {
 
@@ -108,7 +108,7 @@ public class AnnouncementController {
         return "redirect:/announcements";
     }
 
-    @GetMapping("/delete-announcement/{id}")
+    @GetMapping("/announcement/{id}/delete")
     public String deleteAnnouncement(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
         Announcement announcement = announcementRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid announcement Id:" + id));
