@@ -25,11 +25,12 @@
             <tr>
                 <th>Name</th>
                 <th>Role</th>
+                <th>Action</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="role, itemStat : ${group.roles}">
-                <td th:text="${role.user.firstName + ' ' + role.user.lastName}"></td>
+                <td th:text="|${role.user.firstName} ${role.user.lastName}${role.user.id == activeRole.user.id ? ' (You)' : ''}|"></td>
                 <td>
                     <div>
                         <input type="hidden" th:field="${group.roles[__${itemStat.index}__].id}" th:value="role.id"
@@ -42,6 +43,13 @@
                         </select>
                     </div>
                 </td>
+                <div th:switch="${role.user.id == activeRole.user.id}">
+                    <td th:case="true">
+                        <a th:href="@{/leave-group/{id}(id=${group.id})}">Leave</a></td>
+                    <td th:case="false">
+                        <a th:href="@{/groups/{groupId}/kick/{userId}(groupId=${group.id}, userId=${role.user.id})}">Kick</a>
+                    </td>
+                </div>
             </tr>
             </tbody>
         </table>

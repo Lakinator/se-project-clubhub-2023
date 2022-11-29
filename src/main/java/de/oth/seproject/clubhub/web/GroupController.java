@@ -143,7 +143,7 @@ public class GroupController {
             }
         });
 
-        return "redirect:/groups";
+        return "redirect:/show-group/" + id;
     }
 
     @GetMapping("/show-group/{id}")
@@ -225,6 +225,35 @@ public class GroupController {
         }
 
         return "redirect:/show-group/" + id;
+    }
+
+    @GetMapping("/groups/{groupId}/kick/{userId}")
+    public String kickMemberFromGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("userId") long userId, Model model) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
+
+        Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
+        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+
+        if (isTrainerInGroup) {
+            Optional<User> kickedUser = userRepository.findById(userId);
+
+            if (kickedUser.isPresent()) {
+                Optional<Role> kickedUserRoleInGroup = roleRepository.findByUserAndGroup(kickedUser.get(), group);
+
+                kickedUserRoleInGroup.ifPresent(role -> {
+                    roleRepository.delete(role);
+
+                    // check if there are any members remaining
+                    if (!roleRepository.existsAllByGroup(group)) {
+                        groupRepository.delete(group);
+                    }
+                });
+            }
+
+        }
+
+        return "redirect:/edit-group/" + groupId;
     }
 
     @GetMapping("/delete-group/{id}")
