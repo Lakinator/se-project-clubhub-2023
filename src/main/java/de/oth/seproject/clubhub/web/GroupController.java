@@ -137,9 +137,10 @@ public class GroupController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
 
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainer = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
 
-        if (isTrainer) {
+        // user has to be a trainer of this group
+        if (isTrainerInGroup) {
             return "redirect:/edit-group/" + id;
         }
 
@@ -158,12 +159,14 @@ public class GroupController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
 
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainer = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
 
-        if (!isTrainer) {
+        // user has to be a trainer of this group
+        if (!isTrainerInGroup) {
             return "redirect:/show-group/" + id;
         }
 
+        model.addAttribute("activeRole", roleInGroup.get());
         model.addAttribute("group", group);
         model.addAttribute("roleNames", List.of("TRAINER", "MEMBER"));
         return "edit-group";
@@ -174,22 +177,31 @@ public class GroupController {
                               BindingResult result, Model model) {
 
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainer = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
 
-        if (!isTrainer) {
+        // user has to be a trainer of this group
+        if (!isTrainerInGroup) {
             return "redirect:/show-group/" + id;
         }
-
-        // TODO: check that at least one trainer is in a group
 
         if (!result.hasErrors()) {
             group.getRoles().forEach(role -> {
                 Optional<Role> persistedRole = roleRepository.findById(role.getId());
 
                 persistedRole.ifPresent(r -> {
-                    r.setName(role.getName());
-                    roleRepository.save(r);
+
+                    // member can't change its own role
+                    if (!r.getUser().getId().equals(userDetails.getUser().getId())) {
+                        r.setName(role.getName());
+                        roleRepository.save(r);
+                    }
+
                 });
+            });
+
+            groupRepository.findById(id).ifPresent(g -> {
+                g.setName(group.getName());
+                groupRepository.save(g);
             });
         }
 
@@ -202,9 +214,9 @@ public class GroupController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
 
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainer = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
 
-        if (isTrainer) {
+        if (isTrainerInGroup) {
             groupRepository.delete(group);
         }
 

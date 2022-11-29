@@ -14,7 +14,12 @@
 <form action="#" th:action="@{/update-group/{id}(id=${group.id})}" th:object="${group}"
       method="post">
     <fieldset>
-        <h2>Members</h2>
+        <h3>Details</h3>
+        <label for="nameInput">Name</label>
+        <input type="text" th:field="*{name}" th:value="${group.name}" id="nameInput">
+        <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+
+        <h3>Members</h3>
         <table>
             <thead>
             <tr>
@@ -27,11 +32,11 @@
                 <td th:text="${role.user.firstName + ' ' + role.user.lastName}"></td>
                 <td>
                     <div>
-
                         <input type="hidden" th:field="${group.roles[__${itemStat.index}__].id}" th:value="role.id"
                                readonly>
                         <label for="roleSelect"></label>
-                        <select id="roleSelect" th:field="${group.roles[__${itemStat.index}__].name}">
+                        <select id="roleSelect" th:disabled="${role.user.id == activeRole.user.id}"
+                                th:field="${group.roles[__${itemStat.index}__].name}">
                             <option th:each="roleName : ${roleNames}" th:value="${roleName}"
                                     th:text="${roleName}"></option>
                         </select>
