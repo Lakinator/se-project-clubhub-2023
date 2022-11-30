@@ -47,7 +47,7 @@ public class GroupEventController {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
-        List<GroupEvent> groupEvents = groupEventRepository.findAllByGroupAndEventDateBetween(group, currentIntervalStart, currentIntervalEnd);
+        List<GroupEvent> groupEvents = groupEventRepository.findAllByGroupAndEventDateBetweenOrderByEventStartDesc(group, currentIntervalStart, currentIntervalEnd);
 
         model.addAttribute("group", group);
         model.addAttribute("groupEvents", groupEvents);
