@@ -51,7 +51,7 @@ public class GroupController {
 
         Page<GroupDTO> groupDTOPage = groupPage.map(group -> {
             Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-            final boolean isTrainer = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+            final boolean isTrainer = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
             return new GroupDTO(group.getId(), group.getRoles().size(), group.getName(), roleInGroup.isPresent(), isTrainer);
         });
 

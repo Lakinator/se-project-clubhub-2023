@@ -26,6 +26,10 @@
                     <th>Title</th>
                     <th>Description</th>
                     <th>Location</th>
+                    <div th:if="${isTrainer}">
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </div>
                 </tr>
                 </thead>
                 <tbody>
@@ -36,12 +40,22 @@
                     <td th:text="${groupEvent.eventEnd}"></td>
                     <td th:text="${groupEvent.title}"></td>
                     <td th:text="${groupEvent.description}"></td>
-                    <td th:text="${groupEvent.location}"></td>
+                    <td th:if="${groupEvent.location != null}" th:text="${groupEvent.location.description}"></td>
+                    <td th:if="${groupEvent.location == null}">No location set</td>
+                    <div th:if="${isTrainer}">
+                        <td>
+                            <a th:href="@{/group/{groupId}/event/{eventId}/edit(groupId=${group.id}, eventId=${groupEvent.id})}">Edit</a>
+                        </td>
+                        <td>
+                            <a th:href="@{/group/{groupId}/event/{eventId}/delete(groupId=${group.id}, eventId=${groupEvent.id})}">Delete</a>
+                        </td>
+                    </div>
                 </tr>
                 </tbody>
             </table>
             <!-- TODO: add some sort of pagination/selector for weekly intervals -->
 
+            <!--    <a th:href="@{/group/{groupId}/calendar(groupId=${group.id}, intervalStart=${#dates.createToday()}, intervalEnd=${#temporals.createNow().plus(#temporals.)})}">Group Calendar</a> -->
             <!--    <div th:if="${rolePage.totalPages > 0}" class="pagination"-->
             <!--         th:each="pageNumber : ${#numbers.sequence(1, rolePage.totalPages)}">-->
             <!--      <a th:href="@{/group/{id}/show(id=${group.id}, size=${rolePage.size}, page=${pageNumber})}"-->
@@ -50,6 +64,8 @@
             <!--    </div>-->
         </div>
     </div>
+
+    <p th:if="${isTrainer}"><a th:href="@{/group/{groupId}/events/add(groupId=${group.id})}">Add a new group event</a></p>
 </section>
 
 </body>

@@ -4,19 +4,19 @@
       layout:decorate="~{fragments/main}">
 <head>
     <meta charset="UTF-8">
-    <title>ClubHub Group Events</title>
+    <title>ClubHub Edit Group Event</title>
 </head>
 <body>
 
 <section layout:fragment="default-content">
-    <h2>Add a group event to <span th:text="${group.name}"></span></h2>
+    <h2>Edit group event for <span th:text="${group.name}"></span></h2>
 
-    <form action="#" th:action="@{/group/{groupId}/event/create(groupId=${group.id})}" th:object="${groupEvent}"
-          method="POST" id="create-group-event-form">
+    <form action="#"
+          th:action="@{/group/{groupId}/event/{eventId}/update(groupId=${group.id}, eventId=${groupEvent.id})}"
+          th:object="${groupEvent}" method="post">
         <div>
             <label for="eventTypeSelect">Event Type</label>
             <select id="eventTypeSelect" th:field="*{eventType}">
-                <option value="0">Wähle einen Event Type</option>
                 <option th:each="type : ${eventTypes}" th:value="${type}" th:text="${type.description}"></option>
             </select>
         </div>
@@ -44,10 +44,11 @@
             <label for="locationSelect">Location</label>
             <select id="locationSelect" th:field="*{location}">
                 <option value="0">Wähle eine Location</option>
-                <option th:each="location : ${locations}" th:value="${location.id}" th:text="${location.description}"></option>
+                <option th:each="location : ${locations}" th:value="${location.id}"
+                        th:text="${location.description}"></option>
             </select>
         </div>
-        <button type="submit">Submit</button>
+        <input type="submit" value="Update group event">
     </form>
 </section>
 
