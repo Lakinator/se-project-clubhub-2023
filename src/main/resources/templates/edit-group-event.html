@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Edit Group Event</title>
+</head>
+<body>
+
+<section layout:fragment="default-content">
+    <h2>Edit group event for <span th:text="${group.name}"></span></h2>
+
+    <form action="#"
+          th:action="@{/group/{groupId}/event/{eventId}/update(groupId=${group.id}, eventId=${groupEvent.id})}"
+          th:object="${groupEvent}" method="post">
+        <div>
+            <label for="eventTypeSelect">Event Type</label>
+            <select id="eventTypeSelect" th:field="*{eventType}">
+                <option th:each="type : ${eventTypes}" th:value="${type}" th:text="${type.description}"></option>
+            </select>
+        </div>
+        <div>
+            <label for="dateInput">Date</label>
+            <input id="dateInput" type="date" th:field="*{eventDate}"/>
+        </div>
+        <div>
+            <label for="dateTimeStartInput">Start</label>
+            <input id="dateTimeStartInput" type="datetime-local" th:field="*{eventStart}"/>
+        </div>
+        <div>
+            <label for="dateTimeEndInput">Ende</label>
+            <input id="dateTimeEndInput" type="datetime-local" th:field="*{eventEnd}"/>
+        </div>
+        <div>
+            <label for="titelInput">Tutel</label>
+            <input id="titelInput" th:field="*{title}"/>
+        </div>
+        <div>
+            <label for="descriptionInput">Description</label>
+            <input id="descriptionInput" th:field="*{description}"/>
+        </div>
+        <div>
+            <label for="locationSelect">Location</label>
+            <select id="locationSelect" th:field="*{location}">
+                <option value="0">Wähle eine Location</option>
+                <option th:each="location : ${locations}" th:value="${location.id}"
+                        th:text="${location.description}"></option>
+            </select>
+        </div>
+        <input type="submit" value="Update group event">
+    </form>
+</section>
+
+</body>
+</html>

@@ -20,7 +20,8 @@ public class Role implements GrantedAuthority {
     @JoinColumn(name = "group_id")
     private Group group;
 
-    private String name;
+    @Enumerated(EnumType.STRING)
+    private RoleType name;
 
     public Role() {
         // -- //
@@ -50,16 +51,16 @@ public class Role implements GrantedAuthority {
         this.group = group;
     }
 
-    public String getName() {
+    public RoleType getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(RoleType name) {
         this.name = name;
     }
 
     @Override
     public String getAuthority() {
-        return this.getName();
+        return this.getName().name();
     }
 }

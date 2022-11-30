@@ -1,21 +1,23 @@
 <!DOCTYPE html>
-<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}">
 <head>
     <meta charset="UTF-8">
     <title>ClubHub Add Group</title>
 </head>
 <body>
 
-<div th:insert="fragments/header"></div>
+<section layout:fragment="default-content">
+    <h2>Add a group for <span th:text="${clubName}"></span></h2>
 
-<h2>Add a group for <span th:text="${clubName}"></span></h2>
-
-<form action="#" th:action="@{/group/create}" th:object="${group}" method="post">
-    <label for="nameInput">Name</label>
-    <input type="text" th:field="*{name}" id="nameInput" placeholder="1. Mannschaft">
-    <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
-    <input type="submit" value="Add group">
-</form>
+    <form action="#" th:action="@{/group/create}" th:object="${group}" method="post">
+        <label for="nameInput">Name</label>
+        <input type="text" th:field="*{name}" id="nameInput" placeholder="1. Mannschaft">
+        <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+        <input type="submit" value="Add group">
+    </form>
+</section>
 
 </body>
 </html>

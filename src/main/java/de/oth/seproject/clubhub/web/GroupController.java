@@ -3,6 +3,7 @@ package de.oth.seproject.clubhub.web;
 import de.oth.seproject.clubhub.config.ClubUserDetails;
 import de.oth.seproject.clubhub.persistence.model.Group;
 import de.oth.seproject.clubhub.persistence.model.Role;
+import de.oth.seproject.clubhub.persistence.model.RoleType;
 import de.oth.seproject.clubhub.persistence.model.User;
 import de.oth.seproject.clubhub.persistence.repository.GroupRepository;
 import de.oth.seproject.clubhub.persistence.repository.RoleRepository;
@@ -50,7 +51,7 @@ public class GroupController {
 
         Page<GroupDTO> groupDTOPage = groupPage.map(group -> {
             Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-            final boolean isTrainer = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+            final boolean isTrainer = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
             return new GroupDTO(group.getId(), group.getRoles().size(), group.getName(), roleInGroup.isPresent(), isTrainer);
         });
 
@@ -82,7 +83,7 @@ public class GroupController {
             groupRepository.save(group);
 
             Role role = new Role();
-            role.setName("TRAINER");
+            role.setName(RoleType.TRAINER);
             role.setUser(user);
             role.setGroup(group);
 
@@ -110,7 +111,7 @@ public class GroupController {
             // check if user is already a member of this group
             if (!roleRepository.existsByUserAndGroup(user, group)) {
                 Role role = new Role();
-                role.setName("MEMBER");
+                role.setName(RoleType.MEMBER);
                 role.setUser(user);
                 role.setGroup(group);
 
@@ -156,7 +157,7 @@ public class GroupController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
 
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
 
         // user has to be a trainer of this group
         if (isTrainerInGroup) {
@@ -178,7 +179,7 @@ public class GroupController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
 
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
 
         // user has to be a trainer of this group
         if (!isTrainerInGroup) {
@@ -187,7 +188,7 @@ public class GroupController {
 
         model.addAttribute("activeRole", roleInGroup.get());
         model.addAttribute("group", group);
-        model.addAttribute("roleNames", List.of("TRAINER", "MEMBER"));
+        model.addAttribute("roleNames", RoleType.values());
         return "edit-group";
     }
 
@@ -196,7 +197,7 @@ public class GroupController {
                               BindingResult result, Model model) {
 
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
 
         // user has to be a trainer of this group
         if (!isTrainerInGroup) {
@@ -233,7 +234,7 @@ public class GroupController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
 
         if (isTrainerInGroup) {
             Optional<User> kickedUser = userRepository.findById(userId);
@@ -262,7 +263,7 @@ public class GroupController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
 
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals("TRAINER");
+        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
 
         if (isTrainerInGroup) {
             groupRepository.delete(group);

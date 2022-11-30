@@ -1,21 +1,23 @@
 <!DOCTYPE html>
-<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}">
 <head>
     <meta charset="UTF-8">
     <title>ClubHub Edit Announcement</title>
 </head>
 <body>
 
-<div th:insert="fragments/header"></div>
+<section layout:fragment="default-content">
+    <h2>Edit announcement for <span th:text="${announcement.club.name}"></span></h2>
 
-<h2>Edit announcement for <span th:text="${announcement.club.name}"></span></h2>
-
-<form action="#" th:action="@{/announcement/{id}/update(id=${announcement.id})}" th:object="${announcement}" method="post">
-    <label for="message">Message</label>
-    <input type="text" th:field="*{message}" th:value="${announcement.message}" id="message">
-    <span th:if="${#fields.hasErrors('message')}" th:errors="*{message}"></span>
-    <input type="submit" value="Update announcement">
-</form>
+    <form action="#" th:action="@{/announcement/{id}/update(id=${announcement.id})}" th:object="${announcement}" method="post">
+        <label for="message">Message</label>
+        <input type="text" th:field="*{message}" th:value="${announcement.message}" id="message">
+        <span th:if="${#fields.hasErrors('message')}" th:errors="*{message}"></span>
+        <input type="submit" value="Update announcement">
+    </form>
+</section>
 
 </body>
 </html>

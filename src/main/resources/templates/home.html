@@ -1,18 +1,20 @@
 <!DOCTYPE html>
-<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}">
 <head>
     <meta charset="UTF-8">
     <title>ClubHub Home</title>
 </head>
 <body>
 
-<div th:insert="fragments/header"></div>
-
-<h1>Hallo!</h1>
-<p>Willkommen bei <span th:text="${appName}">App Name</span></p>
-<p>Hier findest du alle Clubs: <a href="/api/v1/clubs">Clubs Api</a></p>
-<p>Hier findest du alle Announcements von deinem Club: <a href="/announcements">Announcements</a></p>
-<p>Hier findest du alle Gruppen in deinem Club: <a href="/groups">Gruppen</a></p>
+<section layout:fragment="default-content">
+    <h1>Hallo!</h1>
+    <p>Willkommen bei <span th:text="${appName}">App Name</span></p>
+    <p>Hier findest du alle Clubs: <a href="/api/v1/clubs">Clubs Api</a></p>
+    <p>Hier findest du alle Announcements von deinem Club: <a href="/announcements">Announcements</a></p>
+    <p>Hier findest du alle Gruppen in deinem Club: <a href="/groups">Gruppen</a></p>
+</section>
 
 </body>
 </html>
