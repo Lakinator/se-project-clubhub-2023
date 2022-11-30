@@ -11,10 +11,11 @@
 <section layout:fragment="default-content">
     <h2>Add a group event to <span th:text="${group.name}"></span></h2>
 
-    <form action="#" th:action="@{/group/{groupId}/create-event(groupId=${group.id})}" th:object="${groupEvent}" method="POST" id="create-group-event-form">
+    <form action="#" th:action="@{/group/{groupId}/create-event(groupId=${group.id})}" th:object="${groupEvent}"
+          method="POST" id="create-group-event-form">
         <div>
-            <label for="eventTypSelect">Event Type</label>
-            <select id="eventTypSelect" th:field="*{eventType}">
+            <label for="eventTypeSelect">Event Type</label>
+            <select id="eventTypeSelect" th:field="*{eventType}">
                 <option value="0">Wähle einen Event Type</option>
                 <option th:each="type : ${eventTypes}" th:value="${type}" th:text="${type.description}"></option>
             </select>
@@ -38,6 +39,13 @@
         <div>
             <label for="descriptionInput">Description</label>
             <input id="descriptionInput" th:field="*{description}"/>
+        </div>
+        <div>
+            <label for="locationSelect">Location</label>
+            <select id="locationSelect" th:field="*{location}">
+                <option value="0">Wähle eine Location</option>
+                <option th:each="location : ${locations}" th:value="${location.id}" th:text="${location.description}"></option>
+            </select>
         </div>
         <button type="submit">Submit</button>
     </form>

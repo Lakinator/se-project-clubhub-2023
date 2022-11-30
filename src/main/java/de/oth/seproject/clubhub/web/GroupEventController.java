@@ -59,10 +59,13 @@ public class GroupEventController {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
+        List<Location> locations = locationRepository.findAll();
+
         GroupEvent groupEvent = new GroupEvent();
         model.addAttribute("groupEvent", groupEvent);
         model.addAttribute("group", group);
         model.addAttribute("eventTypes", EventType.values());
+        model.addAttribute("locations", locations);
         return "add-group-event";
     }
 
