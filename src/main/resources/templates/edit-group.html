@@ -40,7 +40,7 @@
                             <select id="roleSelect" th:disabled="${role.user.id == activeRole.user.id}"
                                     th:field="${group.roles[__${itemStat.index}__].name}">
                                 <option th:each="roleName : ${roleNames}" th:value="${roleName}"
-                                        th:text="${roleName.name()}"></option>
+                                        th:text="${roleName.description}"></option>
                             </select>
                         </div>
                     </td>
