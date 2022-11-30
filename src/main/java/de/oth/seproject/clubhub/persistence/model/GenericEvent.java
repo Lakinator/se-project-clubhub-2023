@@ -1,5 +1,7 @@
 package de.oth.seproject.clubhub.persistence.model;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,10 +23,13 @@ public class GenericEvent {
     @JoinColumn(name = "location_id")
     private Location location;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate eventDate;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime eventStart;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime eventEnd;
 
     private String title;

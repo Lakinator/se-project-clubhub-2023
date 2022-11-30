@@ -6,7 +6,6 @@ import java.util.List;
 
 @Table(name = "locations")
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED) // TODO: maybe attach some locations to clubs with table 'club_locations' for improved search?
 public class Location {
 
     @Id
