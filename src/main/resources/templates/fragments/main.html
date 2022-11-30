@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="de" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<html lang="de" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <body>
 <header>
     <nav>
@@ -16,5 +17,8 @@
         </ul>
     </nav>
 </header>
+<section layout:fragment="default-content">
+    <p>Your page content goes here</p>
+</section>
 </body>
 </html>
