@@ -3,6 +3,10 @@ package de.oth.seproject.clubhub.persistence.model;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.Future;
+import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -23,17 +27,25 @@ public class GenericEvent {
     @JoinColumn(name = "location_id")
     private Location location;
 
+    @NotNull
+    @FutureOrPresent
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate eventDate;
 
+    @NotNull
+    @Future
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime eventStart;
 
+    @NotNull
+    @Future
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime eventEnd;
 
+    @NotBlank
     private String title;
 
+    @NotBlank
     private String description;
 
     public GenericEvent() {

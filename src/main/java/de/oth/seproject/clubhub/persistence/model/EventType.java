@@ -2,7 +2,7 @@ package de.oth.seproject.clubhub.persistence.model;
 
 public enum EventType {
 
-    TRAINING("A training"), MATCH("A match"), CHRISTMAS_PARTY("Vollgas!");
+    TRAINING("A training"), MATCH("A match"), CHRISTMAS_PARTY("Weihnachten, vollgas!");
 
     private final String description;
 

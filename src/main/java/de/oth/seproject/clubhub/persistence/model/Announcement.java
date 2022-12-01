@@ -27,7 +27,7 @@ public class Announcement {
     @Column(name = "updated_on")
     private LocalDateTime updatedOn;
 
-    @NotBlank(message = "Message is mandatory")
+    @NotBlank
     private String message;
 
     public Announcement() {

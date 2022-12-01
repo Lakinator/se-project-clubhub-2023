@@ -23,7 +23,7 @@ public class Group {
     @OneToMany(mappedBy = "group", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<GroupEvent> groupEvents = new ArrayList<>();
 
-    @NotBlank(message = "Name is mandatory")
+    @NotBlank
     private String name;
 
     public Group() {
