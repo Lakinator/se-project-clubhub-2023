@@ -50,12 +50,12 @@ public class GroupEventController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
         Role role = roleRepository.findByUserAndGroup(userDetails.getUser(), group)
-                .orElseThrow(() -> new NoSuchElementException("Role not found"));
+                .orElseThrow(() -> new NoSuchElementException("Role not found")); // TODO: user can look at calendar without being in the group
 
         List<GroupEvent> groupEvents = groupEventRepository.findAllByGroupAndEventDateBetweenOrderByEventStartDesc(group, currentIntervalStart, currentIntervalEnd);
 
         model.addAttribute("activeRole", role);
-        model.addAttribute("isTrainer", role.getName().equals(RoleType.TRAINER));
+        model.addAttribute("isTrainer", role.getRoleName().equals(RoleType.TRAINER));
         model.addAttribute("group", group);
         model.addAttribute("groupEvents", groupEvents);
         return "show-group-calendar";

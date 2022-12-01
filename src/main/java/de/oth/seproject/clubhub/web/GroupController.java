@@ -83,7 +83,7 @@ public class GroupController {
             groupRepository.save(group);
 
             Role role = new Role();
-            role.setName(RoleType.TRAINER);
+            role.setRoleName(RoleType.TRAINER);
             role.setUser(user);
             role.setGroup(group);
 
@@ -111,7 +111,7 @@ public class GroupController {
             // check if user is already a member of this group
             if (!roleRepository.existsByUserAndGroup(user, group)) {
                 Role role = new Role();
-                role.setName(RoleType.MEMBER);
+                role.setRoleName(RoleType.MEMBER);
                 role.setUser(user);
                 role.setGroup(group);
 
@@ -212,7 +212,7 @@ public class GroupController {
 
                     // member can't change its own role
                     if (!r.getUser().getId().equals(userDetails.getUser().getId())) {
-                        r.setName(role.getName());
+                        r.setRoleName(role.getRoleName());
                         roleRepository.save(r);
                     }
 
