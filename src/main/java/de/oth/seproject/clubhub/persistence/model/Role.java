@@ -21,7 +21,7 @@ public class Role implements GrantedAuthority {
     private Group group;
 
     @Enumerated(EnumType.STRING)
-    private RoleType name;
+    private RoleType roleName;
 
     public Role() {
         // -- //
@@ -51,16 +51,16 @@ public class Role implements GrantedAuthority {
         this.group = group;
     }
 
-    public RoleType getName() {
-        return name;
+    public RoleType getRoleName() {
+        return roleName;
     }
 
-    public void setName(RoleType name) {
-        this.name = name;
+    public void setRoleName(RoleType roleName) {
+        this.roleName = roleName;
     }
 
     @Override
     public String getAuthority() {
-        return this.getName().name();
+        return this.getRoleName().name();
     }
 }

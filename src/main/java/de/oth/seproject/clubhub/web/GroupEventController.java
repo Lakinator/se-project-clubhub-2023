@@ -50,12 +50,12 @@ public class GroupEventController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
         Role role = roleRepository.findByUserAndGroup(userDetails.getUser(), group)
-                .orElseThrow(() -> new NoSuchElementException("Role not found"));
+                .orElseThrow(() -> new NoSuchElementException("Role not found")); // TODO: user can look at calendar without being in the group
 
         List<GroupEvent> groupEvents = groupEventRepository.findAllByGroupAndEventDateBetweenOrderByEventStartDesc(group, currentIntervalStart, currentIntervalEnd);
 
         model.addAttribute("activeRole", role);
-        model.addAttribute("isTrainer", role.getName().equals(RoleType.TRAINER));
+        model.addAttribute("isTrainer", role.getRoleName().equals(RoleType.TRAINER));
         model.addAttribute("group", group);
         model.addAttribute("groupEvents", groupEvents);
         return "show-group-calendar";
@@ -81,7 +81,13 @@ public class GroupEventController {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
-        // TODO: validation
+        if (result.hasErrors()) {
+            List<Location> locations = locationRepository.findAll();
+            model.addAttribute("group", group);
+            model.addAttribute("eventTypes", EventType.values());
+            model.addAttribute("locations", locations);
+            return "add-group-event";
+        }
 
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
         final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
@@ -104,8 +110,7 @@ public class GroupEventController {
         GroupEvent groupEvent = groupEventRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group event Id:" + eventId));
 
-        Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
 
         // user has to be a trainer of this group
         if (!isTrainerInGroup) {
@@ -127,43 +132,47 @@ public class GroupEventController {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
-        Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
+        if (result.hasErrors()) {
+            List<Location> locations = locationRepository.findAll();
+            model.addAttribute("group", group);
+            model.addAttribute("eventTypes", EventType.values());
+            model.addAttribute("locations", locations);
+            return "edit-group-event";
+        }
+
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
 
         // user has to be a trainer of this group
         if (!isTrainerInGroup) {
             return "redirect:/group/" + groupId + "/calendar";
         }
 
-        if (!result.hasErrors()) {
-            Optional<GroupEvent> persistedGroupEvent = groupEventRepository.findById(eventId);
+        Optional<GroupEvent> persistedGroupEvent = groupEventRepository.findById(eventId);
 
-            persistedGroupEvent.ifPresent(e -> {
-                e.setEventType(groupEvent.getEventType());
-                e.setEventDate(groupEvent.getEventDate());
-                e.setEventStart(groupEvent.getEventStart());
-                e.setEventEnd(groupEvent.getEventEnd());
-                e.setTitle(groupEvent.getTitle());
-                e.setDescription(groupEvent.getDescription());
-                e.setLocation(groupEvent.getLocation());
+        persistedGroupEvent.ifPresent(e -> {
+            e.setEventType(groupEvent.getEventType());
+            e.setEventDate(groupEvent.getEventDate());
+            e.setEventStart(groupEvent.getEventStart());
+            e.setEventEnd(groupEvent.getEventEnd());
+            e.setTitle(groupEvent.getTitle());
+            e.setDescription(groupEvent.getDescription());
+            e.setLocation(groupEvent.getLocation());
 
-                groupEventRepository.save(e);
-            });
-        }
+            groupEventRepository.save(e);
+        });
 
         return "redirect:/group/" + groupId + "/calendar";
     }
 
     @GetMapping("/group/{groupId}/event/{eventId}/delete")
-    public String deleteGroupEvent(@AuthenticationPrincipal ClubUserDetails userDetails,@PathVariable("groupId") long groupId, @PathVariable("eventId") long eventId, Model model) {
+    public String deleteGroupEvent(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("eventId") long eventId, Model model) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
         GroupEvent groupEvent = groupEventRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group event Id:" + eventId));
 
-        Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
 
         // user has to be a trainer of this group
         if (isTrainerInGroup) {

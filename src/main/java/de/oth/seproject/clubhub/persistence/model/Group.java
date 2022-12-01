@@ -1,6 +1,7 @@
 package de.oth.seproject.clubhub.persistence.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class Group {
     @OneToMany(mappedBy = "group", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<GroupEvent> groupEvents = new ArrayList<>();
 
+    @NotBlank
     private String name;
 
     public Group() {

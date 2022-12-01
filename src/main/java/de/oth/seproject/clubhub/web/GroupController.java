@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -49,10 +48,12 @@ public class GroupController {
 
         Page<Group> groupPage = groupRepository.findAllByClub(userDetails.getUser().getClub(), pageRequest);
 
+        // mapping to another object for easier processing with thymeleaf
         Page<GroupDTO> groupDTOPage = groupPage.map(group -> {
-            Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-            final boolean isTrainer = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
-            return new GroupDTO(group.getId(), group.getRoles().size(), group.getName(), roleInGroup.isPresent(), isTrainer);
+            boolean hasJoined = roleRepository.existsByUserAndGroup(userDetails.getUser(), group);
+            boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
+
+            return new GroupDTO(group.getId(), group.getRoles().size(), group.getName(), hasJoined, isTrainerInGroup);
         });
 
         model.addAttribute("user", userDetails.getUser());
@@ -72,7 +73,10 @@ public class GroupController {
     @PostMapping("/group/create")
     public String createGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @Valid Group group, BindingResult result, Model model) {
 
-        // TODO: validation
+        if (result.hasErrors()) {
+            model.addAttribute("clubName", userDetails.getUser().getClub().getName());
+            return "add-group";
+        }
 
         // need to retrieve user again because user from principal is a detached reference
         Optional<User> optionalUser = userRepository.findById(userDetails.getUser().getId());
@@ -83,7 +87,7 @@ public class GroupController {
             groupRepository.save(group);
 
             Role role = new Role();
-            role.setName(RoleType.TRAINER);
+            role.setRoleName(RoleType.TRAINER);
             role.setUser(user);
             role.setGroup(group);
 
@@ -108,10 +112,15 @@ public class GroupController {
 
         optionalUser.ifPresent(user -> {
 
+            // check if user is in this club
+            if (group.getClub().getId() != user.getClub().getId()) {
+                throw new IllegalArgumentException("This group is from a different club!");
+            }
+
             // check if user is already a member of this group
             if (!roleRepository.existsByUserAndGroup(user, group)) {
                 Role role = new Role();
-                role.setName(RoleType.MEMBER);
+                role.setRoleName(RoleType.MEMBER);
                 role.setUser(user);
                 role.setGroup(group);
 
@@ -156,10 +165,9 @@ public class GroupController {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
 
-        Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
 
-        // user has to be a trainer of this group
+        // if user is a trainer of this group, automatically redirect him to the edit page
         if (isTrainerInGroup) {
             return "redirect:/group/" + id + "/edit";
         }
@@ -179,9 +187,9 @@ public class GroupController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
 
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
+        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getRoleName().equals(RoleType.TRAINER);
 
-        // user has to be a trainer of this group
+        // if user is not a trainer of this group, automatically redirect him to the show page
         if (!isTrainerInGroup) {
             return "redirect:/group/" + id + "/show";
         }
@@ -196,34 +204,35 @@ public class GroupController {
     public String updateGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, @Valid Group group,
                               BindingResult result, Model model) {
 
-        Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
+        if (result.hasErrors()) {
+            return "redirect:/group/" + id + "/show";
+        }
 
-        // user has to be a trainer of this group
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
+
+        // if user is not a trainer of this group, automatically redirect him to the show page
         if (!isTrainerInGroup) {
             return "redirect:/group/" + id + "/show";
         }
 
-        if (!result.hasErrors()) {
-            group.getRoles().forEach(role -> {
-                Optional<Role> persistedRole = roleRepository.findById(role.getId());
+        group.getRoles().forEach(role -> {
+            Optional<Role> persistedRole = roleRepository.findById(role.getId());
 
-                persistedRole.ifPresent(r -> {
+            persistedRole.ifPresent(r -> {
 
-                    // member can't change its own role
-                    if (!r.getUser().getId().equals(userDetails.getUser().getId())) {
-                        r.setName(role.getName());
-                        roleRepository.save(r);
-                    }
+                // trainer can't change its own role
+                if (!r.getUser().getId().equals(userDetails.getUser().getId())) {
+                    r.setRoleName(role.getRoleName());
+                    roleRepository.save(r);
+                }
 
-                });
             });
+        });
 
-            groupRepository.findById(id).ifPresent(g -> {
-                g.setName(group.getName());
-                groupRepository.save(g);
-            });
-        }
+        groupRepository.findById(id).ifPresent(g -> {
+            g.setName(group.getName());
+            groupRepository.save(g);
+        });
 
         return "redirect:/group/" + id + "/show";
     }
@@ -233,8 +242,7 @@ public class GroupController {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
-        Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
 
         if (isTrainerInGroup) {
             Optional<User> kickedUser = userRepository.findById(userId);
@@ -262,8 +270,7 @@ public class GroupController {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
 
-        Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
 
         if (isTrainerInGroup) {
             groupRepository.delete(group);

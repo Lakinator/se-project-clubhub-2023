@@ -19,26 +19,32 @@
                 <option value="0">Wähle einen Event Type</option>
                 <option th:each="type : ${eventTypes}" th:value="${type}" th:text="${type.description}"></option>
             </select>
+            <p th:if="${#fields.hasErrors('eventType')}" th:errors="*{eventType}"></p>
         </div>
         <div>
             <label for="dateInput">Date</label>
             <input id="dateInput" type="date" th:field="*{eventDate}"/>
+            <p th:if="${#fields.hasErrors('eventDate')}" th:errors="*{eventDate}"></p>
         </div>
         <div>
             <label for="dateTimeStartInput">Start</label>
             <input id="dateTimeStartInput" type="datetime-local" th:field="*{eventStart}"/>
+            <p th:if="${#fields.hasErrors('eventStart')}" th:errors="*{eventStart}"></p>
         </div>
         <div>
             <label for="dateTimeEndInput">Ende</label>
             <input id="dateTimeEndInput" type="datetime-local" th:field="*{eventEnd}"/>
+            <p th:if="${#fields.hasErrors('eventEnd')}" th:errors="*{eventEnd}"></p>
         </div>
         <div>
             <label for="titelInput">Tutel</label>
             <input id="titelInput" th:field="*{title}"/>
+            <p th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></p>
         </div>
         <div>
             <label for="descriptionInput">Description</label>
             <input id="descriptionInput" th:field="*{description}"/>
+            <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></p>
         </div>
         <div>
             <label for="locationSelect">Location</label>
@@ -46,6 +52,7 @@
                 <option value="0">Wähle eine Location</option>
                 <option th:each="location : ${locations}" th:value="${location.id}" th:text="${location.description}"></option>
             </select>
+            <p th:if="${#fields.hasErrors('location')}" th:errors="*{location}"></p>
         </div>
         <button type="submit">Submit</button>
     </form>
