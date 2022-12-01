@@ -15,6 +15,12 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     Page<Role> findAllByGroup(Group group, Pageable pageable);
 
     /**
+     * @param group -
+     * @return Whether the group has any roles. If false, there are no members in this group
+     */
+    Boolean existsAllByGroup(Group group);
+
+    /**
      * @param user  -
      * @param group -
      * @return The current role of a user in the given group or {@link Optional#empty()} if there is no role
@@ -29,15 +35,9 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     Boolean existsByUserAndGroup(User user, Group group);
 
     /**
-     * @param group -
-     * @return Whether the group has any roles. If false, there are no members in this group
-     */
-    Boolean existsAllByGroup(Group group);
-
-    /**
      * @param user     -
      * @param roleType -
-     * @return Whether the user has this role in any group
+     * @return Whether the user has this role in any group. So basically whether the user is a trainer of this club
      */
     Boolean existsByUserAndRoleName(User user, RoleType roleType);
 
