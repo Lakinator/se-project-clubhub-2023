@@ -31,6 +31,15 @@ public class SecurityConfig {
                 .antMatchers("/announcements")
                 .authenticated();
 
+        // manage access to group sites
+        http.authorizeRequests()
+                .antMatchers("/group/add/**", "/groups/create/**")
+                .hasAuthority(RoleType.TRAINER.name())
+                .and()
+                .authorizeRequests()
+                .antMatchers("/group", "/groups")
+                .authenticated();
+
         // the user needs to be logged in to access any other site
         http.authorizeRequests()
                 .anyRequest()

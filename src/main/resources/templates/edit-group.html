@@ -18,7 +18,7 @@
             <h3>Details</h3>
             <label for="nameInput">Name</label>
             <input type="text" th:field="*{name}" th:value="${group.name}" id="nameInput">
-            <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+            <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
 
             <h3>Members</h3>
             <table>
@@ -38,7 +38,7 @@
                                    readonly>
                             <label for="roleSelect"></label>
                             <select id="roleSelect" th:disabled="${role.user.id == activeRole.user.id}"
-                                    th:field="${group.roles[__${itemStat.index}__].name}">
+                                    th:field="${group.roles[__${itemStat.index}__].roleName}">
                                 <option th:each="roleName : ${roleNames}" th:value="${roleName}"
                                         th:text="${roleName.description}"></option>
                             </select>
