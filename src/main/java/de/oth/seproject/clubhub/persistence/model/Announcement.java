@@ -1,6 +1,8 @@
 package de.oth.seproject.clubhub.persistence.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Table(name = "announcements")
@@ -25,6 +27,7 @@ public class Announcement {
     @Column(name = "updated_on")
     private LocalDateTime updatedOn;
 
+    @NotBlank(message = "Message is mandatory")
     private String message;
 
     public Announcement() {

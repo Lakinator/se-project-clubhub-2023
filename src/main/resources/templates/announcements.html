@@ -48,7 +48,7 @@
                    th:class="${pageNumber == announcementPage.number + 1} ? active"></a>
             </div>
         </div>
-        <p><a href="/announcements/add">Add a new announcement</a></p>
+        <p th:if="${isTrainerInClub}"><a href="/announcements/add">Add a new announcement</a></p>
     </div>
 </section>
 
