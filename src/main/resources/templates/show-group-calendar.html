@@ -12,6 +12,16 @@
     <h2><span th:text="${group.name}"></span> calendar from the club <span th:text="${group.club.name}"></span></h2>
     </h2>
 
+    <div>
+        <a th:href="@{/group/{groupId}/calendar(groupId=${group.id}, month=${currentMonth})}">Aktuell</a>
+        <a th:href="@{/group/{groupId}/calendar(groupId=${group.id}, year=${lastYear}, month=${lastMonth})}"><--</a>
+        <a th:href="@{/group/{groupId}/calendar(groupId=${group.id}, year=${nextYear}, month=${nextMonth})}">--></a>
+    </div>
+
+    <div>
+        <p th:text="${#temporals.format(selectedIntervalStart)} + ' - ' + ${#temporals.format(selectedIntervalEnd)}"></p>
+    </div>
+
     <div th:switch="${groupEvents.isEmpty()}">
         <h3 th:case="true">Empty in here, isn't it?</h3>
         <div th:case="false">

@@ -3,7 +3,6 @@ package de.oth.seproject.clubhub.web;
 import de.oth.seproject.clubhub.config.ClubUserDetails;
 import de.oth.seproject.clubhub.persistence.model.*;
 import de.oth.seproject.clubhub.persistence.repository.*;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,21 +41,38 @@ public class GroupEventController {
     }
 
     @GetMapping("/group/{groupId}/calendar")
-    public String showGroupPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @RequestParam("intervalStart") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> intervalStart,
-                                @RequestParam("intervalEnd") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> intervalEnd, Model model) {
-        LocalDate currentIntervalStart = intervalStart.orElse(LocalDate.now().minusDays(7));
-        LocalDate currentIntervalEnd = intervalEnd.orElse(LocalDate.now().plusDays(7));
+    public String showGroupPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId,
+                                @RequestParam("year") Optional<Integer> year,
+                                @RequestParam("month") Optional<Month> month, Model model) {
 
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
-        Optional<Role> optionalRole = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
+        // calendar pagination
+        int selectedYear = year.orElse(LocalDate.now().getYear());
+        Month selectedMonth = month.orElse(LocalDate.now().getMonth());
 
-        List<GroupEvent> groupEvents = groupEventRepository.findAllByGroupAndEventDateBetweenOrderByEventStartDesc(group, currentIntervalStart, currentIntervalEnd);
+        LocalDate selectedIntervalStart = LocalDate.now()
+                .withYear(selectedYear)
+                .withMonth(selectedMonth.getValue())
+                .with(TemporalAdjusters.firstDayOfMonth());
+        LocalDate selectedIntervalEnd = selectedIntervalStart.with(TemporalAdjusters.lastDayOfMonth());
+
+        List<GroupEvent> groupEvents = groupEventRepository.findAllByGroupAndEventDateBetweenOrderByEventStartDesc(group, selectedIntervalStart, selectedIntervalEnd);
+
+
+        Optional<Role> optionalRole = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
 
         model.addAttribute("isTrainer", optionalRole.isPresent() && optionalRole.get().getRoleName().equals(RoleType.TRAINER));
         model.addAttribute("group", group);
         model.addAttribute("groupEvents", groupEvents);
+        model.addAttribute("lastMonth", selectedMonth.minus(1).getValue());
+        model.addAttribute("lastYear", selectedIntervalStart.minusYears(1).getYear());
+        model.addAttribute("nextMonth", selectedMonth.plus(1).getValue());
+        model.addAttribute("nextYear", selectedIntervalStart.plusYears(1).getYear());
+        model.addAttribute("currentMonth", LocalDate.now().getMonth().getValue());
+        model.addAttribute("selectedIntervalStart", selectedIntervalStart);
+        model.addAttribute("selectedIntervalEnd", selectedIntervalEnd);
         return "show-group-calendar";
     }
 
