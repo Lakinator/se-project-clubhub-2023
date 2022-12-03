@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Controller
@@ -49,13 +48,11 @@ public class GroupEventController {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
-        Role role = roleRepository.findByUserAndGroup(userDetails.getUser(), group)
-                .orElseThrow(() -> new NoSuchElementException("Role not found")); // TODO: user can look at calendar without being in the group
+        Optional<Role> optionalRole = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
 
         List<GroupEvent> groupEvents = groupEventRepository.findAllByGroupAndEventDateBetweenOrderByEventStartDesc(group, currentIntervalStart, currentIntervalEnd);
 
-        model.addAttribute("activeRole", role);
-        model.addAttribute("isTrainer", role.getRoleName().equals(RoleType.TRAINER));
+        model.addAttribute("isTrainer", optionalRole.isPresent() && optionalRole.get().getRoleName().equals(RoleType.TRAINER));
         model.addAttribute("group", group);
         model.addAttribute("groupEvents", groupEvents);
         return "show-group-calendar";
@@ -90,7 +87,7 @@ public class GroupEventController {
         }
 
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getAuthority().equals(RoleType.TRAINER.name());
+        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getRoleName().equals(RoleType.TRAINER);
 
         if (isTrainerInGroup) {
             groupEvent.setGroup(group);
