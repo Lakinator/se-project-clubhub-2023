@@ -58,7 +58,7 @@ public class GroupEventController {
                 .with(TemporalAdjusters.firstDayOfMonth());
         LocalDate selectedIntervalEnd = selectedIntervalStart.with(TemporalAdjusters.lastDayOfMonth());
 
-        List<GroupEvent> groupEvents = groupEventRepository.findAllByGroupAndEventDateBetweenOrderByEventStartDesc(group, selectedIntervalStart, selectedIntervalEnd);
+        List<GroupEvent> groupEvents = groupEventRepository.findAllByGroupAndEventDateBetweenOrderByEventStartAsc(group, selectedIntervalStart, selectedIntervalEnd);
 
 
         Optional<Role> optionalRole = roleRepository.findByUserAndGroup(userDetails.getUser(), group);

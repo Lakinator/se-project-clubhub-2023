@@ -11,6 +11,6 @@ public interface GroupEventRepository extends JpaRepository<GroupEvent, Long> {
 
     List<GroupEvent> findAllByGroup(Group group);
 
-    List<GroupEvent> findAllByGroupAndEventDateBetweenOrderByEventStartDesc(Group group, LocalDate start, LocalDate end);
+    List<GroupEvent> findAllByGroupAndEventDateBetweenOrderByEventStartAsc(Group group, LocalDate start, LocalDate end);
 
 }
