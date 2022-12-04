@@ -11,11 +11,15 @@
 <section layout:fragment="default-content">
     <h2>Edit announcement for <span th:text="${club.name}"></span></h2>
 
-    <form action="#" th:action="@{/announcement/{id}/update(id=${announcement.id})}" th:object="${announcement}" method="post">
-        <label for="message">Message</label>
-        <input type="text" th:field="*{message}" th:value="${announcement.message}" id="message">
-        <p th:if="${#fields.hasErrors('message')}" th:errors="*{message}"></p>
-        <input type="submit" value="Update announcement">
+    <form th:action="@{/announcement/{id}/update(id=${announcement.id})}" th:object="${announcement}" method="post">
+        <div class="mb-3">
+            <label for="message">Message</label>
+            <input type="text" th:field="*{message}" class="form-control" th:value="${announcement.message}"
+                   id="message">
+            <p th:if="${#fields.hasErrors('message')}" th:errors="*{message}"></p>
+        </div>
+        <button type="submit" class="btn btn-primary">Update announcement</button>
+        <button type="reset" class="btn btn-secondary">Reset</button>
     </form>
 </section>
 

@@ -10,11 +10,13 @@
 <section layout:fragment="default-content">
     <h2>Add an announcement for <span th:text="${clubName}"></span></h2>
 
-    <form action="#" th:action="@{/announcement/create}" th:object="${announcement}" method="post">
-        <label for="message">Message</label>
-        <input type="text" th:field="*{message}" id="message" placeholder="Blabla...">
-        <p th:if="${#fields.hasErrors('message')}" th:errors="*{message}"></p>
-        <input type="submit" value="Add announcement">
+    <form th:action="@{/announcement/create}" th:object="${announcement}" method="post">
+        <div class="mb-3">
+            <label for="message">Message</label>
+            <input type="text" th:field="*{message}" id="message" class="form-control" placeholder="Blabla...">
+            <p th:if="${#fields.hasErrors('message')}" th:errors="*{message}"></p>
+        </div>
+        <button type="submit" class="btn btn-primary">Add announcement</button>
     </form>
 </section>
 

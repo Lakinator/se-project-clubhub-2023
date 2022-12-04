@@ -31,7 +31,7 @@
         </div>
         <div class="mb-3">
             <label for="clubSelect">Club</label>
-            <select id="clubSelect" class="form-control" th:field="*{club}">
+            <select id="clubSelect" class="form-select" th:field="*{club}">
                 <option value="0">Wähle einen Club</option>
                 <option th:each="club : ${clubs}" th:value="${club.id}" th:text="${club.name}"></option>
             </select>

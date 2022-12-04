@@ -11,11 +11,13 @@
 <section layout:fragment="default-content">
     <h2>Add a group for <span th:text="${clubName}"></span></h2>
 
-    <form action="#" th:action="@{/group/create}" th:object="${group}" method="post">
-        <label for="nameInput">Name</label>
-        <input type="text" th:field="*{name}" id="nameInput" placeholder="1. Mannschaft">
-        <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
-        <input type="submit" value="Add group">
+    <form th:action="@{/group/create}" th:object="${group}" method="post">
+        <div class="mb-3">
+            <label for="nameInput">Name</label>
+            <input type="text" th:field="*{name}" class="form-control" id="nameInput" placeholder="1. Mannschaft">
+            <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Add group</button>
     </form>
 </section>
 

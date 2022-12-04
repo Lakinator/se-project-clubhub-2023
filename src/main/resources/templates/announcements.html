@@ -12,10 +12,9 @@
     <h2>All announcements from the club <span th:text="${club.name}"></span></h2>
 
     <div th:switch="${announcementPage.hasContent()}">
-        <h2 th:case="false">No announcements for this club yet!</h2>
+        <h5 th:case="false">No announcements for this club yet!</h5>
         <div th:case="true">
-            <h2>Announcements</h2>
-            <table>
+            <table class="table table-striped">
                 <thead>
                 <tr>
                     <th>Message</th>
@@ -32,12 +31,22 @@
                     <td th:text="${announcement.user.firstName + ' ' + announcement.user.lastName}"></td>
                     <td th:text="${announcement.createdOn}"></td>
                     <td th:text="${announcement.updatedOn}"></td>
-                    <td th:if="${announcement.user.id == user.id}"><a
-                            th:href="@{/announcement/{id}/edit(id=${announcement.id})}">Edit</a></td>
-                    <td th:if="${announcement.user.id != user.id}">You can't edit this announcement</td>
-                    <td th:if="${announcement.user.id == user.id}"><a
-                            th:href="@{/announcement/{id}/delete(id=${announcement.id})}">Delete</a></td>
-                    <td th:if="${announcement.user.id != user.id}">You can't delete this announcement</td>
+                    <td th:if="${announcement.user.id == user.id}">
+                        <a th:href="@{/announcement/{id}/edit(id=${announcement.id})}">
+                            <i class="bi bi-gear-fill"></i>
+                        </a>
+                    </td>
+                    <td th:if="${announcement.user.id != user.id}">
+                        <i class="bi bi-shield-slash"></i>
+                    </td>
+                    <td th:if="${announcement.user.id == user.id}">
+                        <a th:href="@{/announcement/{id}/delete(id=${announcement.id})}">
+                            <i class="bi bi-trash-fill text-danger"></i>
+                        </a>
+                    </td>
+                    <td th:if="${announcement.user.id != user.id}">
+                        <i class="bi bi-shield-slash"></i>
+                    </td>
                 </tr>
                 </tbody>
             </table>
