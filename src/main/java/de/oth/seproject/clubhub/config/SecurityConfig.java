@@ -53,7 +53,7 @@ public class SecurityConfig {
         // configure logout
         http.logout()
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/");
+                .logoutSuccessUrl("/login?logout");
 
         return http.build();
     }

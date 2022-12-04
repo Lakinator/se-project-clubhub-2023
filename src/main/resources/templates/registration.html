@@ -1,38 +1,45 @@
 <!DOCTYPE html>
-<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}">
 <head>
     <meta charset="UTF-8">
     <title>ClubHub Registrierung</title>
 </head>
 <body>
-<h1>Registriere dich bei ClubHub</h1>
-<form action="#" th:action="@{/user/create}" th:object="${user}" method="POST" id="registration-form">
-    <div>
-        <label for="firstNameInput">Vorname</label>
-        <input id="firstNameInput" th:field="*{firstName}"/>
-    </div>
-    <div>
-        <label for="lastNameInput">Nachname</label>
-        <input id="lastNameInput" th:field="*{lastName}"/>
-    </div>
-    <div>
-        <label for="emailInput">E-Mail</label>
-        <input id="emailInput" type="email" th:field="*{email}"/>
-    </div>
-    <div>
-        <label for="passwordInput">Passwort</label>
-        <input id="passwordInput" type="password" th:field="*{password}"/>
-    </div>
-    <div>
-        <label for="clubSelect">Club</label>
-        <select id="clubSelect" th:field="*{club}">
-            <option value="0">Wähle einen Club</option>
-            <option th:each="club : ${clubs}" th:value="${club.id}" th:text="${club.name}"></option>
-        </select>
-    </div>
-    <button type="submit">Registrieren</button>
-</form>
 
-<a th:href="@{/login}">Login</a>
+<section layout:fragment="default-content">
+    <h2>Registriere dich bei ClubHub</h2>
+
+    <form th:action="@{/user/create}" th:object="${user}" method="post">
+        <div class="mb-3">
+            <label for="firstNameInput">Vorname</label>
+            <input id="firstNameInput" class="form-control" th:field="*{firstName}"/>
+        </div>
+        <div class="mb-3">
+            <label for="lastNameInput">Nachname</label>
+            <input id="lastNameInput" class="form-control" th:field="*{lastName}"/>
+        </div>
+        <div class="mb-3">
+            <label for="emailInput">E-Mail</label>
+            <input id="emailInput" type="email" class="form-control" th:field="*{email}"/>
+            <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+        </div>
+        <div class="mb-3">
+            <label for="passwordInput">Passwort</label>
+            <input id="passwordInput" type="password" class="form-control" th:field="*{password}"/>
+        </div>
+        <div class="mb-3">
+            <label for="clubSelect">Club</label>
+            <select id="clubSelect" class="form-control" th:field="*{club}">
+                <option value="0">Wähle einen Club</option>
+                <option th:each="club : ${clubs}" th:value="${club.id}" th:text="${club.name}"></option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Registrieren</button>
+    </form>
+
+</section>
+
 </body>
 </html>
