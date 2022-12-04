@@ -71,12 +71,7 @@
                     </tr>
                     </tbody>
                 </table>
-                <div th:if="${groupDTOPage.totalPages > 0}" class="pagination"
-                     th:each="pageNumber : ${#numbers.sequence(1, groupDTOPage.totalPages)}">
-                    <a th:href="@{/groups(size=${groupDTOPage.size}, page=${pageNumber})}"
-                       th:text="${pageNumber}"
-                       th:class="${pageNumber == groupDTOPage.number + 1} ? active"></a>
-                </div>
+                <div th:insert="fragments/pagination :: default-pagination (hrefPrefix='/groups', totalPages=${groupDTOPage.totalPages}, activePage=${groupDTOPage.number + 1}, pageSize=${groupDTOPage.size})"></div>
             </div>
             <p><a href="/groups/add">Add a new group</a></p>
         </div>
