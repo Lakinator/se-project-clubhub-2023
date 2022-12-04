@@ -20,7 +20,7 @@ public class SecurityConfig {
 
         // everyone can access these sites
         http.authorizeRequests()
-                .antMatchers("/", "/login", "/registration", "/user/create").permitAll();
+                .antMatchers("/", "/home", "/login", "/registration", "/user/create").permitAll();
 
         // manage access to announcement sites
         http.authorizeRequests()
@@ -53,7 +53,7 @@ public class SecurityConfig {
         // configure logout
         http.logout()
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/");
+                .logoutSuccessUrl("/login?logout");
 
         return http.build();
     }

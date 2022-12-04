@@ -9,19 +9,19 @@
 <body>
 
 <section layout:fragment="default-content">
+
     <h2>All groups from the club <span th:text="${club.name}"></span></h2>
     </h2>
 
     <div th:switch="${groupDTOPage.hasContent()}">
-        <h2 th:case="false">No groups for this club yet!</h2>
+        <h5 th:case="false">No groups for this club yet!</h5>
         <div th:case="true">
-            <h2>Groups</h2>
-            <table>
+            <table class="table table-striped">
                 <thead>
                 <tr>
                     <th>Name</th>
-                    <th>User Count</th>
-                    <th>Status</th>
+                    <th>Member Count</th>
+                    <th>Action</th>
                     <th>Members</th>
                     <th>Delete</th>
                 </tr>
@@ -33,35 +33,48 @@
 
                     <div th:switch="${groupDTO.hasJoined}">
                         <td th:case="true">
-                            <a th:href="@{/group/{id}/leave(id=${groupDTO.id})}">Leave</a></td>
+                            <a th:href="@{/group/{id}/leave(id=${groupDTO.id})}">
+                                <i class="bi bi-dash-square text-danger"></i>
+                            </a>
+                        </td>
                         <td th:case="false">
-                            <a th:href="@{/group/{id}/join(id=${groupDTO.id})}">Join</a></td>
+                            <a th:href="@{/group/{id}/join(id=${groupDTO.id})}">
+                                <i class="bi bi-plus-square text-success"></i>
+                            </a>
+                        </td>
                     </div>
 
                     <div th:switch="${groupDTO.isTrainer}">
                         <td th:case="false">
-                            <a th:href="@{/group/{id}/show(id=${groupDTO.id})}">Show</a></td>
+                            <a th:href="@{/group/{id}/show(id=${groupDTO.id})}">
+                                <i class="bi bi-person-lines-fill"></i>
+                            </a>
+                        </td>
                         <td th:case="true">
-                            <a th:href="@{/group/{id}/edit(id=${groupDTO.id})}">Edit</a></td>
+                            <a th:href="@{/group/{id}/edit(id=${groupDTO.id})}">
+                                <i class="bi bi-person-fill-gear text-info"></i>
+                            </a>
+                        </td>
                     </div>
 
                     <div th:switch="${groupDTO.isTrainer}">
-                        <td th:case="false">You are not a trainer of this group</td>
+                        <td th:case="false">
+                            <i class="bi bi-shield-slash"></i>
+                        </td>
                         <td th:case="true">
-                            <a th:href="@{/group/{id}/delete(id=${groupDTO.id})}">Delete</a></td>
+                            <a th:href="@{/group/{id}/delete(id=${groupDTO.id})}">
+                                <i class="bi bi-trash-fill text-danger"></i>
+                            </a>
+                        </td>
                     </div>
                 </tr>
                 </tbody>
             </table>
-            <div th:if="${groupDTOPage.totalPages > 0}" class="pagination"
-                 th:each="pageNumber : ${#numbers.sequence(1, groupDTOPage.totalPages)}">
-                <a th:href="@{/groups(size=${groupDTOPage.size}, page=${pageNumber})}"
-                   th:text="${pageNumber}"
-                   th:class="${pageNumber == groupDTOPage.number + 1} ? active"></a>
-            </div>
+            <div th:insert="fragments/pagination :: default-pagination (hrefPrefix='/groups', totalPages=${groupDTOPage.totalPages}, activePage=${groupDTOPage.number + 1}, pageSize=${groupDTOPage.size})"></div>
         </div>
         <p><a href="/groups/add">Add a new group</a></p>
     </div>
+
 </section>
 
 </body>

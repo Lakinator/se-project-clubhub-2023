@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Default Pagination Fragment</title>
+</head>
+<body>
+
+<!-- Usage:
+    <div th:insert="fragments/pagination :: default-pagination (hrefPrefix='/link', totalPages=${page.totalPages}, activePage=${page.number + 1}, pageSize=${page.size})"></div>
+-->
+
+<nav th:fragment="default-pagination (hrefPrefix, totalPages, activePage, pageSize)">
+    <ul class="pagination">
+        <li class="page-item" th:classappend="${activePage <= 1} ? disabled">
+            <a class="page-link" th:href="@{${hrefPrefix}(size=${pageSize}, page=${activePage - 1})}">
+                <span>&laquo;</span>
+            </a>
+        </li>
+        <li class="page-item" th:each="pageNumber : ${#numbers.sequence(1, totalPages)}"
+            th:classappend="${pageNumber == activePage} ? active">
+            <a class="page-link" th:href="@{${hrefPrefix}(size=${pageSize}, page=${pageNumber})}"
+               th:text="${pageNumber}"></a>
+        </li>
+        <li class="page-item" th:classappend="${activePage >= totalPages} ? disabled">
+            <a class="page-link" th:href="@{${hrefPrefix}(size=${pageSize}, page=${activePage + 1})}">
+                <span>&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+</body>
+</html>
