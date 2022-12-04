@@ -41,12 +41,7 @@
                 </tr>
                 </tbody>
             </table>
-            <div th:if="${announcementPage.totalPages > 0}" class="pagination"
-                 th:each="pageNumber : ${#numbers.sequence(1, announcementPage.totalPages)}">
-                <a th:href="@{/announcements(size=${announcementPage.size}, page=${pageNumber})}"
-                   th:text="${pageNumber}"
-                   th:class="${pageNumber == announcementPage.number + 1} ? active"></a>
-            </div>
+            <div th:insert="fragments/pagination :: default-pagination (hrefPrefix='/announcements', totalPages=${announcementPage.totalPages}, activePage=${announcementPage.number + 1}, pageSize=${announcementPage.size})"></div>
         </div>
         <p th:if="${isTrainerInClub}"><a href="/announcements/add">Add a new announcement</a></p>
     </div>
