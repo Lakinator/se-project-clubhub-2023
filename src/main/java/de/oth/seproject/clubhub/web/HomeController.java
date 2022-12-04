@@ -12,6 +12,12 @@ public class HomeController {
     @Value("${spring.application.name}")
     private String appName;
 
+    @GetMapping("/")
+    public String landingPage(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
+        model.addAttribute("appName", appName);
+        return "home";
+    }
+
     @GetMapping("/home")
     public String homePage(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
         model.addAttribute("appName", appName);

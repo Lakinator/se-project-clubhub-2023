@@ -9,84 +9,81 @@
 <body>
 
 <section layout:fragment="default-content">
+    <h2 th:text="${group.name} + ' calendar from the club ' + ${group.club.name}"></h2>
 
-    <div class="container">
-        <h2 th:text="${group.name} + ' calendar from the club ' + ${group.club.name}"></h2>
-
-        <div class="container text-left">
-            <div class="row">
-                <div class="col-2">
-                    <a class="btn btn-primary"
-                       th:href="@{/group/{groupId}/calendar(groupId=${group.id}, month=${currentMonth})}">Aktuell</a>
-                </div>
-                <div class="col">
-                    <div class="btn-group">
-                        <a class="btn btn-outline-secondary"
-                           th:href="@{/group/{groupId}/calendar(groupId=${group.id}, year=${lastYear}, month=${lastMonth})}">
-                            <i class="bi bi-chevron-left"></i>
-                        </a>
-                        <a class="btn btn-outline-secondary"
-                           th:href="@{/group/{groupId}/calendar(groupId=${group.id}, year=${nextYear}, month=${nextMonth})}">
-                            <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="col">
-                    <h4 th:text="${#temporals.format(selectedIntervalStart)} + ' - ' + ${#temporals.format(selectedIntervalEnd)}"></h4>
+    <div class="container text-left">
+        <div class="row">
+            <div class="col-2">
+                <a class="btn btn-primary"
+                   th:href="@{/group/{groupId}/calendar(groupId=${group.id}, month=${currentMonth})}">Aktuell</a>
+            </div>
+            <div class="col">
+                <div class="btn-group">
+                    <a class="btn btn-outline-secondary"
+                       th:href="@{/group/{groupId}/calendar(groupId=${group.id}, year=${lastYear}, month=${lastMonth})}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                    <a class="btn btn-outline-secondary"
+                       th:href="@{/group/{groupId}/calendar(groupId=${group.id}, year=${nextYear}, month=${nextMonth})}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
                 </div>
             </div>
-        </div>
-
-        <div th:switch="${groupEvents.isEmpty()}">
-            <h5 th:case="true">Empty in here, isn't it?</h5>
-            <div th:case="false">
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th>Creator</th>
-                        <th>Day</th>
-                        <th>Start</th>
-                        <th>End</th>
-                        <th>Title</th>
-                        <th>Description</th>
-                        <th>Location</th>
-                        <div th:if="${isTrainer}">
-                            <th>Edit</th>
-                            <th>Delete</th>
-                        </div>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="groupEvent : ${groupEvents}">
-                        <td th:text="${groupEvent.user.firstName + ' ' + groupEvent.user.lastName}"></td>
-                        <td th:text="${groupEvent.eventDate}"></td>
-                        <td th:text="${groupEvent.eventStart}"></td>
-                        <td th:text="${groupEvent.eventEnd}"></td>
-                        <td th:text="${groupEvent.title}"></td>
-                        <td th:text="${groupEvent.description}"></td>
-                        <td th:if="${groupEvent.location != null}" th:text="${groupEvent.location.description}"></td>
-                        <td th:if="${groupEvent.location == null}">No location set</td>
-                        <div th:if="${isTrainer}">
-                            <td>
-                                <a th:href="@{/group/{groupId}/event/{eventId}/edit(groupId=${group.id}, eventId=${groupEvent.id})}">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                            </td>
-                            <td>
-                                <a th:href="@{/group/{groupId}/event/{eventId}/delete(groupId=${group.id}, eventId=${groupEvent.id})}">
-                                    <i class="bi bi-trash-fill"></i>
-                                </a>
-                            </td>
-                        </div>
-                    </tr>
-                    </tbody>
-                </table>
+            <div class="col">
+                <h4 th:text="${#temporals.format(selectedIntervalStart)} + ' - ' + ${#temporals.format(selectedIntervalEnd)}"></h4>
             </div>
         </div>
-
-        <p th:if="${isTrainer}"><a th:href="@{/group/{groupId}/events/add(groupId=${group.id})}">Add a new group
-            event</a></p>
     </div>
+
+    <div th:switch="${groupEvents.isEmpty()}">
+        <h5 th:case="true">Empty in here, isn't it?</h5>
+        <div th:case="false">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Creator</th>
+                    <th>Day</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Location</th>
+                    <div th:if="${isTrainer}">
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </div>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="groupEvent : ${groupEvents}">
+                    <td th:text="${groupEvent.user.firstName + ' ' + groupEvent.user.lastName}"></td>
+                    <td th:text="${groupEvent.eventDate}"></td>
+                    <td th:text="${groupEvent.eventStart}"></td>
+                    <td th:text="${groupEvent.eventEnd}"></td>
+                    <td th:text="${groupEvent.title}"></td>
+                    <td th:text="${groupEvent.description}"></td>
+                    <td th:if="${groupEvent.location != null}" th:text="${groupEvent.location.description}"></td>
+                    <td th:if="${groupEvent.location == null}">No location set</td>
+                    <div th:if="${isTrainer}">
+                        <td>
+                            <a th:href="@{/group/{groupId}/event/{eventId}/edit(groupId=${group.id}, eventId=${groupEvent.id})}">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a th:href="@{/group/{groupId}/event/{eventId}/delete(groupId=${group.id}, eventId=${groupEvent.id})}">
+                                <i class="bi bi-trash-fill"></i>
+                            </a>
+                        </td>
+                    </div>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <p th:if="${isTrainer}"><a th:href="@{/group/{groupId}/events/add(groupId=${group.id})}">Add a new group
+        event</a></p>
 
 </section>
 
