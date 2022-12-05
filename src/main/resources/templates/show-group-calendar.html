@@ -10,15 +10,15 @@
 <body>
 
 <section layout:fragment="default-content">
-    <h2 th:text="${activeGroup.name} + ' calendar from the club ' + ${activeGroup.club.name}"></h2>
+    <h2 class="m-4" th:text="${activeGroup.name} + ' calendar from the club ' + ${activeGroup.club.name}"></h2>
 
     <div class="container text-left">
         <div class="row">
             <div class="col-2">
-                <a class="btn btn-primary"
+                <a class="btn btn-outline-primary"
                    th:href="@{/group/{groupId}/calendar(groupId=${activeGroup.id}, month=${currentMonth})}">Aktuell</a>
             </div>
-            <div class="col">
+            <div class="col-2">
                 <div class="btn-group">
                     <a class="btn btn-outline-secondary"
                        th:href="@{/group/{groupId}/calendar(groupId=${activeGroup.id}, year=${lastYear}, month=${lastMonth})}">
@@ -44,8 +44,8 @@
                 <tr>
                     <th>#</th>
                     <th>Wochentag</th>
-                    <th>Veranstalter</th>
                     <th>Zeitraum</th>
+                    <th>Veranstalter</th>
                     <th>Title</th>
                     <th>Description</th>
                     <th>Location</th>
@@ -59,8 +59,8 @@
                 <tr th:each="groupEvent : ${groupEvents}">
                     <th th:text="${#temporals.day(groupEvent.eventDate)}" th:class="${groupEvent.isToday()} ? 'table-success'"></th>
                     <td th:text="${#temporals.monthNameShort(groupEvent.eventDate)} + ', ' + ${#temporals.dayOfWeekNameShort(groupEvent.eventDate)}"></td>
-                    <td th:text="${groupEvent.user.firstName + ' ' + groupEvent.user.lastName}"></td>
                     <td th:text="${#temporals.format(groupEvent.eventStart, 'HH:mm')} + ' - ' + ${#temporals.format(groupEvent.eventEnd, 'HH:mm')}"></td>
+                    <td th:text="${groupEvent.user.firstName + ' ' + groupEvent.user.lastName}"></td>
                     <td th:text="${groupEvent.title}"></td>
                     <td th:text="${groupEvent.description}"></td>
                     <td th:if="${groupEvent.location != null}" th:text="${groupEvent.location.description}"></td>
