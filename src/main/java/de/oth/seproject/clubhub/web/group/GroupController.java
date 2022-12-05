@@ -1,4 +1,4 @@
-package de.oth.seproject.clubhub.web;
+package de.oth.seproject.clubhub.web.group;
 
 import de.oth.seproject.clubhub.config.ClubUserDetails;
 import de.oth.seproject.clubhub.persistence.model.Group;
@@ -9,6 +9,7 @@ import de.oth.seproject.clubhub.persistence.repository.GroupRepository;
 import de.oth.seproject.clubhub.persistence.repository.RoleRepository;
 import de.oth.seproject.clubhub.persistence.repository.UserRepository;
 import de.oth.seproject.clubhub.web.dto.GroupDTO;
+import de.oth.seproject.clubhub.web.service.NavigationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,13 +27,16 @@ import java.util.Optional;
 @Controller
 public class GroupController {
 
+    private final NavigationService navigationService;
+
     private final GroupRepository groupRepository;
 
     private final RoleRepository roleRepository;
 
     private final UserRepository userRepository;
 
-    public GroupController(GroupRepository groupRepository, RoleRepository roleRepository, UserRepository userRepository) {
+    public GroupController(NavigationService navigationService, GroupRepository groupRepository, RoleRepository roleRepository, UserRepository userRepository) {
+        this.navigationService = navigationService;
         this.groupRepository = groupRepository;
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
@@ -56,9 +60,9 @@ public class GroupController {
             return new GroupDTO(group.getId(), group.getRoles().size(), group.getName(), hasJoined, isTrainerInGroup);
         });
 
-        model.addAttribute("user", userDetails.getUser());
-        model.addAttribute("club", userDetails.getUser().getClub());
         model.addAttribute("groupDTOPage", groupDTOPage);
+
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
         return "groups";
     }
 
@@ -66,7 +70,8 @@ public class GroupController {
     public String addGroupPage(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
         Group group = new Group();
         model.addAttribute("group", group);
-        model.addAttribute("clubName", userDetails.getUser().getClub().getName());
+
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
         return "add-group";
     }
 
@@ -74,7 +79,7 @@ public class GroupController {
     public String createGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @Valid Group group, BindingResult result, Model model) {
 
         if (result.hasErrors()) {
-            model.addAttribute("clubName", userDetails.getUser().getClub().getName());
+            navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
             return "add-group";
         }
 
@@ -176,8 +181,9 @@ public class GroupController {
 
         Page<Role> rolePage = roleRepository.findAllByGroup(group, pageRequest);
 
-        model.addAttribute("group", group);
         model.addAttribute("rolePage", rolePage);
+
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), id);
         return "show-group";
     }
 
@@ -186,17 +192,17 @@ public class GroupController {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + id));
 
-        Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-        final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getRoleName().equals(RoleType.TRAINER);
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
 
         // if user is not a trainer of this group, automatically redirect him to the show page
         if (!isTrainerInGroup) {
             return "redirect:/group/" + id + "/show";
         }
 
-        model.addAttribute("activeRole", roleInGroup.get());
         model.addAttribute("group", group);
         model.addAttribute("roleNames", RoleType.values());
+
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
         return "edit-group";
     }
 
@@ -204,15 +210,17 @@ public class GroupController {
     public String updateGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, @Valid Group group,
                               BindingResult result, Model model) {
 
-        if (result.hasErrors()) {
-            return "redirect:/group/" + id + "/show";
-        }
-
         boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
 
         // if user is not a trainer of this group, automatically redirect him to the show page
         if (!isTrainerInGroup) {
             return "redirect:/group/" + id + "/show";
+        }
+
+        if (result.hasErrors()) {
+            model.addAttribute("roleNames", RoleType.values());
+            navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
+            return "edit-group";
         }
 
         group.getRoles().forEach(role -> {
@@ -234,7 +242,7 @@ public class GroupController {
             groupRepository.save(g);
         });
 
-        return "redirect:/group/" + id + "/show";
+        return "redirect:/group/" + id + "/edit";
     }
 
     @GetMapping("/groups/{groupId}/kick/{userId}")

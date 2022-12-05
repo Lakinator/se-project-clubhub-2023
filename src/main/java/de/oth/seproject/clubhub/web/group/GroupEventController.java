@@ -160,19 +160,19 @@ public class GroupEventController {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
+
+        // user has to be a trainer of this group
+        if (!isTrainerInGroup) {
+            return "redirect:/group/" + groupId + "/calendar";
+        }
+
         if (result.hasErrors()) {
             List<Location> locations = locationRepository.findAll();
             model.addAttribute("eventTypes", EventType.values());
             model.addAttribute("locations", locations);
             navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
             return "edit-group-event";
-        }
-
-        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
-
-        // user has to be a trainer of this group
-        if (!isTrainerInGroup) {
-            return "redirect:/group/" + groupId + "/calendar";
         }
 
         Optional<GroupEvent> persistedGroupEvent = groupEventRepository.findById(eventId);

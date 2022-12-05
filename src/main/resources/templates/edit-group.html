@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="de" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{fragments/main}">
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}, activeGroup=${activeGroup}, roleInActiveGroup=${roleInActiveGroup}, isTrainerInActiveGroup=${isTrainerInActiveGroup}">
 <head>
     <meta charset="UTF-8">
     <title>ClubHub Edit Group</title>
@@ -10,59 +11,65 @@
 
 <section layout:fragment="default-content">
     <h2>
-        Edit <span th:text="${group.name}"></span> from the club <span th:text="${group.club.name}"></span>
+        Edit <span th:text="${activeGroup.name}"></span> from the club <span th:text="${activeGroup.club.name}"></span>
     </h2>
 
-    <form th:action="@{/group/{id}/update(id=${group.id})}" th:object="${group}" method="post">
+    <form th:action="@{/group/{id}/update(id=${activeGroup.id})}" th:object="${group}" method="post">
         <fieldset>
             <h4>Details</h4>
-            <label for="nameInput">Name</label>
-            <input type="text" th:field="*{name}" th:value="${group.name}" class="form-control" id="nameInput">
-            <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+            <div class="mb-3">
+                <label for="nameInput">Name</label>
+                <input type="text" th:field="*{name}" th:value="${group.name}" class="form-control" id="nameInput">
+                <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+            </div>
 
             <h4>Members</h4>
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Role</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="role, itemStat : ${group.roles}">
-                    <td th:text="|${role.user.firstName} ${role.user.lastName}${role.user.id == activeRole.user.id ? ' (You)' : ''}|"></td>
-                    <td>
-                        <input type="hidden" th:field="${group.roles[__${itemStat.index}__].id}" th:value="role.id"
-                               readonly>
-                        <label for="roleSelect"></label>
-                        <select id="roleSelect" class="form-select" th:disabled="${role.user.id == activeRole.user.id}"
-                                th:field="${group.roles[__${itemStat.index}__].roleName}">
-                            <option th:each="roleName : ${roleNames}" th:value="${roleName}"
-                                    th:text="${roleName.description}"></option>
-                        </select>
-                    </td>
-                    <div th:switch="${role.user.id == activeRole.user.id}">
-                        <td th:case="true">
-                            <a th:href="@{/group/{id}/leave(id=${group.id})}">
-                                <i class="bi bi-dash-square text-danger"></i>
-                            </a>
+            <div class="mb-3">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="role, itemStat : ${group.roles}">
+                        <td th:text="|${role.user.firstName} ${role.user.lastName}${role.user.id == roleInActiveGroup.user.id ? ' (You)' : ''}|"></td>
+                        <td>
+                            <input type="hidden" th:field="${group.roles[__${itemStat.index}__].id}" th:value="role.id"
+                                   readonly>
+                            <label for="roleSelect"></label>
+                            <select id="roleSelect" class="form-select"
+                                    th:disabled="${role.user.id == roleInActiveGroup.user.id}"
+                                    th:field="${group.roles[__${itemStat.index}__].roleName}">
+                                <option th:each="roleName : ${roleNames}" th:value="${roleName}"
+                                        th:text="${roleName.description}"></option>
+                            </select>
                         </td>
-                        <td th:case="false">
-                            <a th:href="@{/groups/{groupId}/kick/{userId}(groupId=${group.id}, userId=${role.user.id})}">
-                                <i class="bi bi-person-dash-fill text-danger"></i>
-                            </a>
-                        </td>
-                    </div>
-                </tr>
-                </tbody>
-            </table>
+                        <div th:switch="${role.user.id == roleInActiveGroup.user.id}">
+                            <td th:case="true">
+                                <a class="btn btn-danger" th:href="@{/group/{id}/leave(id=${group.id})}">
+                                    Leave
+                                </a>
+                            </td>
+                            <td th:case="false">
+                                <a class="btn btn-warning"
+                                   th:href="@{/groups/{groupId}/kick/{userId}(groupId=${group.id}, userId=${role.user.id})}">
+                                    Kick
+                                </a>
+                            </td>
+                        </div>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
             <button type="submit" class="btn btn-primary">Update</button>
             <button type="reset" class="btn btn-secondary">Reset</button>
         </fieldset>
     </form>
 
-    <a th:href="@{/group/{groupId}/calendar(groupId=${group.id})}">Group Calendar</a>
+    <a th:href="@{/group/{groupId}/calendar(groupId=${activeGroup.id})}">Group Calendar</a>
 </section>
 
 </body>
