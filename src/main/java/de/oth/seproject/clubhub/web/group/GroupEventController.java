@@ -1,8 +1,12 @@
-package de.oth.seproject.clubhub.web;
+package de.oth.seproject.clubhub.web.group;
 
 import de.oth.seproject.clubhub.config.ClubUserDetails;
 import de.oth.seproject.clubhub.persistence.model.*;
-import de.oth.seproject.clubhub.persistence.repository.*;
+import de.oth.seproject.clubhub.persistence.repository.GroupEventRepository;
+import de.oth.seproject.clubhub.persistence.repository.GroupRepository;
+import de.oth.seproject.clubhub.persistence.repository.LocationRepository;
+import de.oth.seproject.clubhub.persistence.repository.RoleRepository;
+import de.oth.seproject.clubhub.web.service.NavigationService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,21 +26,21 @@ import java.util.Optional;
 @Controller
 public class GroupEventController {
 
+    private final NavigationService navigationService;
+
     private final GroupEventRepository groupEventRepository;
 
     private final GroupRepository groupRepository;
 
     private final RoleRepository roleRepository;
 
-    private final UserRepository userRepository;
-
     private final LocationRepository locationRepository;
 
-    public GroupEventController(GroupEventRepository groupEventRepository, GroupRepository groupRepository, RoleRepository roleRepository, UserRepository userRepository, LocationRepository locationRepository) {
+    public GroupEventController(NavigationService navigationService, GroupEventRepository groupEventRepository, GroupRepository groupRepository, RoleRepository roleRepository, LocationRepository locationRepository) {
+        this.navigationService = navigationService;
         this.groupEventRepository = groupEventRepository;
         this.groupRepository = groupRepository;
         this.roleRepository = roleRepository;
-        this.userRepository = userRepository;
         this.locationRepository = locationRepository;
     }
 
@@ -60,11 +64,6 @@ public class GroupEventController {
 
         List<GroupEvent> groupEvents = groupEventRepository.findAllByGroupAndEventDateBetweenOrderByEventStartAsc(group, selectedIntervalStart, selectedIntervalEnd);
 
-
-        Optional<Role> optionalRole = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-
-        model.addAttribute("isTrainer", optionalRole.isPresent() && optionalRole.get().getRoleName().equals(RoleType.TRAINER));
-        model.addAttribute("group", group);
         model.addAttribute("groupEvents", groupEvents);
         model.addAttribute("lastMonth", selectedMonth.minus(1).getValue());
         model.addAttribute("lastYear", selectedIntervalStart.minusYears(1).getYear());
@@ -73,6 +72,8 @@ public class GroupEventController {
         model.addAttribute("currentMonth", LocalDate.now().getMonth().getValue());
         model.addAttribute("selectedIntervalStart", selectedIntervalStart);
         model.addAttribute("selectedIntervalEnd", selectedIntervalEnd);
+
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
         return "show-group-calendar";
     }
 
@@ -81,13 +82,21 @@ public class GroupEventController {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
+        final boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
+
+        // user has to be a trainer of this group
+        if (!isTrainerInGroup) {
+            return "redirect:/group/" + groupId + "/calendar";
+        }
+
         List<Location> locations = locationRepository.findAll();
 
         GroupEvent groupEvent = new GroupEvent();
         model.addAttribute("groupEvent", groupEvent);
-        model.addAttribute("group", group);
         model.addAttribute("eventTypes", EventType.values());
         model.addAttribute("locations", locations);
+
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), groupId);
         return "add-group-event";
     }
 
@@ -96,23 +105,26 @@ public class GroupEventController {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
-        if (result.hasErrors()) {
-            List<Location> locations = locationRepository.findAll();
-            model.addAttribute("group", group);
-            model.addAttribute("eventTypes", EventType.values());
-            model.addAttribute("locations", locations);
-            return "add-group-event";
-        }
-
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
         final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getRoleName().equals(RoleType.TRAINER);
 
-        if (isTrainerInGroup) {
-            groupEvent.setGroup(group);
-            groupEvent.setUser(roleInGroup.get().getUser());
-
-            groupEventRepository.save(groupEvent);
+        // user has to be a trainer of this group
+        if (!isTrainerInGroup) {
+            return "redirect:/group/" + groupId + "/calendar";
         }
+
+        if (result.hasErrors()) {
+            List<Location> locations = locationRepository.findAll();
+            model.addAttribute("eventTypes", EventType.values());
+            model.addAttribute("locations", locations);
+            navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
+            return "add-group-event";
+        }
+
+        groupEvent.setGroup(group);
+        groupEvent.setUser(roleInGroup.get().getUser());
+
+        groupEventRepository.save(groupEvent);
 
         return "redirect:/group/" + groupId + "/calendar";
     }
@@ -134,10 +146,11 @@ public class GroupEventController {
 
         List<Location> locations = locationRepository.findAll();
 
-        model.addAttribute("group", group);
         model.addAttribute("groupEvent", groupEvent);
         model.addAttribute("eventTypes", EventType.values());
         model.addAttribute("locations", locations);
+
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
         return "edit-group-event";
     }
 
@@ -149,9 +162,9 @@ public class GroupEventController {
 
         if (result.hasErrors()) {
             List<Location> locations = locationRepository.findAll();
-            model.addAttribute("group", group);
             model.addAttribute("eventTypes", EventType.values());
             model.addAttribute("locations", locations);
+            navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
             return "edit-group-event";
         }
 

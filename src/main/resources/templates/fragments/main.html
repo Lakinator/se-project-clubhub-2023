@@ -35,12 +35,14 @@
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/groups}">Gruppen</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                <li th:if="${activeUser}" class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle"
+                       th:classappend="${activeUser.getRoles().isEmpty()} ? disabled"
+                       href="#" role="button" data-bs-toggle="dropdown">
                         Deine Gruppen
                     </a>
                     <ul class="dropdown-menu">
-                        <li th:each="role : ${#authentication.getPrincipal().getUser().getRoles()}">
+                        <li th:each="role : ${activeUser.getRoles()}">
                             <a class="dropdown-item"
                                th:href="@{/group/{groupId}/calendar(groupId=${role.getGroup().getId()})}"
                                th:text="${role.getGroup().getName()}"></a>
@@ -67,8 +69,14 @@
                     <a class="nav-link" th:href="@{/logout}">Logout</a>
                 </li>
             </ul>
-            <span class="navbar-text"
-                  th:text="${#authentication.getPrincipal().getUser().getClub().getName()}"></span>
+            <span th:if="${roleInActiveGroup}" class="navbar-text"
+                  th:text="${activeGroup.getName()} + ' (' + ${roleInActiveGroup.getRoleName().name()} + ') > '">
+            </span>
+            <a th:if="${roleInActiveGroup}" th:href="@{/group/{groupId}/show(groupId=${activeGroup.getId()})}" class="btn btn-secondary">
+                <i class="bi bi-person-line-fill"></i>
+            </a>
+            <span th:if="${activeUser}" class="navbar-text"
+                  th:text="${activeUser.getClub().getName()}"></span>
         </div>
     </div>
 
