@@ -205,7 +205,7 @@ public class GroupEventController {
 
             if (eventExtraDTO.getWholeDay()) {
                 e.setEventStart(LocalTime.MIN);
-                e.setEventEnd(LocalTime.MIDNIGHT.minusSeconds(1));
+                e.setEventEnd(LocalTime.MAX);
             } else {
                 if (groupEvent.getEventStart() == null) {
                     e.setEventStart(LocalTime.MIN);

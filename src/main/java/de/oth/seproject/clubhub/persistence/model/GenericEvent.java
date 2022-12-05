@@ -85,6 +85,10 @@ public class GenericEvent {
 
     public void setEventStart(LocalTime eventStart) {
         this.eventStart = eventStart;
+
+        if (this.eventStart != null) {
+            this.eventStart = this.eventStart.withSecond(0).withNano(0);
+        }
     }
 
     public LocalTime getEventEnd() {
@@ -93,6 +97,10 @@ public class GenericEvent {
 
     public void setEventEnd(LocalTime eventEnd) {
         this.eventEnd = eventEnd;
+
+        if (this.eventEnd != null) {
+            this.eventEnd = this.eventEnd.withSecond(0).withNano(0);
+        }
     }
 
     public String getTitle() {
@@ -116,6 +124,6 @@ public class GenericEvent {
     }
 
     public boolean isWholeDay() {
-        return eventStart.equals(LocalTime.MIN) && (eventEnd.equals(LocalTime.MAX) || eventEnd.equals(LocalTime.MIDNIGHT.minusSeconds(1)));
+        return eventStart.equals(LocalTime.MIN) && eventEnd.equals(LocalTime.MAX.withSecond(0).withNano(0));
     }
 }
