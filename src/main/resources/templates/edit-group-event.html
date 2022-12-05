@@ -30,6 +30,10 @@
             <p th:if="${#fields.hasErrors('eventDate')}" th:errors="*{eventDate}"></p>
         </div>
         <div class="mb-3">
+            <label for="boolIsWholeDayInput">Ganzer Tag</label>
+            <input id="boolIsWholeDayInput" class="form-check-input" type="checkbox" th:field="${eventExtraDTO.wholeDay}"/>
+        </div>
+        <div class="mb-3">
             <label for="timeStartInput">Start</label>
             <input id="timeStartInput" class="form-control" type="time" th:field="*{eventStart}"/>
             <p th:if="${#fields.hasErrors('eventStart')}" th:errors="*{eventStart}"></p>

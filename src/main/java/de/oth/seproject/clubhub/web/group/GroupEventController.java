@@ -6,6 +6,7 @@ import de.oth.seproject.clubhub.persistence.repository.GroupEventRepository;
 import de.oth.seproject.clubhub.persistence.repository.GroupRepository;
 import de.oth.seproject.clubhub.persistence.repository.LocationRepository;
 import de.oth.seproject.clubhub.persistence.repository.RoleRepository;
+import de.oth.seproject.clubhub.web.dto.EventExtraDTO;
 import de.oth.seproject.clubhub.web.service.NavigationService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.Month;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
@@ -96,12 +98,14 @@ public class GroupEventController {
         model.addAttribute("eventTypes", EventType.values());
         model.addAttribute("locations", locations);
 
+        model.addAttribute("eventExtraDTO", new EventExtraDTO());
+
         navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), groupId);
         return "add-group-event";
     }
 
     @PostMapping("/group/{groupId}/event/create")
-    public String createGroupEvent(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @Valid GroupEvent groupEvent, BindingResult result, Model model) {
+    public String createGroupEvent(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @Valid GroupEvent groupEvent, BindingResult result, EventExtraDTO eventExtraDTO, Model model) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
@@ -117,12 +121,25 @@ public class GroupEventController {
             List<Location> locations = locationRepository.findAll();
             model.addAttribute("eventTypes", EventType.values());
             model.addAttribute("locations", locations);
+            model.addAttribute("eventExtraDTO", new EventExtraDTO());
             navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
             return "add-group-event";
         }
 
         groupEvent.setGroup(group);
         groupEvent.setUser(roleInGroup.get().getUser());
+
+        if (eventExtraDTO.getWholeDay()) {
+            groupEvent.setEventStart(LocalTime.MIN);
+            groupEvent.setEventEnd(LocalTime.MAX);
+        } else {
+            if (groupEvent.getEventStart() == null) {
+                groupEvent.setEventStart(LocalTime.MIN);
+            }
+            if (groupEvent.getEventEnd() == null) {
+                groupEvent.setEventEnd(LocalTime.MAX);
+            }
+        }
 
         groupEventRepository.save(groupEvent);
 
@@ -151,13 +168,16 @@ public class GroupEventController {
         model.addAttribute("eventTypes", EventType.values());
         model.addAttribute("locations", locations);
 
+        model.addAttribute("eventExtraDTO", new EventExtraDTO(groupEvent.isWholeDay()));
+
         navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
         return "edit-group-event";
     }
 
     @PostMapping("/group/{groupId}/event/{eventId}/update")
     public String updateGroupEvent(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("eventId") long eventId, @Valid GroupEvent groupEvent,
-                                   BindingResult result, Model model) {
+                                   BindingResult result,
+                                   EventExtraDTO eventExtraDTO, Model model) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
@@ -182,8 +202,24 @@ public class GroupEventController {
         persistedGroupEvent.ifPresent(e -> {
             e.setEventType(groupEvent.getEventType());
             e.setEventDate(groupEvent.getEventDate());
-            e.setEventStart(groupEvent.getEventStart());
-            e.setEventEnd(groupEvent.getEventEnd());
+
+            if (eventExtraDTO.getWholeDay()) {
+                e.setEventStart(LocalTime.MIN);
+                e.setEventEnd(LocalTime.MIDNIGHT.minusSeconds(1));
+            } else {
+                if (groupEvent.getEventStart() == null) {
+                    e.setEventStart(LocalTime.MIN);
+                } else {
+                    e.setEventStart(groupEvent.getEventStart());
+                }
+
+                if (groupEvent.getEventEnd() == null) {
+                    e.setEventEnd(LocalTime.MAX);
+                } else {
+                    e.setEventEnd(groupEvent.getEventEnd());
+                }
+            }
+
             e.setTitle(groupEvent.getTitle());
             e.setDescription(groupEvent.getDescription());
             e.setLocation(groupEvent.getLocation());

@@ -31,11 +31,9 @@ public class GenericEvent {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate eventDate;
 
-    @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
     private LocalTime eventStart;
 
-    @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
     private LocalTime eventEnd;
 
@@ -118,6 +116,6 @@ public class GenericEvent {
     }
 
     public boolean isWholeDay() {
-        return eventStart.equals(LocalTime.MIN) && eventEnd.equals(LocalTime.MAX);
+        return eventStart.equals(LocalTime.MIN) && (eventEnd.equals(LocalTime.MAX) || eventEnd.equals(LocalTime.MIDNIGHT.minusSeconds(1)));
     }
 }
