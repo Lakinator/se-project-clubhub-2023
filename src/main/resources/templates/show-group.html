@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="de" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{fragments/main}">
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}, activeGroup=${activeGroup}, roleInActiveGroup=${roleInActiveGroup}, isTrainerInActiveGroup=${isTrainerInActiveGroup}">
 <head>
     <meta charset="UTF-8">
     <title>ClubHub Group</title>
@@ -10,7 +11,7 @@
 
 <section layout:fragment="default-content">
     <h2>
-        <span th:text="${group.name}"></span> from the club <span th:text="${group.club.name}"></span>
+        <span th:text="${activeGroup.name}"></span> from the club <span th:text="${activeGroup.club.name}"></span>
     </h2>
 
     <div th:switch="${rolePage.hasContent()}">
@@ -31,11 +32,11 @@
                 </tr>
                 </tbody>
             </table>
-            <div th:insert="fragments/pagination :: default-pagination (hrefPrefix='/group/' + ${group.id} + '/show', totalPages=${rolePage.totalPages}, activePage=${rolePage.number + 1}, pageSize=${rolePage.size})"></div>
+            <div th:insert="fragments/pagination :: default-pagination (hrefPrefix='/group/' + ${activeGroup.id} + '/show', totalPages=${rolePage.totalPages}, activePage=${rolePage.number + 1}, pageSize=${rolePage.size})"></div>
         </div>
     </div>
 
-    <a th:href="@{/group/{groupId}/calendar(groupId=${group.id})}">Group Calendar</a>
+    <a th:href="@{/group/{groupId}/calendar(groupId=${activeGroup.id})}">Group Calendar</a>
 </section>
 
 </body>

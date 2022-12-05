@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="de" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{fragments/main}">
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}, activeGroup=${activeGroup}, roleInActiveGroup=${roleInActiveGroup}, isTrainerInActiveGroup=${isTrainerInActiveGroup}">
 <head>
     <meta charset="UTF-8">
     <title>ClubHub Edit Announcement</title>
@@ -9,7 +10,7 @@
 <body>
 
 <section layout:fragment="default-content">
-    <h2>Edit announcement for <span th:text="${club.name}"></span></h2>
+    <h2>Edit announcement for <span th:text="${activeUser.club.name}"></span></h2>
 
     <form th:action="@{/announcement/{id}/update(id=${announcement.id})}" th:object="${announcement}" method="post">
         <div class="mb-3">

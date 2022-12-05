@@ -3,12 +3,11 @@ package de.oth.seproject.clubhub.persistence.model;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Table(name = "generic_events")
 @Entity
@@ -32,15 +31,11 @@ public class GenericEvent {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate eventDate;
 
-    @NotNull
-    @Future
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private LocalDateTime eventStart;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+    private LocalTime eventStart;
 
-    @NotNull
-    @Future
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private LocalDateTime eventEnd;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+    private LocalTime eventEnd;
 
     @NotBlank
     private String title;
@@ -84,20 +79,28 @@ public class GenericEvent {
         this.eventDate = eventDate;
     }
 
-    public LocalDateTime getEventStart() {
+    public LocalTime getEventStart() {
         return eventStart;
     }
 
-    public void setEventStart(LocalDateTime eventStart) {
+    public void setEventStart(LocalTime eventStart) {
         this.eventStart = eventStart;
+
+        if (this.eventStart != null) {
+            this.eventStart = this.eventStart.withSecond(0).withNano(0);
+        }
     }
 
-    public LocalDateTime getEventEnd() {
+    public LocalTime getEventEnd() {
         return eventEnd;
     }
 
-    public void setEventEnd(LocalDateTime eventEnd) {
+    public void setEventEnd(LocalTime eventEnd) {
         this.eventEnd = eventEnd;
+
+        if (this.eventEnd != null) {
+            this.eventEnd = this.eventEnd.withSecond(0).withNano(0);
+        }
     }
 
     public String getTitle() {
@@ -114,5 +117,13 @@ public class GenericEvent {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean isToday() {
+        return getEventDate().isEqual(LocalDate.now());
+    }
+
+    public boolean isWholeDay() {
+        return eventStart.equals(LocalTime.MIN) && eventEnd.equals(LocalTime.MAX.withSecond(0).withNano(0));
     }
 }

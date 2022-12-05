@@ -1,4 +1,4 @@
-package de.oth.seproject.clubhub.web;
+package de.oth.seproject.clubhub.web.user;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

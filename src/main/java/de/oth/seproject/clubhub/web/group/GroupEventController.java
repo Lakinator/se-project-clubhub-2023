@@ -1,8 +1,13 @@
-package de.oth.seproject.clubhub.web;
+package de.oth.seproject.clubhub.web.group;
 
 import de.oth.seproject.clubhub.config.ClubUserDetails;
 import de.oth.seproject.clubhub.persistence.model.*;
-import de.oth.seproject.clubhub.persistence.repository.*;
+import de.oth.seproject.clubhub.persistence.repository.GroupEventRepository;
+import de.oth.seproject.clubhub.persistence.repository.GroupRepository;
+import de.oth.seproject.clubhub.persistence.repository.LocationRepository;
+import de.oth.seproject.clubhub.persistence.repository.RoleRepository;
+import de.oth.seproject.clubhub.web.dto.EventExtraDTO;
+import de.oth.seproject.clubhub.web.service.NavigationService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.Month;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
@@ -22,21 +28,21 @@ import java.util.Optional;
 @Controller
 public class GroupEventController {
 
+    private final NavigationService navigationService;
+
     private final GroupEventRepository groupEventRepository;
 
     private final GroupRepository groupRepository;
 
     private final RoleRepository roleRepository;
 
-    private final UserRepository userRepository;
-
     private final LocationRepository locationRepository;
 
-    public GroupEventController(GroupEventRepository groupEventRepository, GroupRepository groupRepository, RoleRepository roleRepository, UserRepository userRepository, LocationRepository locationRepository) {
+    public GroupEventController(NavigationService navigationService, GroupEventRepository groupEventRepository, GroupRepository groupRepository, RoleRepository roleRepository, LocationRepository locationRepository) {
+        this.navigationService = navigationService;
         this.groupEventRepository = groupEventRepository;
         this.groupRepository = groupRepository;
         this.roleRepository = roleRepository;
-        this.userRepository = userRepository;
         this.locationRepository = locationRepository;
     }
 
@@ -58,13 +64,8 @@ public class GroupEventController {
                 .with(TemporalAdjusters.firstDayOfMonth());
         LocalDate selectedIntervalEnd = selectedIntervalStart.with(TemporalAdjusters.lastDayOfMonth());
 
-        List<GroupEvent> groupEvents = groupEventRepository.findAllByGroupAndEventDateBetweenOrderByEventStartAsc(group, selectedIntervalStart, selectedIntervalEnd);
+        List<GroupEvent> groupEvents = groupEventRepository.findAllByGroupAndEventDateBetweenOrderByEventDateAscEventStartAsc(group, selectedIntervalStart, selectedIntervalEnd);
 
-
-        Optional<Role> optionalRole = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
-
-        model.addAttribute("isTrainer", optionalRole.isPresent() && optionalRole.get().getRoleName().equals(RoleType.TRAINER));
-        model.addAttribute("group", group);
         model.addAttribute("groupEvents", groupEvents);
         model.addAttribute("lastMonth", selectedMonth.minus(1).getValue());
         model.addAttribute("lastYear", selectedIntervalStart.minusYears(1).getYear());
@@ -73,6 +74,8 @@ public class GroupEventController {
         model.addAttribute("currentMonth", LocalDate.now().getMonth().getValue());
         model.addAttribute("selectedIntervalStart", selectedIntervalStart);
         model.addAttribute("selectedIntervalEnd", selectedIntervalEnd);
+
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
         return "show-group-calendar";
     }
 
@@ -81,38 +84,64 @@ public class GroupEventController {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
+        final boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
+
+        // user has to be a trainer of this group
+        if (!isTrainerInGroup) {
+            return "redirect:/group/" + groupId + "/calendar";
+        }
+
         List<Location> locations = locationRepository.findAll();
 
         GroupEvent groupEvent = new GroupEvent();
         model.addAttribute("groupEvent", groupEvent);
-        model.addAttribute("group", group);
         model.addAttribute("eventTypes", EventType.values());
         model.addAttribute("locations", locations);
+
+        model.addAttribute("eventExtraDTO", new EventExtraDTO());
+
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), groupId);
         return "add-group-event";
     }
 
     @PostMapping("/group/{groupId}/event/create")
-    public String createGroupEvent(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @Valid GroupEvent groupEvent, BindingResult result, Model model) {
+    public String createGroupEvent(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @Valid GroupEvent groupEvent, BindingResult result, EventExtraDTO eventExtraDTO, Model model) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
-
-        if (result.hasErrors()) {
-            List<Location> locations = locationRepository.findAll();
-            model.addAttribute("group", group);
-            model.addAttribute("eventTypes", EventType.values());
-            model.addAttribute("locations", locations);
-            return "add-group-event";
-        }
 
         Optional<Role> roleInGroup = roleRepository.findByUserAndGroup(userDetails.getUser(), group);
         final boolean isTrainerInGroup = roleInGroup.isPresent() && roleInGroup.get().getRoleName().equals(RoleType.TRAINER);
 
-        if (isTrainerInGroup) {
-            groupEvent.setGroup(group);
-            groupEvent.setUser(roleInGroup.get().getUser());
-
-            groupEventRepository.save(groupEvent);
+        // user has to be a trainer of this group
+        if (!isTrainerInGroup) {
+            return "redirect:/group/" + groupId + "/calendar";
         }
+
+        if (result.hasErrors()) {
+            List<Location> locations = locationRepository.findAll();
+            model.addAttribute("eventTypes", EventType.values());
+            model.addAttribute("locations", locations);
+            model.addAttribute("eventExtraDTO", new EventExtraDTO());
+            navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
+            return "add-group-event";
+        }
+
+        groupEvent.setGroup(group);
+        groupEvent.setUser(roleInGroup.get().getUser());
+
+        if (eventExtraDTO.getWholeDay()) {
+            groupEvent.setEventStart(LocalTime.MIN);
+            groupEvent.setEventEnd(LocalTime.MAX);
+        } else {
+            if (groupEvent.getEventStart() == null) {
+                groupEvent.setEventStart(LocalTime.MIN);
+            }
+            if (groupEvent.getEventEnd() == null) {
+                groupEvent.setEventEnd(LocalTime.MAX);
+            }
+        }
+
+        groupEventRepository.save(groupEvent);
 
         return "redirect:/group/" + groupId + "/calendar";
     }
@@ -134,26 +163,23 @@ public class GroupEventController {
 
         List<Location> locations = locationRepository.findAll();
 
-        model.addAttribute("group", group);
+        model.addAttribute("groupEventId", eventId);
         model.addAttribute("groupEvent", groupEvent);
         model.addAttribute("eventTypes", EventType.values());
         model.addAttribute("locations", locations);
+
+        model.addAttribute("eventExtraDTO", new EventExtraDTO(groupEvent.isWholeDay()));
+
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
         return "edit-group-event";
     }
 
     @PostMapping("/group/{groupId}/event/{eventId}/update")
     public String updateGroupEvent(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("eventId") long eventId, @Valid GroupEvent groupEvent,
-                                   BindingResult result, Model model) {
+                                   BindingResult result,
+                                   EventExtraDTO eventExtraDTO, Model model) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
-
-        if (result.hasErrors()) {
-            List<Location> locations = locationRepository.findAll();
-            model.addAttribute("group", group);
-            model.addAttribute("eventTypes", EventType.values());
-            model.addAttribute("locations", locations);
-            return "edit-group-event";
-        }
 
         boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
 
@@ -162,13 +188,38 @@ public class GroupEventController {
             return "redirect:/group/" + groupId + "/calendar";
         }
 
+        if (result.hasErrors()) {
+            List<Location> locations = locationRepository.findAll();
+            model.addAttribute("groupEventId", eventId);
+            model.addAttribute("eventTypes", EventType.values());
+            model.addAttribute("locations", locations);
+            navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
+            return "edit-group-event";
+        }
+
         Optional<GroupEvent> persistedGroupEvent = groupEventRepository.findById(eventId);
 
         persistedGroupEvent.ifPresent(e -> {
             e.setEventType(groupEvent.getEventType());
             e.setEventDate(groupEvent.getEventDate());
-            e.setEventStart(groupEvent.getEventStart());
-            e.setEventEnd(groupEvent.getEventEnd());
+
+            if (eventExtraDTO.getWholeDay()) {
+                e.setEventStart(LocalTime.MIN);
+                e.setEventEnd(LocalTime.MAX);
+            } else {
+                if (groupEvent.getEventStart() == null) {
+                    e.setEventStart(LocalTime.MIN);
+                } else {
+                    e.setEventStart(groupEvent.getEventStart());
+                }
+
+                if (groupEvent.getEventEnd() == null) {
+                    e.setEventEnd(LocalTime.MAX);
+                } else {
+                    e.setEventEnd(groupEvent.getEventEnd());
+                }
+            }
+
             e.setTitle(groupEvent.getTitle());
             e.setDescription(groupEvent.getDescription());
             e.setLocation(groupEvent.getLocation());

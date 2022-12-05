@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="de" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{fragments/main}">
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}, activeGroup=${activeGroup}, roleInActiveGroup=${roleInActiveGroup}, isTrainerInActiveGroup=${isTrainerInActiveGroup}">
 <head>
     <meta charset="UTF-8">
     <title>ClubHub Groups</title>
@@ -9,7 +10,7 @@
 <body>
 
 <section layout:fragment="default-content">
-    <h2>All groups from the club <span th:text="${club.name}"></span></h2></h2>
+    <h2>All groups from the club <span th:text="${activeUser.club.name}"></span></h2></h2>
 
     <div th:switch="${groupDTOPage.hasContent()}">
         <h5 th:case="false">No groups for this club yet!</h5>
@@ -31,13 +32,13 @@
 
                     <div th:switch="${groupDTO.hasJoined}">
                         <td th:case="true">
-                            <a th:href="@{/group/{id}/leave(id=${groupDTO.id})}">
-                                <i class="bi bi-dash-square text-danger"></i>
+                            <a class="btn btn-danger" th:href="@{/group/{id}/leave(id=${groupDTO.id})}">
+                                Leave
                             </a>
                         </td>
                         <td th:case="false">
-                            <a th:href="@{/group/{id}/join(id=${groupDTO.id})}">
-                                <i class="bi bi-plus-square text-success"></i>
+                            <a class="btn btn-success" th:href="@{/group/{id}/join(id=${groupDTO.id})}">
+                                Join
                             </a>
                         </td>
                     </div>

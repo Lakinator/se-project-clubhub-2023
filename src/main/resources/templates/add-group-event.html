@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="de" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{fragments/main}">
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}, activeGroup=${activeGroup}, roleInActiveGroup=${roleInActiveGroup}, isTrainerInActiveGroup=${isTrainerInActiveGroup}">
 <head>
     <meta charset="UTF-8">
     <title>ClubHub Add Group Event</title>
@@ -9,9 +10,10 @@
 <body>
 
 <section layout:fragment="default-content">
-    <h2>Add a group event to <span th:text="${group.name}"></span></h2>
+    <h2>Add a group event to <span th:text="${activeGroup.name}"></span></h2>
 
-    <form th:action="@{/group/{groupId}/event/create(groupId=${group.id})}" th:object="${groupEvent}" method="POST">
+    <form th:action="@{/group/{groupId}/event/create(groupId=${activeGroup.id})}" th:object="${groupEvent}"
+          method="POST">
         <div class="mb-3">
             <label for="eventTypeSelect">Event Type</label>
             <select id="eventTypeSelect" class="form-select" th:field="*{eventType}">
@@ -26,13 +28,17 @@
             <p th:if="${#fields.hasErrors('eventDate')}" th:errors="*{eventDate}"></p>
         </div>
         <div class="mb-3">
-            <label for="dateTimeStartInput">Start</label>
-            <input id="dateTimeStartInput" class="form-control" type="datetime-local" th:field="*{eventStart}"/>
+            <label for="boolIsWholeDayInput">Ganzer Tag</label>
+            <input id="boolIsWholeDayInput" class="form-check-input" type="checkbox" th:field="${eventExtraDTO.wholeDay}"/>
+        </div>
+        <div class="mb-3">
+            <label for="timeStartInput">Start</label>
+            <input id="timeStartInput" class="form-control" type="time" th:field="*{eventStart}"/>
             <p th:if="${#fields.hasErrors('eventStart')}" th:errors="*{eventStart}"></p>
         </div>
         <div class="mb-3">
-            <label for="dateTimeEndInput">Ende</label>
-            <input id="dateTimeEndInput" class="form-control" type="datetime-local" th:field="*{eventEnd}"/>
+            <label for="timeEndInput">Ende</label>
+            <input id="timeEndInput" class="form-control" type="time" th:field="*{eventEnd}"/>
             <p th:if="${#fields.hasErrors('eventEnd')}" th:errors="*{eventEnd}"></p>
         </div>
         <div class="mb-3">
