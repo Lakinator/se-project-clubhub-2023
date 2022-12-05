@@ -1,4 +1,4 @@
-package de.oth.seproject.clubhub.web;
+package de.oth.seproject.clubhub.web.user;
 
 import de.oth.seproject.clubhub.persistence.model.Club;
 import de.oth.seproject.clubhub.persistence.model.User;

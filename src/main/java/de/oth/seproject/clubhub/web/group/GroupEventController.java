@@ -169,9 +169,6 @@ public class GroupEventController {
         }
 
         if (result.hasErrors()) {
-            GroupEvent persistedGroupEvent = groupEventRepository.findById(eventId)
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid group event Id:" + eventId));
-
             List<Location> locations = locationRepository.findAll();
             model.addAttribute("groupEventId", eventId);
             model.addAttribute("eventTypes", EventType.values());
