@@ -47,6 +47,7 @@
                     <th>Zeitraum</th>
                     <th>Veranstalter</th>
                     <th>Title</th>
+                    <th>Type</th>
                     <th>Description</th>
                     <th>Location</th>
                     <div th:if="${isTrainerInActiveGroup}">
@@ -64,6 +65,7 @@
                     <td th:unless="${groupEvent.isWholeDay()}" th:text="${#temporals.format(groupEvent.eventStart, 'HH:mm')} + ' - ' + ${#temporals.format(groupEvent.eventEnd, 'HH:mm')}"></td>
                     <td th:text="${groupEvent.user.firstName + ' ' + groupEvent.user.lastName}"></td>
                     <td th:text="${groupEvent.title}"></td>
+                    <td th:text="${groupEvent.eventType.description}"></td>
                     <td th:text="${groupEvent.description}"></td>
                     <td th:if="${groupEvent.location != null}" th:text="${groupEvent.location.description}"></td>
                     <td th:if="${groupEvent.location == null}">No location set</td>
