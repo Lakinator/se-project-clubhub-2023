@@ -42,10 +42,10 @@
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <th>Creator</th>
-                    <th>Day</th>
-                    <th>Start</th>
-                    <th>End</th>
+                    <th>#</th>
+                    <th>Wochentag</th>
+                    <th>Veranstalter</th>
+                    <th>Zeitraum</th>
                     <th>Title</th>
                     <th>Description</th>
                     <th>Location</th>
@@ -57,10 +57,10 @@
                 </thead>
                 <tbody>
                 <tr th:each="groupEvent : ${groupEvents}">
+                    <th th:text="${#temporals.day(groupEvent.eventDate)}" th:class="${groupEvent.isToday()} ? 'table-success'"></th>
+                    <td th:text="${#temporals.monthNameShort(groupEvent.eventDate)} + ', ' + ${#temporals.dayOfWeekNameShort(groupEvent.eventDate)}"></td>
                     <td th:text="${groupEvent.user.firstName + ' ' + groupEvent.user.lastName}"></td>
-                    <td th:text="${groupEvent.eventDate}"></td>
-                    <td th:text="${groupEvent.eventStart}"></td>
-                    <td th:text="${groupEvent.eventEnd}"></td>
+                    <td th:text="${#temporals.format(groupEvent.eventStart, 'HH:mm')} + ' - ' + ${#temporals.format(groupEvent.eventEnd, 'HH:mm')}"></td>
                     <td th:text="${groupEvent.title}"></td>
                     <td th:text="${groupEvent.description}"></td>
                     <td th:if="${groupEvent.location != null}" th:text="${groupEvent.location.description}"></td>

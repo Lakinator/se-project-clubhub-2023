@@ -30,13 +30,13 @@
             <p th:if="${#fields.hasErrors('eventDate')}" th:errors="*{eventDate}"></p>
         </div>
         <div class="mb-3">
-            <label for="dateTimeStartInput">Start</label>
-            <input id="dateTimeStartInput" class="form-control" type="datetime-local" th:field="*{eventStart}"/>
+            <label for="timeStartInput">Start</label>
+            <input id="timeStartInput" class="form-control" type="time" th:field="*{eventStart}"/>
             <p th:if="${#fields.hasErrors('eventStart')}" th:errors="*{eventStart}"></p>
         </div>
         <div class="mb-3">
-            <label for="dateTimeEndInput">Ende</label>
-            <input id="dateTimeEndInput" class="form-control" type="datetime-local" th:field="*{eventEnd}"/>
+            <label for="timeEndInput">Ende</label>
+            <input id="timeEndInput" class="form-control" type="time" th:field="*{eventEnd}"/>
             <p th:if="${#fields.hasErrors('eventEnd')}" th:errors="*{eventEnd}"></p>
         </div>
         <div class="mb-3">

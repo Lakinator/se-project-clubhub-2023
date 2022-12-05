@@ -62,7 +62,7 @@ public class GroupEventController {
                 .with(TemporalAdjusters.firstDayOfMonth());
         LocalDate selectedIntervalEnd = selectedIntervalStart.with(TemporalAdjusters.lastDayOfMonth());
 
-        List<GroupEvent> groupEvents = groupEventRepository.findAllByGroupAndEventDateBetweenOrderByEventStartAsc(group, selectedIntervalStart, selectedIntervalEnd);
+        List<GroupEvent> groupEvents = groupEventRepository.findAllByGroupAndEventDateBetweenOrderByEventDateAscEventStartAsc(group, selectedIntervalStart, selectedIntervalEnd);
 
         model.addAttribute("groupEvents", groupEvents);
         model.addAttribute("lastMonth", selectedMonth.minus(1).getValue());
