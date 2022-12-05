@@ -14,7 +14,7 @@
         Edit group event for <span th:text="${activeGroup.name}"></span>
     </h2>
 
-    <form th:action="@{/group/{groupId}/event/{eventId}/update(groupId=${activeGroup.id}, eventId=${groupEvent.id})}"
+    <form th:action="@{/group/{groupId}/event/{eventId}/update(groupId=${activeGroup.id}, eventId=${groupEventId})}"
           th:object="${groupEvent}" method="post">
         <div class="mb-3">
             <label for="eventTypeSelect">Event Type</label>

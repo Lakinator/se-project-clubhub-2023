@@ -218,9 +218,7 @@ public class GroupController {
         }
 
         if (result.hasErrors()) {
-            model.addAttribute("roleNames", RoleType.values());
-            navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
-            return "edit-group";
+            return "redirect:/group/" + id + "/edit";
         }
 
         group.getRoles().forEach(role -> {

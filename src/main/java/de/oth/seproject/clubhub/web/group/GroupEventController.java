@@ -146,6 +146,7 @@ public class GroupEventController {
 
         List<Location> locations = locationRepository.findAll();
 
+        model.addAttribute("groupEventId", eventId);
         model.addAttribute("groupEvent", groupEvent);
         model.addAttribute("eventTypes", EventType.values());
         model.addAttribute("locations", locations);
@@ -168,7 +169,11 @@ public class GroupEventController {
         }
 
         if (result.hasErrors()) {
+            GroupEvent persistedGroupEvent = groupEventRepository.findById(eventId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid group event Id:" + eventId));
+
             List<Location> locations = locationRepository.findAll();
+            model.addAttribute("groupEventId", eventId);
             model.addAttribute("eventTypes", EventType.values());
             model.addAttribute("locations", locations);
             navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);

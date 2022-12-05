@@ -1,4 +1,4 @@
-package de.oth.seproject.clubhub.web;
+package de.oth.seproject.clubhub.web.club;
 
 import de.oth.seproject.clubhub.config.ClubUserDetails;
 import de.oth.seproject.clubhub.persistence.model.Announcement;
@@ -7,6 +7,7 @@ import de.oth.seproject.clubhub.persistence.model.User;
 import de.oth.seproject.clubhub.persistence.repository.AnnouncementRepository;
 import de.oth.seproject.clubhub.persistence.repository.RoleRepository;
 import de.oth.seproject.clubhub.persistence.repository.UserRepository;
+import de.oth.seproject.clubhub.web.service.NavigationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,13 +27,16 @@ import java.util.Optional;
 @Controller
 public class AnnouncementController {
 
+    private final NavigationService navigationService;
+
     private final AnnouncementRepository announcementRepository;
 
     private final UserRepository userRepository;
 
     private final RoleRepository roleRepository;
 
-    public AnnouncementController(AnnouncementRepository announcementRepository, UserRepository userRepository, RoleRepository roleRepository) {
+    public AnnouncementController(NavigationService navigationService, AnnouncementRepository announcementRepository, UserRepository userRepository, RoleRepository roleRepository) {
+        this.navigationService = navigationService;
         this.announcementRepository = announcementRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -48,26 +52,42 @@ public class AnnouncementController {
 
         Page<Announcement> announcementPage = announcementRepository.findAllByClub(userDetails.getUser().getClub(), pageRequest);
 
-        model.addAttribute("user", userDetails.getUser());
-        model.addAttribute("club", userDetails.getUser().getClub());
         model.addAttribute("isTrainerInClub", roleRepository.existsByUserAndRoleName(userDetails.getUser(), RoleType.TRAINER));
         model.addAttribute("announcementPage", announcementPage);
+
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
         return "announcements";
     }
 
     @GetMapping("/announcements/add")
     public String addAnnouncementPage(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
+
+        boolean isTrainerInClub = roleRepository.existsByUserAndRoleName(userDetails.getUser(), RoleType.TRAINER);
+
+        // user has to be a trainer of a group in this club
+        if (!isTrainerInClub) {
+            return "redirect:/announcements";
+        }
+
         Announcement announcement = new Announcement();
         model.addAttribute("announcement", announcement);
-        model.addAttribute("clubName", userDetails.getUser().getClub().getName());
+
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
         return "add-announcement";
     }
 
     @PostMapping("/announcement/create")
     public String createAnnouncement(@AuthenticationPrincipal ClubUserDetails userDetails, @Valid Announcement announcement, BindingResult result, Model model) {
 
+        boolean isTrainerInClub = roleRepository.existsByUserAndRoleName(userDetails.getUser(), RoleType.TRAINER);
+
+        // user has to be a trainer of a group in this club
+        if (!isTrainerInClub) {
+            return "redirect:/announcements";
+        }
+
         if (result.hasErrors()) {
-            model.addAttribute("clubName", userDetails.getUser().getClub().getName());
+            navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
             return "add-announcement";
         }
 
@@ -95,25 +115,40 @@ public class AnnouncementController {
         Announcement announcement = announcementRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid announcement Id:" + id));
 
+        boolean isUserOwnerOfAnnouncement = announcement.getUser().getId().equals(userDetails.getUser().getId());
+
+        // user has to be the creator of this announcement
+        if (!isUserOwnerOfAnnouncement) {
+            return "redirect:/announcements";
+        }
+
         model.addAttribute("announcement", announcement);
-        model.addAttribute("club", userDetails.getUser().getClub());
+
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
         return "edit-announcement";
     }
 
     @PostMapping("/announcement/{id}/update")
     public String updateAnnouncement(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, @Valid Announcement announcement,
                                      BindingResult result, Model model) {
+        Announcement persistedAnnouncement = announcementRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid announcement Id:" + id));
+
+        boolean isUserOwnerOfAnnouncement = persistedAnnouncement.getUser().getId().equals(userDetails.getUser().getId());
+
+        // user has to be the creator of this announcement
+        if (!isUserOwnerOfAnnouncement) {
+            return "redirect:/announcements";
+        }
 
         if (result.hasErrors()) {
-            model.addAttribute("club", userDetails.getUser().getClub());
+            navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
             return "edit-announcement";
         }
 
-        announcementRepository.findById(id).ifPresent(persistedAnnouncement -> {
-            persistedAnnouncement.setMessage(announcement.getMessage());
-            persistedAnnouncement.setUpdatedOn(LocalDateTime.now());
-            announcementRepository.save(persistedAnnouncement);
-        });
+        persistedAnnouncement.setMessage(announcement.getMessage());
+        persistedAnnouncement.setUpdatedOn(LocalDateTime.now());
+        announcementRepository.save(persistedAnnouncement);
 
         return "redirect:/announcements";
     }
@@ -122,7 +157,16 @@ public class AnnouncementController {
     public String deleteAnnouncement(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
         Announcement announcement = announcementRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid announcement Id:" + id));
+
+        boolean isTrainerInClub = roleRepository.existsByUserAndRoleName(userDetails.getUser(), RoleType.TRAINER);
+
+        // user has to be a trainer of a group in this club
+        if (!isTrainerInClub) {
+            return "redirect:/announcements";
+        }
+
         announcementRepository.delete(announcement);
+
         return "redirect:/announcements";
     }
 
