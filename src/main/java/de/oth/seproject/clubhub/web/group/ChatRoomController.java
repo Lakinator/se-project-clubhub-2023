@@ -160,6 +160,26 @@ public class ChatRoomController {
         return "redirect:/group/" + groupId + "/rooms";
     }
 
+    @GetMapping("/group/{groupId}/room/{roomId}/show")
+    public String showGroupPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("roomId") long roomId, Model model) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid room Id:" + roomId));
+
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
+
+        // if user is a trainer of this group, automatically redirect him to the edit page
+        if (isTrainerInGroup) {
+            return "redirect:/group/" + groupId + "/room/" + roomId + "/edit";
+        }
+
+        model.addAttribute("chatRoom", chatRoom);
+
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
+        return "show-group-chat-room";
+    }
+
     @GetMapping("/group/{groupId}/room/{roomId}/edit")
     public String editChatRoomPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("roomId") long roomId, Model model) {
         Group group = groupRepository.findById(groupId)
@@ -169,9 +189,9 @@ public class ChatRoomController {
 
         boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
 
-        // user has to be a trainer of this group
+        // user has to be a trainer of this group, automatically redirect him to the show page
         if (!isTrainerInGroup) {
-            return "redirect:/group/" + groupId + "/rooms";
+            return "redirect:/group/" + groupId + "/room/" + roomId + "/show";
         }
 
         List<User> usersInGroup = roleRepository.findAllByGroup(group).stream().map(Role::getUser).toList();
@@ -242,16 +262,12 @@ public class ChatRoomController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid room Id:" + roomId));
 
         boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
+        boolean isChatRoomMember = chatRoomRepository.existsByIdAndUsers_Id(roomId, userId);
 
-        if (isTrainerInGroup) {
+        if (isTrainerInGroup && !isChatRoomMember) {
             userRepository.findById(userId).ifPresent(addedUser -> {
-                boolean isChatRoomMember = chatRoomRepository.existsByIdAndUsers_Id(roomId, addedUser.getId());
-
-                if (!isChatRoomMember) {
-                    chatRoom.addUser(addedUser);
-
-                    chatRoomRepository.save(chatRoom);
-                }
+                chatRoom.addUser(addedUser);
+                chatRoomRepository.save(chatRoom);
             });
 
         } else {
@@ -269,16 +285,12 @@ public class ChatRoomController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid room Id:" + roomId));
 
         boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
+        boolean isChatRoomMember = chatRoomRepository.existsByIdAndUsers_Id(roomId, userId);
 
-        if (isTrainerInGroup) {
+        if (isTrainerInGroup && isChatRoomMember) {
             userRepository.findById(userId).ifPresent(addedUser -> {
-                boolean isChatRoomMember = chatRoomRepository.existsByIdAndUsers_Id(roomId, addedUser.getId());
-
-                if (isChatRoomMember) {
-                    chatRoom.removeUser(addedUser);
-
-                    chatRoomRepository.save(chatRoom);
-                }
+                chatRoom.removeUser(addedUser);
+                chatRoomRepository.save(chatRoom);
             });
 
             // check if there are any members remaining

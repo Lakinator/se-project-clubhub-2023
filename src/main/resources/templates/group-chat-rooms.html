@@ -24,7 +24,7 @@
                     <th>Last Message</th>
                     <th>Chat</th>
                     <th>Action</th>
-                    <th>Edit</th>
+                    <th>Action</th>
                     <th>Delete</th>
                 </tr>
                 </thead>
@@ -40,7 +40,7 @@
                     </div>
 
                     <td>
-                        <a class="btn btn-primary" th:classappend="${!chatRoomDTO.isChatRoomMember} ? disabled"
+                        <a class="btn btn-primary"
                            th:href="@{/group/{groupId}/room/{roomId}/chat(groupId=${activeGroup.id}, roomId=${chatRoomDTO.id})}">
                             Chat
                         </a>
