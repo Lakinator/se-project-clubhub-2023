@@ -36,7 +36,7 @@
 
                     <div th:switch="${chatRoomDTO.lastMessageTimestamp != null}">
                         <td th:case="true" th:text="${#temporals.format(chatRoomDTO.lastMessageTimestamp)}"></td>
-                        <td th:case="false" th:text="No messages yet"></td>
+                        <td th:case="false">No messages yet</td>
                     </div>
 
                     <td>

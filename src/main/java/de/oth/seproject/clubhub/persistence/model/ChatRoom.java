@@ -64,6 +64,10 @@ public class ChatRoom {
         this.users.add(user);
     }
 
+    public boolean removeUser(User user) {
+        return this.users.remove(user);
+    }
+
     public List<ChatRoomMessage> getChatRoomMessages() {
         return chatRoomMessages;
     }

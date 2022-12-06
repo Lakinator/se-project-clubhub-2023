@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Controller
@@ -72,7 +71,8 @@ public class ChatRoomController {
             boolean isChatRoomMember = chatRoomRepository.existsByIdAndUsers_Id(chatRoom.getId(), userDetails.getUser().getId());
             boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
 
-            return new ChatRoomDTO(chatRoom.getId(), chatRoom.getUsers().size(), chatRoom.getChatRoomMessages().size(), chatRoom.getName(), LocalDateTime.now(), isChatRoomMember, isTrainerInGroup);
+            // TODO: include last message timestamp
+            return new ChatRoomDTO(chatRoom.getId(), chatRoom.getUsers().size(), chatRoom.getChatRoomMessages().size(), chatRoom.getName(), null, isChatRoomMember, isTrainerInGroup);
         });
 
         model.addAttribute("chatRoomDTOPage", chatRoomDTOPage);
@@ -101,7 +101,7 @@ public class ChatRoomController {
     }
 
     @PostMapping("/group/{id}/room/create")
-    public String createGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long groupId, @Valid ChatRoom chatRoom, BindingResult result, Model model) {
+    public String createChatRoom(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long groupId, @Valid ChatRoom chatRoom, BindingResult result, Model model) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
 
@@ -114,10 +114,45 @@ public class ChatRoomController {
         Optional<User> optionalUser = userRepository.findById(userDetails.getUser().getId());
 
         optionalUser.ifPresent(user -> {
-            chatRoom.addUser(user);
-            chatRoom.setGroup(group);
+            ChatRoom newChatRoom = new ChatRoom();
+            newChatRoom.addUser(user);
+            newChatRoom.setGroup(group);
+            newChatRoom.setName(chatRoom.getName());
 
-            chatRoomRepository.save(chatRoom);
+            chatRoomRepository.save(newChatRoom);
+        });
+
+        if (optionalUser.isEmpty()) {
+            // user doesn't exist
+            return "redirect:/logout";
+        }
+
+        return "redirect:/group/" + groupId + "/rooms";
+    }
+
+    @GetMapping("/group/{groupId}/room/{roomId}/leave")
+    public String leaveChatRoom(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("roomId") long roomId, Model model) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid room Id:" + roomId));
+
+        // need to retrieve user again because user from principal is a detached reference
+        Optional<User> optionalUser = userRepository.findById(userDetails.getUser().getId());
+
+        optionalUser.ifPresent(user -> {
+            boolean isChatRoomMember = chatRoomRepository.existsByIdAndUsers_Id(roomId, user.getId());
+
+            if (isChatRoomMember) {
+                chatRoom.removeUser(user);
+
+                chatRoomRepository.save(chatRoom);
+
+                // check if there are any members remaining
+                if (chatRoom.getUsers().isEmpty()) {
+                    chatRoomRepository.delete(chatRoom); // TODO: make sure all messages are removed as well
+                }
+            }
         });
 
         if (optionalUser.isEmpty()) {
