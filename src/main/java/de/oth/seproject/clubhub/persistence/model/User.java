@@ -35,6 +35,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<GenericEvent> genericEvents = new ArrayList<>();
 
+    @ManyToMany(mappedBy = "users", cascade = CascadeType.PERSIST)
+    private List<ChatRoom> chatRooms = new ArrayList<>();
+
     public User() {
         // -- //
     }
@@ -117,5 +120,28 @@ public class User {
 
     public void setGenericEvents(List<GenericEvent> genericEvents) {
         this.genericEvents = genericEvents;
+    }
+
+    public List<ChatRoom> getChatRooms() {
+        return chatRooms;
+    }
+
+    public void setChatRooms(List<ChatRoom> chatRooms) {
+        this.chatRooms = chatRooms;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        return id.equals(user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 }
