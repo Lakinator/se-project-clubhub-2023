@@ -45,12 +45,16 @@
 
                     <div th:switch="${groupDTO.isTrainer}">
                         <td th:case="false">
-                            <a th:href="@{/group/{id}/show(id=${groupDTO.id})}">
+                            <a th:href="@{/group/{id}/show(id=${groupDTO.id})}"
+                               data-bs-toggle="tooltip" data-bs-placement="right"
+                               data-bs-title="Show Group">
                                 <i class="bi bi-person-lines-fill"></i>
                             </a>
                         </td>
                         <td th:case="true">
-                            <a th:href="@{/group/{id}/edit(id=${groupDTO.id})}">
+                            <a th:href="@{/group/{id}/edit(id=${groupDTO.id})}"
+                               data-bs-toggle="tooltip" data-bs-placement="right"
+                               data-bs-title="Edit Group">
                                 <i class="bi bi-person-fill-gear text-info"></i>
                             </a>
                         </td>
