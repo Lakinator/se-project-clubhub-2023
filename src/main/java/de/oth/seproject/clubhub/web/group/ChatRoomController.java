@@ -234,4 +234,64 @@ public class ChatRoomController {
         return "redirect:/group/" + groupId + "/rooms";
     }
 
+    @GetMapping("/group/{groupId}/room/{roomId}/add-user/{userId}")
+    public String addUserToChatRoom(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("roomId") long roomId, @PathVariable("userId") long userId, Model model) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid room Id:" + roomId));
+
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
+
+        if (isTrainerInGroup) {
+            userRepository.findById(userId).ifPresent(addedUser -> {
+                boolean isChatRoomMember = chatRoomRepository.existsByIdAndUsers_Id(roomId, addedUser.getId());
+
+                if (!isChatRoomMember) {
+                    chatRoom.addUser(addedUser);
+
+                    chatRoomRepository.save(chatRoom);
+                }
+            });
+
+        } else {
+            return "redirect:/group/" + groupId + "/rooms";
+        }
+
+        return "redirect:/group/" + groupId + "/room/" + roomId + "/edit";
+    }
+
+    @GetMapping("/group/{groupId}/room/{roomId}/remove-user/{userId}")
+    public String removeUserFromChatRoom(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("roomId") long roomId, @PathVariable("userId") long userId, Model model) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid room Id:" + roomId));
+
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
+
+        if (isTrainerInGroup) {
+            userRepository.findById(userId).ifPresent(addedUser -> {
+                boolean isChatRoomMember = chatRoomRepository.existsByIdAndUsers_Id(roomId, addedUser.getId());
+
+                if (isChatRoomMember) {
+                    chatRoom.removeUser(addedUser);
+
+                    chatRoomRepository.save(chatRoom);
+                }
+            });
+
+            // check if there are any members remaining
+            if (chatRoom.getUsers().isEmpty()) {
+                chatRoomRepository.delete(chatRoom); // TODO: make sure all messages are removed as well
+                return "redirect:/group/" + groupId + "/rooms";
+            }
+
+        } else {
+            return "redirect:/group/" + groupId + "/rooms";
+        }
+
+        return "redirect:/group/" + groupId + "/room/" + roomId + "/edit";
+    }
+
 }

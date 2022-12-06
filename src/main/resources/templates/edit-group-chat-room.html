@@ -39,13 +39,13 @@
             <tr th:each="user : ${usersInGroupDTO}">
                 <td th:text="|${user.name()} ${user.id == activeUser.id ? ' (You)' : ''}|"></td>
                 <td th:if="${user.isChatRoomMember()}">
-                    <a class="btn btn-danger" th:href="@{/group/{groupId}/room/{roomId}/remove-user(groupId=${activeGroup.id}, roomId=${chatRoom.id}, userId=${user.id()})}">
+                    <a class="btn btn-danger" th:href="@{/group/{groupId}/room/{roomId}/remove-user/{userId}(groupId=${activeGroup.id}, roomId=${chatRoom.id}, userId=${user.id()})}">
                         Remove
                     </a>
                 </td>
 
                 <td th:unless="${user.isChatRoomMember()}">
-                    <a class="btn btn-primary" th:href="@{/group/{groupId}/room/{roomId}/add-user(groupId=${activeGroup.id}, roomId=${chatRoom.id}, userId=${user.id()})}">
+                    <a class="btn btn-primary" th:href="@{/group/{groupId}/room/{roomId}/add-user/{userId}(groupId=${activeGroup.id}, roomId=${chatRoom.id}, userId=${user.id()})}">
                         Add
                     </a>
                 </td>
