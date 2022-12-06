@@ -22,7 +22,7 @@ public class ChatRoom {
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "chat_room_users",
             joinColumns = @JoinColumn(name = "chat_room_id"),
-            inverseJoinColumns = @JoinColumn(name = "users_id"))
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<User> users = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.PERSIST, orphanRemoval = true)
@@ -58,6 +58,10 @@ public class ChatRoom {
 
     public void setUsers(Set<User> users) {
         this.users = users;
+    }
+
+    public void addUser(User user) {
+        this.users.add(user);
     }
 
     public List<ChatRoomMessage> getChatRoomMessages() {

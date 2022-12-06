@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}, activeGroup=${activeGroup}, roleInActiveGroup=${roleInActiveGroup}, isTrainerInActiveGroup=${isTrainerInActiveGroup}">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Add Chat Room</title>
+</head>
+<body>
+
+<section layout:fragment="default-content">
+    <h2>Add a chat room for <span th:text="${activeGroup.name}"></span></h2>
+
+    <form th:action="@{/group/{groupId}/room/create(groupId=${activeGroup.id})}" th:object="${chatRoom}" method="post">
+        <div class="mb-3">
+            <label for="nameInput">Name</label>
+            <input type="text" th:field="*{name}" class="form-control" id="nameInput">
+            <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Add chat room</button>
+    </form>
+</section>
+
+</body>
+</html>

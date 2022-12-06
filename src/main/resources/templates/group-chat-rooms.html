@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}, activeGroup=${activeGroup}, roleInActiveGroup=${roleInActiveGroup}, isTrainerInActiveGroup=${isTrainerInActiveGroup}">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Group Chat Rooms</title>
+</head>
+<body>
+
+<section layout:fragment="default-content">
+    <h2>All chat rooms from the group <span th:text="${activeGroup.name}"></span></h2></h2>
+
+    <div th:switch="${chatRoomDTOPage.hasContent()}">
+        <h5 th:case="false">No chat rooms for this group yet!</h5>
+        <div th:case="true">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>User Count</th>
+                    <th>Message Count</th>
+                    <th>Last Message</th>
+                    <th>Chat</th>
+                    <th>Action</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="chatRoomDTO : ${chatRoomDTOPage.getContent()}">
+                    <td th:text="${chatRoomDTO.name}"></td>
+                    <td th:text="${chatRoomDTO.userCount}"></td>
+                    <td th:text="${chatRoomDTO.messageCount}"></td>
+
+                    <div th:switch="${chatRoomDTO.lastMessageTimestamp != null}">
+                        <td th:case="true" th:text="${#temporals.format(chatRoomDTO.lastMessageTimestamp)}"></td>
+                        <td th:case="false" th:text="No messages yet"></td>
+                    </div>
+
+                    <td>
+                        <a class="btn btn-primary" th:classappend="${!chatRoomDTO.isChatRoomMember} ? disabled"
+                           th:href="@{/group/{groupId}/room/{roomId}/chat(groupId=${activeGroup.id}, roomId=${chatRoomDTO.id})}">
+                            Chat
+                        </a>
+                    </td>
+
+                    <div th:switch="${chatRoomDTO.isChatRoomMember}">
+                        <td th:case="true">
+                            <a class="btn btn-danger"
+                               th:href="@{/group/{groupId}/room/{roomId}/leave(groupId=${activeGroup.id}, roomId=${chatRoomDTO.id})}">
+                                Leave
+                            </a>
+                        </td>
+                        <td th:case="false">
+                            <a class="btn btn-secondary disabled"
+                               th:href="@{/group/{groupId}/room/{roomId}/request-join(groupId=${activeGroup.id}, roomId=${chatRoomDTO.id})}">
+                                Request Join
+                            </a>
+                        </td>
+                    </div>
+
+                    <div th:switch="${chatRoomDTO.isTrainerInGroup}">
+                        <td th:case="false">
+                            <a th:href="@{/group/{groupId}/room/{roomId}/show(groupId=${activeGroup.id}, roomId=${chatRoomDTO.id})}"
+                               class="disabled"
+                               data-bs-toggle="tooltip" data-bs-placement="right"
+                               data-bs-title="Show Room">
+                                <i class="bi bi-person-lines-fill"></i>
+                            </a>
+                        </td>
+                        <td th:case="true">
+                            <a th:href="@{/group/{groupId}/room/{roomId}/edit(groupId=${activeGroup.id}, roomId=${chatRoomDTO.id})}"
+                               data-bs-toggle="tooltip" data-bs-placement="right"
+                               data-bs-title="Edit Room">
+                                <i class="bi bi-person-fill-gear text-info"></i>
+                            </a>
+                        </td>
+                    </div>
+
+                    <div th:switch="${chatRoomDTO.isTrainerInGroup}">
+                        <td th:case="false">
+                            <i class="bi bi-shield-slash"></i>
+                        </td>
+                        <td th:case="true">
+                            <a th:href="@{/group/{groupId}/room/{roomId}/delete(groupId=${activeGroup.id}, roomId=${chatRoomDTO.id})}">
+                                <i class="bi bi-trash-fill text-danger"></i>
+                            </a>
+                        </td>
+                    </div>
+                </tr>
+                </tbody>
+            </table>
+            <div th:insert="fragments/pagination :: default-pagination (hrefPrefix='/group/' + ${activeGroup.id} + '/rooms', totalPages=${chatRoomDTOPage.totalPages}, activePage=${chatRoomDTOPage.number + 1}, pageSize=${chatRoomDTOPage.size})"></div>
+        </div>
+
+        <p>
+            <a th:if="${isTrainerInActiveGroup}" th:href="@{/group/{groupId}/rooms/add(groupId=${activeGroup.id})}">
+                Add a new chat room
+            </a>
+        </p>
+    </div>
+
+</section>
+
+</body>
+</html>
