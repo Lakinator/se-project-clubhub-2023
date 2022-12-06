@@ -163,4 +163,21 @@ public class ChatRoomController {
         return "redirect:/group/" + groupId + "/rooms";
     }
 
+    @GetMapping("/group/{groupId}/room/{roomId}/delete")
+    public String deleteChatRoom(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("roomId") long roomId, Model model) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid room Id:" + roomId));
+
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
+
+        // user has to be a trainer of this group
+        if (isTrainerInGroup) {
+            chatRoomRepository.delete(chatRoom); // TODO: make sure all messages and users are removed as well
+        }
+
+        return "redirect:/group/" + groupId + "/rooms";
+    }
+
 }
