@@ -68,10 +68,10 @@ public class GroupEventController {
 
         model.addAttribute("groupEvents", groupEvents);
         model.addAttribute("lastMonth", selectedMonth.minus(1).getValue());
-        model.addAttribute("lastYear", selectedIntervalStart.minusYears(1).getYear());
         model.addAttribute("nextMonth", selectedMonth.plus(1).getValue());
-        model.addAttribute("nextYear", selectedIntervalStart.plusYears(1).getYear());
         model.addAttribute("currentMonth", LocalDate.now().getMonth().getValue());
+        model.addAttribute("lastYear", selectedIntervalStart.minusMonths(1).getYear());
+        model.addAttribute("nextYear", selectedIntervalStart.plusMonths(1).getYear());
         model.addAttribute("selectedIntervalStart", selectedIntervalStart);
         model.addAttribute("selectedIntervalEnd", selectedIntervalEnd);
 
