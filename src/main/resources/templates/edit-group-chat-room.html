@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}, activeGroup=${activeGroup}, roleInActiveGroup=${roleInActiveGroup}, isTrainerInActiveGroup=${isTrainerInActiveGroup}">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Edit Chat Room</title>
+</head>
+<body>
+
+<section layout:fragment="default-content">
+    <h2>
+        Edit <span th:text="${chatRoom.name}"></span> from the group <span th:text="${activeGroup.name}"></span>
+    </h2>
+
+    <form th:action="@{/group/{groupId}/room/{roomId}/update(groupId=${activeGroup.id}, roomId=${chatRoom.id})}"
+          th:object="${chatRoom}" method="post">
+        <h4>Details</h4>
+        <div class="mb-3">
+            <label for="nameInput">Name</label>
+            <input type="text" th:field="*{name}" th:value="${chatRoom.name}" class="form-control" id="nameInput">
+            <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+        </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+        <button type="reset" class="btn btn-secondary">Reset</button>
+    </form>
+
+    <h4>Members</h4>
+    <div class="mb-3">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${usersInGroupDTO}">
+                <td th:text="|${user.name()} ${user.id == activeUser.id ? ' (You)' : ''}|"></td>
+                <td th:if="${user.isChatRoomMember()}">
+                    <a class="btn btn-danger" th:href="@{/group/{groupId}/room/{roomId}/remove-user(groupId=${activeGroup.id}, roomId=${chatRoom.id}, userId=${user.id()})}">
+                        Remove
+                    </a>
+                </td>
+
+                <td th:unless="${user.isChatRoomMember()}">
+                    <a class="btn btn-primary" th:href="@{/group/{groupId}/room/{roomId}/add-user(groupId=${activeGroup.id}, roomId=${chatRoom.id}, userId=${user.id()})}">
+                        Add
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <a th:href="@{/group/{groupId}/room/{roomId}/chat(groupId=${activeGroup.id}, roomId=${chatRoom.id})}">Chat</a>
+</section>
+
+</body>
+</html>

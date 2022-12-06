@@ -1,12 +1,10 @@
 package de.oth.seproject.clubhub.web.group;
 
 import de.oth.seproject.clubhub.config.ClubUserDetails;
-import de.oth.seproject.clubhub.persistence.model.ChatRoom;
-import de.oth.seproject.clubhub.persistence.model.Group;
-import de.oth.seproject.clubhub.persistence.model.RoleType;
-import de.oth.seproject.clubhub.persistence.model.User;
+import de.oth.seproject.clubhub.persistence.model.*;
 import de.oth.seproject.clubhub.persistence.repository.*;
 import de.oth.seproject.clubhub.web.dto.ChatRoomDTO;
+import de.oth.seproject.clubhub.web.dto.ChatRoomUserDTO;
 import de.oth.seproject.clubhub.web.service.NavigationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -132,8 +131,6 @@ public class ChatRoomController {
 
     @GetMapping("/group/{groupId}/room/{roomId}/leave")
     public String leaveChatRoom(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("roomId") long roomId, Model model) {
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid room Id:" + roomId));
 
@@ -161,6 +158,63 @@ public class ChatRoomController {
         }
 
         return "redirect:/group/" + groupId + "/rooms";
+    }
+
+    @GetMapping("/group/{groupId}/room/{roomId}/edit")
+    public String editChatRoomPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("roomId") long roomId, Model model) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid room Id:" + roomId));
+
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
+
+        // user has to be a trainer of this group
+        if (!isTrainerInGroup) {
+            return "redirect:/group/" + groupId + "/rooms";
+        }
+
+        List<User> usersInGroup = roleRepository.findAllByGroup(group).stream().map(Role::getUser).toList();
+
+        // mapping to another object for easier processing with thymeleaf
+        List<ChatRoomUserDTO> usersInGroupDTO = usersInGroup.stream().map(user -> {
+            boolean isChatRoomMember = chatRoomRepository.existsByIdAndUsers_Id(chatRoom.getId(), user.getId());
+
+            return new ChatRoomUserDTO(user.getId(), user.getFirstName() + " " + user.getLastName(), isChatRoomMember);
+        }).toList();
+
+
+        model.addAttribute("chatRoom", chatRoom);
+        model.addAttribute("usersInGroupDTO", usersInGroupDTO);
+
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
+        return "edit-group-chat-room";
+    }
+
+    @PostMapping("/group/{groupId}/room/{roomId}/update")
+    public String updateGroup(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("roomId") long roomId, @Valid ChatRoom chatRoom,
+                              BindingResult result, Model model) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
+
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
+
+        // user has to be a trainer of this group
+        if (!isTrainerInGroup) {
+            return "redirect:/group/" + groupId + "/rooms";
+        }
+
+        if (result.hasErrors()) {
+            return "redirect:/group/" + groupId + "/room/" + roomId + "/edit";
+        }
+
+        chatRoomRepository.findById(roomId).ifPresent(persistedChatRoom -> {
+            persistedChatRoom.setName(chatRoom.getName());
+
+            chatRoomRepository.save(persistedChatRoom);
+        });
+
+        return "redirect:/group/" + groupId + "/room/" + roomId + "/edit";
     }
 
     @GetMapping("/group/{groupId}/room/{roomId}/delete")
