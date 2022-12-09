@@ -40,10 +40,19 @@
                                                         <tr th:each="chatMessage : ${chatRoom.getChatRoomMessages()}">
 
                                                             <div th:switch="${activeUser.id == chatMessage.user.id}">
-                                                                <td th:case="true" class="text-end"
-                                                                    th:text="${chatMessage.message}"></td>
-                                                                <td th:case="false" class="text-start"
-                                                                    th:text="${chatMessage.user.firstName} + ' ' + ${chatMessage.user.lastName} + ': ' + ${chatMessage.message}"></td>
+                                                                <td th:case="true" class="text-end">
+                                                                    <p th:text="${chatMessage.message}"></p>
+                                                                    <span th:unless="${chatMessage.updatedOn}" class="text-muted" th:text="${#temporals.format(chatMessage.createdOn)}"></span>
+                                                                    <span th:if="${chatMessage.updatedOn}" class="text-muted fst-italic" th:text="${#temporals.format(chatMessage.updatedOn)}"></span>
+                                                                </td>
+                                                                <td th:case="false" class="text-start">
+                                                                    <p>
+                                                                        <span class="fw-bold" th:text="${chatMessage.user.firstName} + ' ' + ${chatMessage.user.lastName} + ': '"></span>
+                                                                        <span th:text="${chatMessage.message}"></span>
+                                                                    </p>
+                                                                    <span th:unless="${chatMessage.updatedOn}" class="text-muted" th:text="${#temporals.format(chatMessage.createdOn)}"></span>
+                                                                    <span th:if="${chatMessage.updatedOn}" class="text-muted fst-italic" th:text="${#temporals.format(chatMessage.updatedOn)}"></span>
+                                                                </td>
                                                             </div>
 
                                                         </tr>
