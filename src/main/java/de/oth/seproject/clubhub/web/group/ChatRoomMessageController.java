@@ -103,8 +103,8 @@ public class ChatRoomMessageController {
         chatRoomMessage.setMessage(message.getMessage());
         chatRoomMessage.setCreatedOn(LocalDateTime.now());
 
-        chatRoomMessageRepository.save(chatRoomMessage);
+        chatRoomMessage = chatRoomMessageRepository.save(chatRoomMessage);
 
-        return new NewGroupChatMessageDTO(chatRoom.getId(), user.getId(), HtmlUtils.htmlEscape(user.getFirstName() + " " + user.getLastName()), isTrainerInGroup, HtmlUtils.htmlEscape(message.getMessage()), chatRoomMessage.getCreatedOn().toString());
+        return new NewGroupChatMessageDTO(chatRoomMessage.getId(), chatRoom.getId(), user.getId(), HtmlUtils.htmlEscape(user.getFirstName() + " " + user.getLastName()), isTrainerInGroup, HtmlUtils.htmlEscape(message.getMessage()), chatRoomMessage.getCreatedOn().toString());
     }
 }

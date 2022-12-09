@@ -5,6 +5,8 @@ package de.oth.seproject.clubhub.web.dto.chat;
  */
 public class NewGroupChatMessageDTO {
 
+    private long chatMessageId;
+
     private long chatRoomId;
 
     private long userId;
@@ -21,13 +23,22 @@ public class NewGroupChatMessageDTO {
         // -- //
     }
 
-    public NewGroupChatMessageDTO(long chatRoomId, long userId, String userName, boolean isTrainerInGroup, String content, String timestamp) {
+    public NewGroupChatMessageDTO(long chatMessageId, long chatRoomId, long userId, String userName, boolean isTrainerInGroup, String content, String timestamp) {
+        this.chatMessageId = chatMessageId;
         this.chatRoomId = chatRoomId;
         this.userId = userId;
         this.userName = userName;
         this.isTrainerInGroup = isTrainerInGroup;
         this.content = content;
         this.timestamp = timestamp;
+    }
+
+    public long getChatMessageId() {
+        return chatMessageId;
+    }
+
+    public void setChatMessageId(long chatMessageId) {
+        this.chatMessageId = chatMessageId;
     }
 
     public long getChatRoomId() {

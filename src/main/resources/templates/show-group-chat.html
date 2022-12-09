@@ -34,7 +34,8 @@
                                         <div class="card-header"> Messages</div>
                                         <div class="card-body p-0 m-0 overflow-hidden">
                                             <div class="list-group h-100 list-group-flush rounded-0">
-                                                <div class="h-100 scrollable overflow-auto" style="display: flex; flex-direction: column-reverse">
+                                                <div class="h-100 scrollable overflow-auto"
+                                                     style="display: flex; flex-direction: column-reverse">
                                                     <table id="conversation" class="table">
                                                         <tbody id="messages">
 
@@ -53,16 +54,29 @@
                                                             <div th:switch="${activeUser.id == chatMessage.user.id}">
                                                                 <td th:case="true" class="text-end">
                                                                     <p th:text="${chatMessage.message}"></p>
-                                                                    <span th:unless="${chatMessage.updatedOn}" class="text-muted" th:text="${#temporals.format(chatMessage.createdOn)}"></span>
-                                                                    <span th:if="${chatMessage.updatedOn}" class="text-muted fst-italic" th:text="${#temporals.format(chatMessage.updatedOn)}"></span>
+                                                                    <span th:unless="${chatMessage.updatedOn}"
+                                                                          class="text-muted"
+                                                                          th:text="${#temporals.format(chatMessage.createdOn)}"></span>
+                                                                    <span th:if="${chatMessage.updatedOn}"
+                                                                          class="text-muted fst-italic"
+                                                                          th:text="${#temporals.format(chatMessage.updatedOn)}"></span>
+                                                                    <a href="#"
+                                                                       th:onclick="'openEditModal(' + ${chatMessage.id} + ')'">
+                                                                        <i class="ms-2 bi bi-pencil-fill"></i>
+                                                                    </a>
                                                                 </td>
                                                                 <td th:case="false" class="text-start">
                                                                     <p>
-                                                                        <span class="fw-bold" th:text="${chatMessage.user.firstName} + ' ' + ${chatMessage.user.lastName} + ': '"></span>
+                                                                        <span class="fw-bold"
+                                                                              th:text="${chatMessage.user.firstName} + ' ' + ${chatMessage.user.lastName} + ': '"></span>
                                                                         <span th:text="${chatMessage.message}"></span>
                                                                     </p>
-                                                                    <span th:unless="${chatMessage.updatedOn}" class="text-muted" th:text="${#temporals.format(chatMessage.createdOn)}"></span>
-                                                                    <span th:if="${chatMessage.updatedOn}" class="text-muted fst-italic" th:text="${#temporals.format(chatMessage.updatedOn)}"></span>
+                                                                    <span th:unless="${chatMessage.updatedOn}"
+                                                                          class="text-muted"
+                                                                          th:text="${#temporals.format(chatMessage.createdOn)}"></span>
+                                                                    <span th:if="${chatMessage.updatedOn}"
+                                                                          class="text-muted fst-italic"
+                                                                          th:text="${#temporals.format(chatMessage.updatedOn)}"></span>
                                                                 </td>
                                                             </div>
 
@@ -133,6 +147,7 @@
     <!--        </div>-->
     <!--    </div>-->
 
+    <!-- Toasts -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
         <div id="connectionSuccessToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header">
@@ -150,6 +165,30 @@
             </div>
             <div class="toast-body" th:text="'Failed to connect to ' + ${chatRoom.name}">
                 <button id="tryConnectButton" type="button" class="btn btn-primary btn-sm">Try again</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="editMessageModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="edit-message-text" class="col-form-label">Message:</label>
+                            <textarea class="form-control" id="edit-message-text"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button id="save-message-text" type="button" class="btn btn-primary">Save changes</button>
+                </div>
             </div>
         </div>
     </div>

@@ -84,9 +84,26 @@ function displayMessage(messageJson) {
         let timestampFormatted = timestamp.toLocaleString("de-DE", options);
 
         if (messageJson.userId == userId) {
-            $("#messages").append("<tr><td class='text-end'><p>" + messageJson.content + "</p><span class='text-muted'>" + timestampFormatted + "</span></td></tr>");
+            $("#messages").append("<tr><td class='text-end'><p>" + messageJson.content + "</p><span class='text-muted'>" + timestampFormatted + "</span>"
+                + "<a href='#' onclick='openEditModal(" + messageJson.chatMessageId + ", " + messageJson.content + ")'><i class='ms-2 bi bi-pencil-fill'></i></a>"
+                + "</td></tr>");
         } else {
-            $("#messages").append("<tr><td class='text-start'><p><span class='fw-bold'>" + messageJson.userName + ":</span> " + messageJson.content + "</p><span class='text-muted'>" + timestampFormatted + "</span></td></tr>");
+            $("#messages").append("<tr><td class='text-start'><p><span class='fw-bold'>" + messageJson.userName + ":</span> "
+                + messageJson.content + "</p><span class='text-muted'>" + timestampFormatted + "</span></td></tr>");
         }
     }
+}
+
+function openEditModal(messageId) {
+    console.log(messageId);
+
+    $('#edit-message-text').val("");
+
+    $('#save-message-text').click(function () {
+        let newText = $('#edit-message-text').val();
+        console.log(newText)
+        window.location.href = "/edit-group-chat-message?id=" + messageId + "&text=" + encodeURIComponent(newText); // TODO: controller
+    });
+
+    $('#editMessageModal').modal("show");
 }
