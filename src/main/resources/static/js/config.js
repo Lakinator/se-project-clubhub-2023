@@ -1,6 +1,7 @@
 function enable_tooltips() {
-    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    $('[data-bs-toggle="tooltip"]').tooltip();
 }
 
-window.onload = enable_tooltips;
+$(document).ready(function () {
+    enable_tooltips();
+});
