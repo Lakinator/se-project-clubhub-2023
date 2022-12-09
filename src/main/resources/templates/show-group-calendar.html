@@ -90,6 +90,8 @@
     <p th:if="${isTrainerInActiveGroup}"><a th:href="@{/group/{groupId}/events/add(groupId=${activeGroup.id})}">Add a
         new group event</a></p>
 
+    <p><a class="btn btn-success" th:href="@{/group/{groupId}/rooms(groupId=${activeGroup.id})}">See all chat rooms</a></p>
+
 </section>
 
 </body>
