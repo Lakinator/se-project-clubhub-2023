@@ -54,10 +54,15 @@ function disconnect() {
 function sendMessage() {
     let userId = $('input#inputUserId').val();
     let chatRoomId = $('input#inputChatRoomId').val();
+    let message = $("#message").val().trim();
+
+    if (message === "") {
+        return;
+    }
 
     stompClient.send("/clubhub/deliver", {}, JSON.stringify(
         {
-            'message': $("#message").val(),
+            'message': message,
             'userId': userId,
             'chatRoomId': chatRoomId
         }
@@ -71,11 +76,17 @@ function displayMessage(messageJson) {
     let chatRoomId = $('input#inputChatRoomId').val();
 
     if (chatRoomId == messageJson.chatRoomId) {
+        let timestamp = new Date(messageJson.timestamp);
+        const options = {
+            dateStyle: "long",
+            timeStyle: "medium"
+        };
+        let timestampFormatted = timestamp.toLocaleString("de-DE", options);
 
         if (messageJson.userId == userId) {
-            $("#messages").append("<tr><td class='text-end'>" + messageJson.content + "</td></tr>");
+            $("#messages").append("<tr><td class='text-end'><p>" + messageJson.content + "</p><span class='text-muted'>" + timestampFormatted + "</span></td></tr>");
         } else {
-            $("#messages").append("<tr><td class='text-start'>" + messageJson.userName + ": " + messageJson.content + "</td></tr>");
+            $("#messages").append("<tr><td class='text-start'><p><span class='fw-bold'>" + messageJson.userName + ":</span> " + messageJson.content + "</p><span class='text-muted'>" + timestampFormatted + "</span></td></tr>");
         }
     }
 }

@@ -1,5 +1,8 @@
 package de.oth.seproject.clubhub.web.dto.chat;
 
+/**
+ * This dto will be sent to the listening websocket clients.
+ */
 public class NewGroupChatMessageDTO {
 
     private long chatRoomId;

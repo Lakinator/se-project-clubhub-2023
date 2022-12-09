@@ -1,5 +1,8 @@
 package de.oth.seproject.clubhub.web.dto.chat;
 
+/**
+ * This dto will be received from the websocket clients.
+ */
 public class GroupChatMessageDTO {
     private String message;
 
