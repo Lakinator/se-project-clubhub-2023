@@ -6,6 +6,9 @@ import de.oth.seproject.clubhub.persistence.repository.*;
 import de.oth.seproject.clubhub.web.dto.chat.GroupChatMessageDTO;
 import de.oth.seproject.clubhub.web.dto.chat.NewGroupChatMessageDTO;
 import de.oth.seproject.clubhub.web.service.NavigationService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.access.AccessDeniedException;
@@ -14,10 +17,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.util.HtmlUtils;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Controller
 public class ChatRoomMessageController {
@@ -44,7 +49,8 @@ public class ChatRoomMessageController {
     }
 
     @GetMapping("/group/{groupId}/room/{roomId}/chat")
-    public String showChatPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("roomId") long roomId, Model model) {
+    public String showChatPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("roomId") long roomId,
+                               @RequestParam("size") Optional<Integer> size, Model model) {
 
         boolean isChatRoomMember = chatRoomRepository.existsByIdAndUsers_Id(roomId, userDetails.getUser().getId());
 
@@ -60,8 +66,14 @@ public class ChatRoomMessageController {
 
         boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
 
+        int maxMessages = size.orElse(50);
+
+        final PageRequest pageRequest = PageRequest.of(0, maxMessages, Sort.by("createdOn").descending());
+
+        Page<ChatRoomMessage> chatRoomMessagePage = chatRoomMessageRepository.findAllByChatRoom(chatRoom, pageRequest);
 
         model.addAttribute("chatRoom", chatRoom);
+        model.addAttribute("chatRoomMessagePage", chatRoomMessagePage);
 
         navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
         return "show-group-chat";

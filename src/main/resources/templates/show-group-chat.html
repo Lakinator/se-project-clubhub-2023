@@ -13,7 +13,7 @@
 <body>
 
 <section layout:fragment="default-content">
-    <h2 class="m-4" th:text="${chatRoom.name} + ' chat from the group ' + ${activeGroup.name}"></h2>
+    <h2 class="m-4" th:text="${chatRoom.name} + ' chat from the group ' + ${chatRoom.getGroup().name}"></h2>
 
     <div class="container-fluid">
         <div class="row">
@@ -37,7 +37,18 @@
                                                 <div class="h-100 scrollable overflow-auto" style="display: flex; flex-direction: column-reverse">
                                                     <table id="conversation" class="table">
                                                         <tbody id="messages">
-                                                        <tr th:each="chatMessage : ${chatRoom.getChatRoomMessages()}">
+
+                                                        <tr>
+                                                            <td class="text-center">
+                                                                <a class="btn btn-outline-primary"
+                                                                   th:href="@{/group/{groupId}/room/{roomId}/chat(groupId=${chatRoom.getGroup().id}, roomId=${chatRoom.getId()}, size=${chatRoomMessagePage.size + 20})}">
+                                                                    Load more
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+
+                                                        <tr th:each="i : ${#numbers.sequence(chatRoomMessagePage.getContent().size() - 1, 0, -1)}"
+                                                            th:with="chatMessage = ${chatRoomMessagePage.getContent().get(i)}">
 
                                                             <div th:switch="${activeUser.id == chatMessage.user.id}">
                                                                 <td th:case="true" class="text-end">
@@ -56,6 +67,7 @@
                                                             </div>
 
                                                         </tr>
+
                                                         </tbody>
                                                     </table>
                                                 </div>
