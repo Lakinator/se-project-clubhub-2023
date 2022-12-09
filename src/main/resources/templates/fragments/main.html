@@ -7,8 +7,8 @@
     <title>ClubHub</title>
     <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
     <link th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.css}" rel="stylesheet">
-    <script type="text/javascript"
-            th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
     <script type="text/javascript" th:src="@{/js/config.js}"></script>
 </head>
 <body>
@@ -74,13 +74,13 @@
             <span th:if="${roleInActiveGroup}" class="navbar-text"
                   th:text="${activeGroup.getName()} + ' (' + ${roleInActiveGroup.getRoleName().name()} + ') '">
             </span>
-            <a class="nav-link" th:if="${isTrainerInActiveGroup}"
+            <a class="nav-link ms-2 me-4" th:if="${isTrainerInActiveGroup}"
                th:href="@{/group/{groupId}/show(groupId=${activeGroup.getId()})}"
                data-bs-toggle="tooltip" data-bs-placement="bottom"
                data-bs-title="Edit Group">
                 <i class="bi bi-person-fill-gear"></i>
             </a>
-            <a class="nav-link" th:if="${activeGroup != null && !isTrainerInActiveGroup}"
+            <a class="nav-link ms-2 me-4" th:if="${activeGroup != null && !isTrainerInActiveGroup}"
                th:href="@{/group/{groupId}/show(groupId=${activeGroup.getId()})}"
                data-bs-toggle="tooltip" data-bs-placement="bottom"
                data-bs-title="Show Group">
