@@ -27,7 +27,9 @@
                 </thead>
                 <tbody>
                 <tr th:each="groupDTO : ${groupDTOPage.getContent()}">
-                    <td th:text="${groupDTO.name}"></td>
+                    <td>
+                        <a th:text="${groupDTO.name}" th:href="@{/group/{id}/calendar(id=${groupDTO.id})}"></a>
+                    </td>
                     <td th:text="${groupDTO.userCount}"></td>
 
                     <div th:switch="${groupDTO.hasJoined}">
