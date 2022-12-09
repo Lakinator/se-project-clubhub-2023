@@ -130,6 +130,10 @@ public class User {
         this.chatRooms = chatRooms;
     }
 
+    public List<ChatRoom> getChatRoomsInGroup(Long groupId) {
+        return this.getChatRooms().stream().filter(chatRoom -> chatRoom.getGroup().getId() == groupId).toList();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
