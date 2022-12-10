@@ -23,6 +23,9 @@ public class Group {
     @OneToMany(mappedBy = "group", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<GroupEvent> groupEvents = new ArrayList<>();
 
+    @OneToMany(mappedBy = "group", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<ChatRoom> chatRooms = new ArrayList<>();
+
     @NotBlank
     private String name;
 
@@ -60,6 +63,14 @@ public class Group {
 
     public void setGroupEvents(List<GroupEvent> groupEvents) {
         this.groupEvents = groupEvents;
+    }
+
+    public List<ChatRoom> getChatRooms() {
+        return chatRooms;
+    }
+
+    public void setChatRooms(List<ChatRoom> chatRooms) {
+        this.chatRooms = chatRooms;
     }
 
     public String getName() {

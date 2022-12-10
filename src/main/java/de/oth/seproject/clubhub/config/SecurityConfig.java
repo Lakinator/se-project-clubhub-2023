@@ -15,43 +15,21 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        http.csrf().disable();
-
-        // everyone can access these sites
-        http.authorizeRequests()
-                .antMatchers("/", "/home", "/login", "/registration", "/user/create").permitAll();
-
-        // manage access to announcement sites
-        http.authorizeRequests()
-                .antMatchers("/announcement/**", "/announcements/add/**")
-                .hasAuthority(RoleType.TRAINER.name())
-                .and()
+        http.csrf()
+                .disable()
                 .authorizeRequests()
-                .antMatchers("/announcements")
-                .authenticated();
-
-        // manage access to group sites
-        http.authorizeRequests()
-                .antMatchers("/group/add/**", "/groups/create/**")
+                .antMatchers("/announcement/**", "/announcements/add/**", "/group/add/**", "/groups/create/**")
                 .hasAuthority(RoleType.TRAINER.name())
-                .and()
-                .authorizeRequests()
-                .antMatchers("/group", "/groups")
-                .authenticated();
-
-        // the user needs to be logged in to access any other site
-        http.authorizeRequests()
+                .antMatchers("/", "/home", "/login", "/registration", "/user/create", "/webjars/**", "/js/**", "/css/**")
+                .permitAll()
                 .anyRequest()
-                .authenticated();
-
-        // configure login
-        http.formLogin()
+                .authenticated()
+                .and()
+                .formLogin()
                 .loginPage("/login")
-                .defaultSuccessUrl("/home");
-
-        // configure logout
-        http.logout()
+                .defaultSuccessUrl("/home")
+                .and()
+                .logout()
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout");
 

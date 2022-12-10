@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}, activeGroup=${activeGroup}, roleInActiveGroup=${roleInActiveGroup}, isTrainerInActiveGroup=${isTrainerInActiveGroup}">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Group Chat Room</title>
+</head>
+<body>
+
+<section layout:fragment="default-content">
+    <h2>
+        <span th:text="${chatRoom.name}"></span> from the group <span th:text="${activeGroup.name}"></span>
+    </h2>
+
+    <h5>Members</h5>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${chatRoom.getUsers()}">
+            <td th:text="${user.firstName + ' ' + user.lastName}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a th:href="@{/group/{groupId}/room/{roomId}/chat(groupId=${activeGroup.id}, roomId=${chatRoom.id})}">Chat</a>
+</section>
+
+</body>
+</html>

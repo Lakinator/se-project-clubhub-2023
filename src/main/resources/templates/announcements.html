@@ -10,44 +10,41 @@
 <body>
 
 <section layout:fragment="default-content">
-    <h2>All announcements from the club <span th:text="${activeUser.club.name}"></span></h2>
+    <h2 class="mb-4 mt-2">All announcements from the club <span th:text="${activeUser.club.name}"></span></h2>
 
     <div th:switch="${announcementPage.hasContent()}">
         <h5 th:case="false">No announcements for this club yet!</h5>
         <div th:case="true">
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>Message</th>
-                    <th>User</th>
-                    <th>Created on</th>
-                    <th>Updated on</th>
-                    <th>Edit</th>
-                    <th>Delete</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="announcement : ${announcementPage.getContent()}">
-                    <td th:text="${announcement.message}"></td>
-                    <td th:text="${announcement.user.firstName + ' ' + announcement.user.lastName} + ${announcement.user.id == activeUser.id ? ' (You)' : ''}"></td>
-                    <td th:text="${announcement.createdOn}"></td>
-                    <td th:text="${announcement.updatedOn}"></td>
-                    <td th:if="${announcement.user.id == activeUser.id}">
-                        <a th:href="@{/announcement/{id}/edit(id=${announcement.id})}">
-                            <i class="bi bi-gear-fill"></i>
-                        </a>
-                    </td>
-                    <td th:if="${announcement.user.id != activeUser.id}">
-                        <i class="bi bi-shield-slash"></i>
-                    </td>
-                    <td th:if="${isTrainerInClub}">
-                        <a th:href="@{/announcement/{id}/delete(id=${announcement.id})}">
-                            <i class="bi bi-trash-fill text-danger"></i>
-                        </a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="card mb-4" th:each="announcement : ${announcementPage.getContent()}">
+                <h5 class="card-header"
+                    th:text="'Announcement @ ' + ${#temporals.format(announcement.createdOn)} + ${announcement.updatedOn != null ? ' (edited ' + #temporals.format(announcement.updatedOn) + ')' : ''}"></h5>
+                <div class="card-body">
+                    <blockquote class="blockquote mb-0">
+                        <p th:text="${announcement.message}"></p>
+                        <footer class="blockquote-footer"
+                                th:text="${announcement.user.firstName + ' ' + announcement.user.lastName} + ${announcement.user.id == activeUser.id ? ' (You)' : ''}"></footer>
+                    </blockquote>
+                </div>
+                <div class="card-footer text-muted" th:if="${isTrainerInClub}">
+                    <div class="container">
+                        <div class="row float-end">
+                            <div class="col" th:if="${announcement.user.id == activeUser.id}">
+                                <a th:href="@{/announcement/{id}/edit(id=${announcement.id})}">
+                                    <i class="bi bi-gear-fill"></i>
+                                </a>
+                            </div>
+                            <div class="col" th:if="${announcement.user.id != activeUser.id}">
+                                <i class="bi bi-shield-slash"></i>
+                            </div>
+                            <div class="col" th:if="${isTrainerInClub}">
+                                <a th:href="@{/announcement/{id}/delete(id=${announcement.id})}">
+                                    <i class="bi bi-trash-fill text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div th:insert="fragments/pagination :: default-pagination (hrefPrefix='/announcements', totalPages=${announcementPage.totalPages}, activePage=${announcementPage.number + 1}, pageSize=${announcementPage.size})"></div>
         </div>
         <p th:if="${isTrainerInClub}"><a href="/announcements/add">Add a new announcement</a></p>

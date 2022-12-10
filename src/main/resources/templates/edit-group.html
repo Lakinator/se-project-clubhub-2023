@@ -39,7 +39,6 @@
                         <td>
                             <input type="hidden" th:field="${group.roles[__${itemStat.index}__].id}" th:value="role.id"
                                    readonly>
-                            <label for="roleSelect"></label>
                             <select id="roleSelect" class="form-select"
                                     th:disabled="${role.user.id == roleInActiveGroup.user.id}"
                                     th:field="${group.roles[__${itemStat.index}__].roleName}">

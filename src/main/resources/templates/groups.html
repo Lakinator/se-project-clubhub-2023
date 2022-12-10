@@ -27,7 +27,9 @@
                 </thead>
                 <tbody>
                 <tr th:each="groupDTO : ${groupDTOPage.getContent()}">
-                    <td th:text="${groupDTO.name}"></td>
+                    <td>
+                        <a th:text="${groupDTO.name}" th:href="@{/group/{id}/calendar(id=${groupDTO.id})}"></a>
+                    </td>
                     <td th:text="${groupDTO.userCount}"></td>
 
                     <div th:switch="${groupDTO.hasJoined}">
@@ -45,12 +47,16 @@
 
                     <div th:switch="${groupDTO.isTrainer}">
                         <td th:case="false">
-                            <a th:href="@{/group/{id}/show(id=${groupDTO.id})}">
+                            <a th:href="@{/group/{id}/show(id=${groupDTO.id})}"
+                               data-bs-toggle="tooltip" data-bs-placement="right"
+                               data-bs-title="Show Group">
                                 <i class="bi bi-person-lines-fill"></i>
                             </a>
                         </td>
                         <td th:case="true">
-                            <a th:href="@{/group/{id}/edit(id=${groupDTO.id})}">
+                            <a th:href="@{/group/{id}/edit(id=${groupDTO.id})}"
+                               data-bs-toggle="tooltip" data-bs-placement="right"
+                               data-bs-title="Edit Group">
                                 <i class="bi bi-person-fill-gear text-info"></i>
                             </a>
                         </td>
