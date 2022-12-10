@@ -85,7 +85,7 @@ function displayMessage(messageJson) {
 
         if (messageJson.userId == userId) {
             $("#messages").append("<tr><td class='text-end'><p>" + messageJson.content + "</p><span class='text-muted'>" + timestampFormatted + "</span>"
-                + "<a href='#' onclick='openEditModal(" + messageJson.chatMessageId + ", " + messageJson.content + ")'><i class='ms-2 bi bi-pencil-fill'></i></a>"
+                + "<a href='#' onclick='openEditModal(" + messageJson.chatMessageId + ")'><i class='ms-2 bi bi-pencil-fill'></i></a>"
                 + "</td></tr>");
         } else {
             $("#messages").append("<tr><td class='text-start'><p><span class='fw-bold'>" + messageJson.userName + ":</span> "
@@ -97,12 +97,12 @@ function displayMessage(messageJson) {
 function openEditModal(messageId) {
     console.log(messageId);
 
-    $('#edit-message-text').val("");
+    $('#edit-message-text').val("Maybe you can edit message {" + messageId + "} after paying our premium subscription fee!");
 
     $('#save-message-text').click(function () {
         let newText = $('#edit-message-text').val();
         console.log(newText)
-        window.location.href = "/edit-group-chat-message?id=" + messageId + "&text=" + encodeURIComponent(newText); // TODO: controller
+        // TODO: post request to controller with data and security
     });
 
     $('#editMessageModal').modal("show");

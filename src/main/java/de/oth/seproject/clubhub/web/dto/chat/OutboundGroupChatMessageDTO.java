@@ -3,7 +3,7 @@ package de.oth.seproject.clubhub.web.dto.chat;
 /**
  * This dto will be sent to the listening websocket clients.
  */
-public class NewGroupChatMessageDTO {
+public class OutboundGroupChatMessageDTO {
 
     private long chatMessageId;
 
@@ -19,11 +19,11 @@ public class NewGroupChatMessageDTO {
 
     private String timestamp;
 
-    public NewGroupChatMessageDTO() {
+    public OutboundGroupChatMessageDTO() {
         // -- //
     }
 
-    public NewGroupChatMessageDTO(long chatMessageId, long chatRoomId, long userId, String userName, boolean isTrainerInGroup, String content, String timestamp) {
+    public OutboundGroupChatMessageDTO(long chatMessageId, long chatRoomId, long userId, String userName, boolean isTrainerInGroup, String content, String timestamp) {
         this.chatMessageId = chatMessageId;
         this.chatRoomId = chatRoomId;
         this.userId = userId;

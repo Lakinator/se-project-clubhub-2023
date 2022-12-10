@@ -1,16 +1,16 @@
 package de.oth.seproject.clubhub.web.dto.chat;
 
 /**
- * This dto will be received from the websocket clients.
+ * This dto will be sent by the websocket clients.
  */
-public class GroupChatMessageDTO {
+public class InboundGroupChatMessageDTO {
     private String message;
 
     private long userId;
 
     private long chatRoomId;
 
-    public GroupChatMessageDTO() {
+    public InboundGroupChatMessageDTO() {
         // -- //
     }
 

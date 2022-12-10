@@ -3,8 +3,8 @@ package de.oth.seproject.clubhub.web.group;
 import de.oth.seproject.clubhub.config.ClubUserDetails;
 import de.oth.seproject.clubhub.persistence.model.*;
 import de.oth.seproject.clubhub.persistence.repository.*;
-import de.oth.seproject.clubhub.web.dto.chat.GroupChatMessageDTO;
-import de.oth.seproject.clubhub.web.dto.chat.NewGroupChatMessageDTO;
+import de.oth.seproject.clubhub.web.dto.chat.InboundGroupChatMessageDTO;
+import de.oth.seproject.clubhub.web.dto.chat.OutboundGroupChatMessageDTO;
 import de.oth.seproject.clubhub.web.service.NavigationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -82,7 +82,7 @@ public class ChatRoomMessageController {
     @Transactional
     @MessageMapping("/deliver")
     @SendTo("/group-chat/new")
-    public NewGroupChatMessageDTO onMessageDelivered(GroupChatMessageDTO message) throws Exception {
+    public OutboundGroupChatMessageDTO onMessageDelivered(InboundGroupChatMessageDTO message) throws Exception {
 
         boolean isChatRoomMember = chatRoomRepository.existsByIdAndUsers_Id(message.getChatRoomId(), message.getUserId());
 
@@ -105,6 +105,6 @@ public class ChatRoomMessageController {
 
         chatRoomMessage = chatRoomMessageRepository.save(chatRoomMessage);
 
-        return new NewGroupChatMessageDTO(chatRoomMessage.getId(), chatRoom.getId(), user.getId(), HtmlUtils.htmlEscape(user.getFirstName() + " " + user.getLastName()), isTrainerInGroup, HtmlUtils.htmlEscape(message.getMessage()), chatRoomMessage.getCreatedOn().toString());
+        return new OutboundGroupChatMessageDTO(chatRoomMessage.getId(), chatRoom.getId(), user.getId(), HtmlUtils.htmlEscape(user.getFirstName() + " " + user.getLastName()), isTrainerInGroup, HtmlUtils.htmlEscape(message.getMessage()), chatRoomMessage.getCreatedOn().toString());
     }
 }
