@@ -15,6 +15,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        // TODO: make rest api available without authentication
+
         http.csrf()
                 .disable()
                 .authorizeRequests()

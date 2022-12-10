@@ -48,10 +48,11 @@ src
 |       |-- ddl
 |       |   `-- 01_create_club.sql
 |       |-- static
-|       |   `-- index.html
+|       |   |-- js
+|       |       `-- main.js
 |       |-- templates
 |       |   |-- fragments
-|       |   |   `-- header.html
+|       |   |   `-- layout.html
 |       |   `-- home.html
 |       `-- application.properties
 `-- test
@@ -68,13 +69,40 @@ Beispiel unter [http://localhost:8081/api/v1/clubs](http://localhost:8081/api/v1
 
 ```json
 [
-   {
-      "timeStamp":"2022-11-26T15:29:34.8602973",
-      "name":"SC Lorenzen"
-   },
-   {
-      "timeStamp":"2022-11-26T15:29:34.8602973",
-      "name":"FC Bayern"
-   }
+  {
+    "timeStamp": "2022-12-10T13:20:53.6280917",
+    "name": "SC Lorenzen",
+    "memberCount": 4
+  },
+  {
+    "timeStamp": "2022-12-10T13:20:53.6481221",
+    "name": "FC Bayern",
+    "memberCount": 1
+  }
+]
+```
+
+Weiteres Beispiel unter [http://localhost:8081/api/v1/club/SC%20Lorenzen/group/1.%20Mannschaft/events?start=2022-12-10&end=2022-12-17](http://localhost:8081/api/v1/club/SC%20Lorenzen/group/1.%20Mannschaft/events?start=2022-12-10&end=2022-12-17)
+
+```json
+[
+  {
+    "eventDate": "2022-12-10",
+    "eventStart": "16:54:00",
+    "eventEnd": "18:54:00",
+    "location": "Deutschland, Regensburg, 93055, Kirchfeldallee, 4, SV Burgweinting",
+    "title": "fdgfdgf",
+    "description": "aa",
+    "eventType": "CHRISTMAS_PARTY"
+  },
+  {
+    "eventDate": "2022-12-16",
+    "eventStart": "15:58:00",
+    "eventEnd": "18:58:00",
+    "location": "Deutschland, Lappersdorf, 93138, Am Sportzentrum, 1, TSV Kareth Lappersdorf e.V.",
+    "title": "dsfsc",
+    "description": "sdfsdfdsfsdf",
+    "eventType": "TRAINING"
+  }
 ]
 ```
