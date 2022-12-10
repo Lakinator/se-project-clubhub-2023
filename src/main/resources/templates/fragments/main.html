@@ -78,11 +78,16 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" th:href="@{/api/v1/clubs}">Clubs</a></li>
+                        <li th:if="${activeGroup}">
+                            <a class="dropdown-item" th:href="@{/api/v1/club/{clubName}/group/{groupName}/events(clubName=${activeUser.club.name}, groupName=${activeGroup.name}, start=${#temporals.format(#temporals.createToday(), 'YYYY-MM-dd')}, end=${#temporals.format(#temporals.createToday().plus(7, T(java.time.temporal.ChronoUnit).DAYS), 'YYYY-MM-dd')})}">
+                                Group Events
+                            </a>
+                        </li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
                         <li><a class="dropdown-item disabled" href="#">Player</a></li>
-                        <li><a class="dropdown-item disabled" href="#">Group Event</a></li>
+                        <li th:unless="${activeGroup}"><a class="dropdown-item disabled" href="#">Group Events</a></li>
                     </ul>
                 </li>
                 <li class="nav-item">

@@ -96,4 +96,10 @@ public class Location {
     public void setGenericEvents(List<GenericEvent> genericEvents) {
         this.genericEvents = genericEvents;
     }
+
+    @Override
+    public String toString() {
+        return country + ", " + city + ", " + postalCode
+                + ", " + street + ", " + streetNumber + ", " + description;
+    }
 }
