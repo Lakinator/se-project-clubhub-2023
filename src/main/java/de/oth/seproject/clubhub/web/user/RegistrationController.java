@@ -58,7 +58,7 @@ public class RegistrationController {
 
         userRepository.save(user);
         
-        emailService.sendEmail(user.getEmail(), "Thank you for signing up on ClubHub", "Registration was successful");
+        //emailService.sendEmail(user.getEmail(), "Thank you for signing up on ClubHub", "Registration was successful");
 
         return "redirect:/login"; // TODO: show successful register page
     }
