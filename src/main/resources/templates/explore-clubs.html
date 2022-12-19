@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}, activeGroup=${activeGroup}, roleInActiveGroup=${roleInActiveGroup}, isTrainerInActiveGroup=${isTrainerInActiveGroup}">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Explore</title>
+</head>
+<body>
+
+<section layout:fragment="default-content">
+    <h2>Explore all clubs</h2>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Member Count</th>
+            <th>Group Count</th>
+            <th>See groups</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="clubDTO : ${clubDTOPage.getContent()}">
+            <td th:text="${clubDTO.name} + ${clubDTO.isMember ? ' (Your club)' : ''}"></td>
+            <td th:text="${clubDTO.userCount}"></td>
+            <td th:text="${clubDTO.groupCount}"></td>
+
+            <div th:switch="${clubDTO.isMember}">
+                <td th:case="true">
+                    <a class="text-info" th:href="@{/groups}">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                </td>
+                <td th:case="false">
+                    <a class="text-primary" th:href="@{/explore/club/{id}/groups(id=${clubDTO.id})}">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                </td>
+            </div>
+        </tr>
+        </tbody>
+    </table>
+    <div th:insert="fragments/pagination :: default-pagination (hrefPrefix='/explore', totalPages=${clubDTOPage.totalPages}, activePage=${clubDTOPage.number + 1}, pageSize=${clubDTOPage.size})"></div>
+
+</section>
+
+</body>
+</html>
