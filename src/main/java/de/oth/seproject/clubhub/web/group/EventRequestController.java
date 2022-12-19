@@ -1,7 +1,9 @@
 package de.oth.seproject.clubhub.web.group;
 
 import de.oth.seproject.clubhub.config.ClubUserDetails;
+import de.oth.seproject.clubhub.persistence.model.GroupEvent;
 import de.oth.seproject.clubhub.persistence.model.GroupEventRequest;
+import de.oth.seproject.clubhub.persistence.model.RequestStatus;
 import de.oth.seproject.clubhub.persistence.model.RoleType;
 import de.oth.seproject.clubhub.persistence.repository.*;
 import de.oth.seproject.clubhub.web.dto.GroupEventRequestDTO;
@@ -10,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
@@ -29,6 +32,8 @@ public class EventRequestController {
 
     private final GroupRepository groupRepository;
 
+    private final GroupEventRepository groupEventRepository;
+
     private final GroupEventRequestRepository groupEventRequestRepository;
 
     private final RoleRepository roleRepository;
@@ -37,10 +42,11 @@ public class EventRequestController {
 
     private final LocationRepository locationRepository;
 
-    public EventRequestController(NavigationService navigationService, ClubRepository clubRepository, GroupRepository groupRepository, GroupEventRequestRepository groupEventRequestRepository, RoleRepository roleRepository, UserRepository userRepository, LocationRepository locationRepository) {
+    public EventRequestController(NavigationService navigationService, ClubRepository clubRepository, GroupRepository groupRepository, GroupEventRepository groupEventRepository, GroupEventRequestRepository groupEventRequestRepository, RoleRepository roleRepository, UserRepository userRepository, LocationRepository locationRepository) {
         this.navigationService = navigationService;
         this.clubRepository = clubRepository;
         this.groupRepository = groupRepository;
+        this.groupEventRepository = groupEventRepository;
         this.groupEventRequestRepository = groupEventRequestRepository;
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
@@ -48,7 +54,7 @@ public class EventRequestController {
     }
 
     @GetMapping("/requests")
-    public String showGroupPage(@AuthenticationPrincipal ClubUserDetails userDetails,
+    public String showRequestsPage(@AuthenticationPrincipal ClubUserDetails userDetails,
                                 @RequestParam("year") Optional<Integer> year,
                                 @RequestParam("month") Optional<Month> month, Model model) {
 
@@ -93,5 +99,81 @@ public class EventRequestController {
 
         navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
         return "show-requests";
+    }
+
+    @GetMapping("/request/{requestId}/accept")
+    public String acceptGroupEventRequest(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("requestId") long requestId, Model model) {
+        GroupEventRequest groupEventRequest = groupEventRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group event request Id:" + requestId));
+
+        boolean isTrainer = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), groupEventRequest.getRequestedGroup(), RoleType.TRAINER);
+
+        // trainer needs to be a trainer in the group which received the request
+        if (isTrainer) {
+            // create group event for the creator
+            GroupEvent groupEvent = new GroupEvent();
+            groupEvent.setUser(groupEventRequest.getUser());
+            groupEvent.setGroup(groupEventRequest.getCreatorGroup());
+            groupEvent.setEventType(groupEventRequest.getEventType());
+            groupEvent.setTitle(groupEventRequest.getTitle());
+            groupEvent.setDescription(groupEventRequest.getDescription());
+            groupEvent.setEventDate(groupEventRequest.getEventDate());
+            groupEvent.setEventStart(groupEventRequest.getEventStart());
+            groupEvent.setEventEnd(groupEventRequest.getEventEnd());
+            groupEvent.setLocation(groupEventRequest.getLocation());
+
+            groupEventRepository.save(groupEvent);
+
+            // create group event for the one which accepted the request
+            groupEvent = new GroupEvent();
+            groupEvent.setUser(groupEventRequest.getUser());
+            groupEvent.setGroup(groupEventRequest.getRequestedGroup());
+            groupEvent.setEventType(groupEventRequest.getEventType());
+            groupEvent.setTitle(groupEventRequest.getTitle());
+            groupEvent.setDescription(groupEventRequest.getDescription());
+            groupEvent.setEventDate(groupEventRequest.getEventDate());
+            groupEvent.setEventStart(groupEventRequest.getEventStart());
+            groupEvent.setEventEnd(groupEventRequest.getEventEnd());
+            groupEvent.setLocation(groupEventRequest.getLocation());
+
+            groupEventRepository.save(groupEvent);
+
+            // save status of request
+            groupEventRequest.setRequestStatus(RequestStatus.ACCEPTED);
+            groupEventRequestRepository.save(groupEventRequest);
+        }
+
+        return "redirect:/requests";
+    }
+
+    @GetMapping("/request/{requestId}/deny")
+    public String denyGroupEventRequest(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("requestId") long requestId, Model model) {
+        GroupEventRequest groupEventRequest = groupEventRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group event request Id:" + requestId));
+
+        boolean isTrainer = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), groupEventRequest.getRequestedGroup(), RoleType.TRAINER);
+
+        // trainer needs to be a trainer in the group which received the request
+        if (isTrainer) {
+            groupEventRequest.setRequestStatus(RequestStatus.DENIED);
+            groupEventRequestRepository.save(groupEventRequest);
+        }
+
+        return "redirect:/requests";
+    }
+
+    @GetMapping("/request/{requestId}/delete")
+    public String deleteGroupEventRequest(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("requestId") long requestId, Model model) {
+        GroupEventRequest groupEventRequest = groupEventRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group event request Id:" + requestId));
+
+        boolean isTrainer = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), groupEventRequest.getCreatorGroup(), RoleType.TRAINER);
+
+        // trainer needs to be a trainer in the group which created the request
+        if (isTrainer) {
+            groupEventRequestRepository.delete(groupEventRequest);
+        }
+
+        return "redirect:/requests";
     }
 }

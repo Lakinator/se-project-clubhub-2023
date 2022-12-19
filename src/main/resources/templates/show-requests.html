@@ -50,6 +50,7 @@
                     <th>Type</th>
                     <th>Description</th>
                     <th>Location</th>
+                    <th>Status</th>
                     <th>Action</th>
                 </tr>
                 </thead>
@@ -60,28 +61,34 @@
                     <td th:text="${#temporals.monthNameShort(groupEventRequestDTO.groupEventRequest().eventDate)} + ', ' + ${#temporals.dayOfWeekNameShort(groupEventRequestDTO.groupEventRequest().eventDate)}"></td>
                     <td th:if="${groupEventRequestDTO.groupEventRequest().isWholeDay()}" th:text="Ganztägig"></td>
                     <td th:unless="${groupEventRequestDTO.groupEventRequest().isWholeDay()}" th:text="${#temporals.format(groupEventRequestDTO.groupEventRequest().eventStart, 'HH:mm')} + ' - ' + ${#temporals.format(groupEventRequestDTO.groupEventRequest().eventEnd, 'HH:mm')}"></td>
-                    <td th:text="${groupEventRequestDTO.groupEventRequest().user.firstName + ' ' + groupEventRequestDTO.groupEventRequest().user.lastName}"></td>
+                    <td th:text="${groupEventRequestDTO.groupEventRequest().creatorGroup.name + ' (' + groupEventRequestDTO.groupEventRequest().creatorGroup.club.name + ')'}"></td>
                     <td th:text="${groupEventRequestDTO.groupEventRequest().title}"></td>
                     <td th:text="${groupEventRequestDTO.groupEventRequest().eventType.description}"></td>
                     <td th:text="${groupEventRequestDTO.groupEventRequest().description}"></td>
                     <td th:if="${groupEventRequestDTO.groupEventRequest().location != null}" th:text="${groupEventRequestDTO.groupEventRequest().location.description}"></td>
                     <td th:if="${groupEventRequestDTO.groupEventRequest().location == null}">No location set</td>
 
+                    <td>
+                        <p th:text="${groupEventRequestDTO.groupEventRequest().requestStatus.name()}"></p>
+                    </td>
                     <td th:if="${!groupEventRequestDTO.isTrainerInCreatorGroup() && !groupEventRequestDTO.isTrainerInRequestedGroup()}">
                         <i class="bi bi-shield-slash"></i>
                     </td>
                     <td th:if="${groupEventRequestDTO.isTrainerInCreatorGroup()}">
-                        <a th:href="@{/requests/{requestId}/delete(requestId=${groupEventRequestDTO.groupEventRequest().id})}">
+                        <a th:href="@{/request/{requestId}/delete(requestId=${groupEventRequestDTO.groupEventRequest().id})}">
                             <i class="bi bi-trash-fill text-danger"></i>
                         </a>
                     </td>
-                    <td th:if="${groupEventRequestDTO.isTrainerInRequestedGroup()}">
-                        <a class="btn btn-success" th:href="@{/requests/{requestId}/accept(requestId=${groupEventRequestDTO.groupEventRequest().id})}">
+                    <td th:if="${groupEventRequestDTO.isTrainerInRequestedGroup() && groupEventRequestDTO.groupEventRequest().requestStatus == T(de.oth.seproject.clubhub.persistence.model.RequestStatus).PENDING}">
+                        <a class="btn btn-success" th:href="@{/request/{requestId}/accept(requestId=${groupEventRequestDTO.groupEventRequest().id})}">
                             Accept
                         </a>
-                        <a class="btn btn-danger" th:href="@{/requests/{requestId}/deny(requestId=${groupEventRequestDTO.groupEventRequest().id})}">
+                        <a class="btn btn-danger" th:href="@{/request/{requestId}/deny(requestId=${groupEventRequestDTO.groupEventRequest().id})}">
                             Deny
                         </a>
+                    </td>
+                    <td th:if="${groupEventRequestDTO.isTrainerInRequestedGroup() && groupEventRequestDTO.groupEventRequest().requestStatus != T(de.oth.seproject.clubhub.persistence.model.RequestStatus).PENDING}">
+                        <i class="bi bi-slash-lg"></i>
                     </td>
                 </tr>
                 </tbody>
