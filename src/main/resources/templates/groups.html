@@ -10,7 +10,7 @@
 <body>
 
 <section layout:fragment="default-content">
-    <h2>All groups from the club <span th:text="${activeUser.club.name}"></span></h2></h2>
+    <h2>All groups from the club <span th:text="${activeUser.club.name}"></span></h2>
 
     <div th:switch="${groupDTOPage.hasContent()}">
         <h5 th:case="false">No groups for this club yet!</h5>
