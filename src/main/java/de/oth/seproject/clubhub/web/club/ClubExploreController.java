@@ -191,6 +191,6 @@ public class ClubExploreController {
 
         groupEventRequestRepository.save(groupEventRequest);
 
-        return "redirect:/group/" + groupId + "/calendar";
+        return "redirect:/requests";
     }
 }

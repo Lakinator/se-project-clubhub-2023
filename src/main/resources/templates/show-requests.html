@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}, activeGroup=${activeGroup}, roleInActiveGroup=${roleInActiveGroup}, isTrainerInActiveGroup=${isTrainerInActiveGroup}">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Event Requests</title>
+</head>
+<body>
+
+<section layout:fragment="default-content">
+    <h2 class="m-4" th:text="'Group event requests from the club ' + ${activeUser.club.name}"></h2>
+
+    <div class="container text-left">
+        <div class="row">
+            <div class="col-2">
+                <a class="btn btn-outline-primary"
+                   th:href="@{/requests(month=${currentMonth})}">Aktuell</a>
+            </div>
+            <div class="col-2">
+                <div class="btn-group">
+                    <a class="btn btn-outline-secondary"
+                       th:href="@{/requests(year=${lastYear}, month=${lastMonth})}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                    <a class="btn btn-outline-secondary"
+                       th:href="@{/requests(year=${nextYear}, month=${nextMonth})}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col">
+                <h4 th:text="${#temporals.format(selectedIntervalStart)} + ' - ' + ${#temporals.format(selectedIntervalEnd)}"></h4>
+            </div>
+        </div>
+    </div>
+
+    <div th:switch="${groupEventRequestDTOs.isEmpty()}">
+        <h5 th:case="true">No requests yet, go to the explore page to create one.</h5>
+        <div th:case="false">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Wochentag</th>
+                    <th>Zeitraum</th>
+                    <th>Veranstalter</th>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Location</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="groupEventRequestDTO : ${groupEventRequestDTOs}">
+                    <th th:text="${#temporals.day(groupEventRequestDTO.groupEventRequest().eventDate)}"
+                        th:class="${groupEventRequestDTO.groupEventRequest().isToday()} ? 'table-success'"></th>
+                    <td th:text="${#temporals.monthNameShort(groupEventRequestDTO.groupEventRequest().eventDate)} + ', ' + ${#temporals.dayOfWeekNameShort(groupEventRequestDTO.groupEventRequest().eventDate)}"></td>
+                    <td th:if="${groupEventRequestDTO.groupEventRequest().isWholeDay()}" th:text="Ganztägig"></td>
+                    <td th:unless="${groupEventRequestDTO.groupEventRequest().isWholeDay()}" th:text="${#temporals.format(groupEventRequestDTO.groupEventRequest().eventStart, 'HH:mm')} + ' - ' + ${#temporals.format(groupEventRequestDTO.groupEventRequest().eventEnd, 'HH:mm')}"></td>
+                    <td th:text="${groupEventRequestDTO.groupEventRequest().user.firstName + ' ' + groupEventRequestDTO.groupEventRequest().user.lastName}"></td>
+                    <td th:text="${groupEventRequestDTO.groupEventRequest().title}"></td>
+                    <td th:text="${groupEventRequestDTO.groupEventRequest().eventType.description}"></td>
+                    <td th:text="${groupEventRequestDTO.groupEventRequest().description}"></td>
+                    <td th:if="${groupEventRequestDTO.groupEventRequest().location != null}" th:text="${groupEventRequestDTO.groupEventRequest().location.description}"></td>
+                    <td th:if="${groupEventRequestDTO.groupEventRequest().location == null}">No location set</td>
+
+                    <td th:if="${!groupEventRequestDTO.isTrainerInCreatorGroup() && !groupEventRequestDTO.isTrainerInRequestedGroup()}">
+                        <i class="bi bi-shield-slash"></i>
+                    </td>
+                    <td th:if="${groupEventRequestDTO.isTrainerInCreatorGroup()}">
+                        <a th:href="@{/requests/{requestId}/delete(requestId=${groupEventRequestDTO.groupEventRequest().id})}">
+                            <i class="bi bi-trash-fill text-danger"></i>
+                        </a>
+                    </td>
+                    <td th:if="${groupEventRequestDTO.isTrainerInRequestedGroup()}">
+                        <a class="btn btn-success" th:href="@{/requests/{requestId}/accept(requestId=${groupEventRequestDTO.groupEventRequest().id})}">
+                            Accept
+                        </a>
+                        <a class="btn btn-danger" th:href="@{/requests/{requestId}/deny(requestId=${groupEventRequestDTO.groupEventRequest().id})}">
+                            Deny
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</section>
+
+</body>
+</html>
