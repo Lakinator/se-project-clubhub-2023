@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}, activeGroup=${activeGroup}, roleInActiveGroup=${roleInActiveGroup}, isTrainerInActiveGroup=${isTrainerInActiveGroup}">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Request</title>
+</head>
+<body>
+
+<section layout:fragment="default-content">
+    <h2>Create a group event request with <span th:text="${requestedGroup.name}"></span> from the club <span th:text="${exploredClub.name}"></span></h2>
+
+    <form th:action="@{/explore/club/{clubId}/group/{groupId}/request/create(clubId=${exploredClub.id}, groupId=${requestedGroup.id})}" th:object="${groupEventRequest}" method="POST">
+        <div class="mb-3">
+            <label for="creatorGroupSelect">Creator Group</label>
+            <select id="creatorGroupSelect" class="form-select" th:field="*{creatorGroup}">
+                <option value="0">Wähle eine deiner Gruppen aus</option>
+                <option th:each="creatorGroup : ${creatorGroups}" th:value="${creatorGroup.id}" th:text="${creatorGroup.name}"></option>
+            </select>
+            <p th:if="${#fields.hasErrors('creatorGroup')}" th:errors="*{creatorGroup}"></p>
+        </div>
+        <div class="mb-3">
+            <label for="eventTypeSelect">Event Type</label>
+            <select id="eventTypeSelect" class="form-select" th:field="*{eventType}">
+                <option value="0">Wähle einen Event Type</option>
+                <option th:each="type : ${eventTypes}" th:value="${type}" th:text="${type.description}"></option>
+            </select>
+            <p th:if="${#fields.hasErrors('eventType')}" th:errors="*{eventType}"></p>
+        </div>
+        <div class="mb-3">
+            <label for="dateInput">Date</label>
+            <input id="dateInput" class="form-control" type="date" th:field="*{eventDate}"/>
+            <p th:if="${#fields.hasErrors('eventDate')}" th:errors="*{eventDate}"></p>
+        </div>
+        <div class="mb-3">
+            <label for="boolIsWholeDayInput">Ganzer Tag</label>
+            <input id="boolIsWholeDayInput" class="form-check-input" type="checkbox" th:field="${eventExtraDTO.wholeDay}"/>
+        </div>
+        <div class="mb-3">
+            <label for="timeStartInput">Start</label>
+            <input id="timeStartInput" class="form-control" type="time" th:field="*{eventStart}"/>
+            <p th:if="${#fields.hasErrors('eventStart')}" th:errors="*{eventStart}"></p>
+        </div>
+        <div class="mb-3">
+            <label for="timeEndInput">Ende</label>
+            <input id="timeEndInput" class="form-control" type="time" th:field="*{eventEnd}"/>
+            <p th:if="${#fields.hasErrors('eventEnd')}" th:errors="*{eventEnd}"></p>
+        </div>
+        <div class="mb-3">
+            <label for="titelInput">Titel</label>
+            <input id="titelInput" class="form-control" th:field="*{title}"/>
+            <p th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></p>
+        </div>
+        <div class="mb-3">
+            <label for="descriptionInput">Description</label>
+            <input id="descriptionInput" class="form-control" th:field="*{description}"/>
+            <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></p>
+        </div>
+        <div class="mb-3">
+            <label for="locationSelect">Location</label>
+            <select id="locationSelect" class="form-select" th:field="*{location}">
+                <option value="0">Wähle eine Location</option>
+                <option th:each="location : ${locations}" th:value="${location.id}"
+                        th:text="${location.description}"></option>
+            </select>
+            <p th:if="${#fields.hasErrors('location')}" th:errors="*{location}"></p>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</section>
+
+</body>
+</html>

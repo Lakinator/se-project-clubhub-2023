@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}, activeGroup=${activeGroup}, roleInActiveGroup=${roleInActiveGroup}, isTrainerInActiveGroup=${isTrainerInActiveGroup}">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Explore Groups</title>
+</head>
+<body>
+
+<section layout:fragment="default-content">
+    <h2>All groups from the club <span th:text="${exploredClub.name}"></span></h2>
+
+    <div th:switch="${groupDTOPage.hasContent()}">
+        <h5 th:case="false">This club does not have any groups yet!</h5>
+        <div th:case="true">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Member Count</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="groupDTO : ${groupDTOPage.getContent()}">
+                    <td th:text="${groupDTO.name}"></td>
+                    <td th:text="${groupDTO.userCount}"></td>
+
+                    <div th:switch="${isTrainer}">
+                        <td th:case="false"
+                            data-bs-toggle="tooltip" data-bs-placement="right"
+                            data-bs-title="Only trainers in your club can request matches!">
+                            <a class="btn btn-success disabled">
+                                Battle!
+                            </a>
+                        </td>
+                        <td th:case="true">
+                            <a class="btn btn-success" th:href="@{/explore/club/{clubId}/group/{groupId}/request(clubId=${exploredClub.id}, groupId=${groupDTO.id})}"
+                               data-bs-toggle="tooltip" data-bs-placement="right"
+                               data-bs-title="Request a match">
+                                Battle!
+                            </a>
+                        </td>
+                    </div>
+                </tr>
+                </tbody>
+            </table>
+            <div th:insert="fragments/pagination :: default-pagination (hrefPrefix='/explore/club/' + ${exploredClub.id} + '/groups', totalPages=${groupDTOPage.totalPages}, activePage=${groupDTOPage.number + 1}, pageSize=${groupDTOPage.size})"></div>
+        </div>
+    </div>
+
+</section>
+
+</body>
+</html>
