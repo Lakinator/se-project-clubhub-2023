@@ -29,12 +29,12 @@
 
             <div th:switch="${clubDTO.isMember}">
                 <td th:case="true">
-                    <a class="text-info" th:href="@{/groups}">
+                    <a class="btn btn-info" th:href="@{/groups}">
                         <i class="bi bi-box-arrow-up-right"></i>
                     </a>
                 </td>
                 <td th:case="false">
-                    <a class="text-primary" th:href="@{/explore/club/{id}/groups(id=${clubDTO.id})}">
+                    <a class="btn btn-primary" th:href="@{/explore/club/{id}/groups(id=${clubDTO.id})}">
                         <i class="bi bi-box-arrow-up-right"></i>
                     </a>
                 </td>
