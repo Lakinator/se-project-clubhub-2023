@@ -39,7 +39,7 @@
     <div th:switch="${groupEventRequestDTOs.isEmpty()}">
         <h5 th:case="true">No requests yet, go to the explore page to create one.</h5>
         <div th:case="false">
-            <table class="table table-striped">
+            <table class="table">
                 <thead>
                 <tr>
                     <th>#</th>
@@ -55,7 +55,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="groupEventRequestDTO : ${groupEventRequestDTOs}">
+                <tr th:each="groupEventRequestDTO : ${groupEventRequestDTOs}" th:class="${groupEventRequestDTO.groupEventRequest().creatorGroup.club.id == activeUser.club.id ? 'table-primary' : 'table-warning'}">
                     <th th:text="${#temporals.day(groupEventRequestDTO.groupEventRequest().eventDate)}"
                         th:class="${groupEventRequestDTO.groupEventRequest().isToday()} ? 'table-success'"></th>
                     <td th:text="${#temporals.monthNameShort(groupEventRequestDTO.groupEventRequest().eventDate)} + ', ' + ${#temporals.dayOfWeekNameShort(groupEventRequestDTO.groupEventRequest().eventDate)}"></td>
@@ -80,10 +80,10 @@
                         </a>
                     </td>
                     <td th:if="${groupEventRequestDTO.isTrainerInRequestedGroup() && groupEventRequestDTO.groupEventRequest().requestStatus == T(de.oth.seproject.clubhub.persistence.model.RequestStatus).PENDING}">
-                        <a class="btn btn-success" th:href="@{/request/{requestId}/accept(requestId=${groupEventRequestDTO.groupEventRequest().id})}">
+                        <a class="btn btn-success m-1" th:href="@{/request/{requestId}/accept(requestId=${groupEventRequestDTO.groupEventRequest().id})}">
                             Accept
                         </a>
-                        <a class="btn btn-danger" th:href="@{/request/{requestId}/deny(requestId=${groupEventRequestDTO.groupEventRequest().id})}">
+                        <a class="btn btn-danger m-1" th:href="@{/request/{requestId}/deny(requestId=${groupEventRequestDTO.groupEventRequest().id})}">
                             Deny
                         </a>
                     </td>

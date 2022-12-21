@@ -12,36 +12,42 @@
 <section layout:fragment="default-content">
     <h2>Explore all clubs</h2>
 
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Member Count</th>
-            <th>Group Count</th>
-            <th>See groups</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="clubDTO : ${clubDTOPage.getContent()}">
-            <td th:text="${clubDTO.name} + ${clubDTO.isMember ? ' (Your club)' : ''}"></td>
-            <td th:text="${clubDTO.userCount}"></td>
-            <td th:text="${clubDTO.groupCount}"></td>
+    <div class="accordion mb-4 mt-4" id="accordionClub">
 
-            <div th:switch="${clubDTO.isMember}">
-                <td th:case="true">
-                    <a class="text-info" th:href="@{/groups}">
-                        <i class="bi bi-box-arrow-up-right"></i>
-                    </a>
-                </td>
-                <td th:case="false">
-                    <a class="text-primary" th:href="@{/explore/club/{id}/groups(id=${clubDTO.id})}">
-                        <i class="bi bi-box-arrow-up-right"></i>
-                    </a>
-                </td>
+        <div class="accordion-item" th:each="clubDTO : ${clubDTOPage.getContent()}">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed fs-5" type="button" data-bs-toggle="collapse" th:text="${clubDTO.name} + ${clubDTO.isMember ? ' (Your club)' : ''}" th:data-bs-target="'#collapse' + ${clubDTO.id}"></button>
+            </h2>
+            <div th:id="'collapse' + ${clubDTO.id}" class="accordion-collapse collapse" data-bs-parent="#accordionClub">
+                <div class="accordion-body">
+                    <p>
+                        <strong>This club has <span th:text="${clubDTO.userCount}"></span> members.</strong>
+                    </p>
+                    <p th:unless="${clubDTO.isMember}">
+                        You can request matches, trainings or even meetings with groups from this club if you are a trainer of at least one group in your club.
+                    </p>
+                    <p>
+                        There are a total of <span th:text="${clubDTO.groupCount}"></span> groups administrated by this club.
+                    </p>
+
+                    <div th:switch="${clubDTO.isMember}">
+                        <td th:case="true">
+                            <a class="btn btn-primary" th:href="@{/groups}">
+                                Groups <i class="bi bi-arrow-up-right"></i>
+                            </a>
+                        </td>
+                        <td th:case="false">
+                            <a class="btn btn-primary" th:href="@{/explore/club/{id}/groups(id=${clubDTO.id})}">
+                               Groups <i class="bi bi-arrow-up-right"></i>
+                            </a>
+                        </td>
+                    </div>
+                </div>
             </div>
-        </tr>
-        </tbody>
-    </table>
+        </div>
+
+    </div>
+
     <div th:insert="fragments/pagination :: default-pagination (hrefPrefix='/explore', totalPages=${clubDTOPage.totalPages}, activePage=${clubDTOPage.number + 1}, pageSize=${clubDTOPage.size})"></div>
 
 </section>
