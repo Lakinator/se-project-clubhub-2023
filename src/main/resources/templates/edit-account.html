@@ -1,35 +1,35 @@
 <!DOCTYPE html>
 <html lang="de" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{fragments/main}">
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}">
 <head>
     <meta charset="UTF-8">
-    <title>ClubHub Registrierung</title>
+    <title>ClubHub Account</title>
 </head>
 <body>
 
 <section layout:fragment="default-content">
-    <h2>Registriere dich bei ClubHub</h2>
-
-    <form th:action="@{/user/create}" th:object="${user}" method="post">
+    <h2>Account Information</h2>
+    
+    <form th:action="@{/user/update}" th:object="${user}" method="post">
         <div class="mb-3">
             <label for="firstNameInput">Vorname</label>
-            <input id="firstNameInput" class="form-control" th:field="*{firstName}"/>
+            <input id="firstNameInput" class="form-control" th:placeholder="${user.firstName}" th:field="*{firstName}"/>
             <p class="alert alert-danger" role="alert"th:if="${#fields.hasErrors('firstName')}"
 	               th:text="${#strings.listJoin(#fields.errors('firstName'), ', ')}"/>
         </div>
         <div class="mb-3">
             <label for="lastNameInput">Nachname</label>
-            <input id="lastNameInput" class="form-control" th:field="*{lastName}"/>
+            <input id="lastNameInput" class="form-control" th:placeholder="${user.lastName}" th:field="*{lastName}"/>
             <p class="alert alert-danger" role="alert"th:if="${#fields.hasErrors('lastName')}"
 	               th:text="${#strings.listJoin(#fields.errors('lastName'), ', ')}"/>
         </div>
         <div class="mb-3">
             <label for="emailInput">E-Mail</label>
-            <input id="emailInput" type="email" class="form-control" th:field="*{email}"/>
+            <input id="emailInput" type="email" class="form-control" th:placeholder="${user.email}" th:field="*{email}"/>
             <p class="alert alert-danger" role="alert"th:if="${#fields.hasErrors('email')}"
 	               th:text="${#strings.listJoin(#fields.errors('email'), ', ')}"/>
-            <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
         </div>
         <div class="mb-3">
             <label for="passwordInput">Passwort</label>
@@ -37,18 +37,9 @@
             <p class="alert alert-danger" role="alert"th:if="${#fields.hasErrors('password')}"
 	               th:text="${#strings.listJoin(#fields.errors('password'), ', ')}"/>
         </div>
-        <div class="mb-3">
-            <label for="clubSelect">Club</label>
-            <select id="clubSelect" class="form-select" th:field="*{club}">
-                <option value="0">Wähle einen Club</option>
-                <option th:each="club : ${clubs}" th:value="${club.id}" th:text="${club.name}"></option>
-            </select>
-            <p class="alert alert-danger" role="alert"th:if="${#fields.hasErrors('club')}"
-	               th:text="${#strings.listJoin(#fields.errors('club'), ', ')}"/>
-        </div>
-        <button type="submit" class="btn btn-primary">Registrieren</button>
+        <button type="submit" class="btn btn-primary">Ändern</button>
+        <button type="reset" class="btn btn-secondary">Zurücksetzen</button>
     </form>
-
 </section>
 
 </body>

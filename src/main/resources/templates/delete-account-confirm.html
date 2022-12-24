@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Account</title>
+</head>
+<body>
+
+<section layout:fragment="default-content">
+    <h2>
+        Bist du sicher?
+    </h2>
+    
+    <form th:action="@{/user/delete}" method="post">
+        <button type="submit" class="btn btn-primary">Account permanent löschen und ausloggen</button>
+    </form>
+    <div>
+        <a th:href="@{/user}">Abbruch</a>
+    </div>
+</section>
+
+</body>
+</html>
