@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Registrierung</title>
+</head>
+<body>
+
+<section layout:fragment="default-content">
+    <h2>Registrierung erfolgreich</h2>
+    
+	<div>
+	    <p>Eine Bestätigungsmail wurde versandt.</p>
+	</div>
+	<div>
+        <a th:href="@{/login}">Weiter zum Login</a>
+	</div>
+</section>
+
+</body>
+</html>

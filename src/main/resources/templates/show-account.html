@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Account</title>
+</head>
+<body>
+
+<section layout:fragment="default-content">
+    <h2>
+        Account Information
+    </h2>
+    <div class="mb-3">
+        <h6>Vorname</h6>
+        <p th:text="${activeUser.firstName}"></p>
+    </div>
+    <div class="mb-3">
+        <h6>Nachname</h6>
+        <p th:text="${activeUser.lastName}"></p>
+    </div>
+    <div class="mb-3">
+        <h6>Email</h6>
+        <p th:text="${activeUser.email}"></p>
+    </div>
+    <div class="mb-3">
+        <h6>Verein</h6>
+        <p th:text="${activeUser.club.name}"></p>
+    </div>
+    
+    <div>
+        <a th:href="@{/user/edit}">Account bearbeiten</a>
+    </div>
+    <div>
+        <a th:href="@{/user/delete}">Account löschen</a>
+    </div>
+</section>
+
+</body>
+</html>
