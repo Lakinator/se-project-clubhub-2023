@@ -33,14 +33,14 @@ public class RegistrationController {
     
     private final EmailService emailService;
     
-	private final NavigationService navigationService;
+    private final NavigationService navigationService;
 
     public RegistrationController(PasswordEncoder passwordEncoder, UserRepository userRepository, ClubRepository clubRepository, EmailService emailService, NavigationService navigationService) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.clubRepository = clubRepository;
         this.emailService = emailService;
-		this.navigationService = navigationService;
+        this.navigationService = navigationService;
     }
 
     @GetMapping("/registration")
@@ -60,19 +60,19 @@ public class RegistrationController {
     	Optional<User> optionalUser = userRepository.findByEmail(user.getEmail());
     	
     	if (optionalUser.isPresent()) {
-    		result.rejectValue("email", "error.email", "Es existiert bereits ein Account mit dieser E-Mail");
+            result.rejectValue("email", "error.email", "Es existiert bereits ein Account mit dieser E-Mail");
     		
             List<Club> clubs = clubRepository.findAll();
             model.addAttribute("clubs", clubs);
             
-    		return "registration";
+            return "registration";
     	}
     	
     	if (result.hasErrors()) {
             List<Club> clubs = clubRepository.findAll();
             model.addAttribute("clubs", clubs);
     		
-    		return "registration";
+            return "registration";
     	}
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -86,61 +86,61 @@ public class RegistrationController {
     }
 
     @GetMapping("/user")
-	public String accountPage(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
-		navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
-		return "show-account";
-	}
+    public String accountPage(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
+        return "show-account";
+    }
 	
-	@GetMapping("/user/delete")
-	public String deleteUser(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
-		navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
-		return "delete-account-confirm";
-	}
+    @GetMapping("/user/delete")
+    public String deleteUser(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
+	    navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
+	    return "delete-account-confirm";
+    }
 	
-	@PostMapping("/user/delete")
-	public String deleteUserConfirmation(@AuthenticationPrincipal ClubUserDetails userDetails) {
-		userRepository.deleteById(userDetails.getUser().getId());
-		return "redirect:/logout";
-	}
+    @PostMapping("/user/delete")
+    public String deleteUserConfirmation(@AuthenticationPrincipal ClubUserDetails userDetails) {
+	    userRepository.deleteById(userDetails.getUser().getId());
+	    return "redirect:/logout";
+    }
 	
-	@GetMapping("/user/edit")
-	public String editUser(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
-		User user = userRepository.findById(userDetails.getUser().getId())
+    @GetMapping("/user/edit")
+    public String editUser(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
+        User user = userRepository.findById(userDetails.getUser().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid announcement Id:" + userDetails.getUser().getId()));
-		model.addAttribute("user", user);
+        model.addAttribute("user", user);
 		
-		navigationService.addNavigationAttributes(model, user.getId());
+        navigationService.addNavigationAttributes(model, user.getId());
 		
-		return "edit-account";
-	}
+        return "edit-account";
+    }
 	
-	@PostMapping("/user/update")
-	public String updateUser(@AuthenticationPrincipal ClubUserDetails userDetails, @Valid @ModelAttribute("user") User user, BindingResult result, Model model) {
-		User persistedUser = userRepository.findById(userDetails.getUser().getId())
+    @PostMapping("/user/update")
+    public String updateUser(@AuthenticationPrincipal ClubUserDetails userDetails, @Valid @ModelAttribute("user") User user, BindingResult result, Model model) {
+        User persistedUser = userRepository.findById(userDetails.getUser().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + userDetails.getUser().getId()));
 		
-		if (result.hasFieldErrors("firstName") || result.hasFieldErrors("lastName") || result.hasFieldErrors("email") || result.hasFieldErrors("password")) {
-			navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
+        if (result.hasFieldErrors("firstName") || result.hasFieldErrors("lastName") || result.hasFieldErrors("email") || result.hasFieldErrors("password")) {
+            navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
             return "edit-account";
-		}
+        }
         
-		if (!user.getEmail().equals(userDetails.getUser().getEmail())) {
-	    	Optional<User> optionalUser = userRepository.findByEmail(user.getEmail());
+        if (!user.getEmail().equals(userDetails.getUser().getEmail())) {
+            Optional<User> optionalUser = userRepository.findByEmail(user.getEmail());
 	    	
-	    	if (optionalUser.isPresent()) {
-	    		result.rejectValue("email", "error.email", "Es existiert bereits ein Account mit dieser E-Mail");
-	    		return "edit-account";
-	    	}
-		}
+            if (optionalUser.isPresent()) {
+                result.rejectValue("email", "error.email", "Es existiert bereits ein Account mit dieser E-Mail");
+                return "edit-account";
+            }
+        }
 		
-		persistedUser.setFirstName(user.getFirstName());
-		persistedUser.setLastName(user.getLastName());
-		persistedUser.setEmail(user.getEmail());
-		persistedUser.setPassword(passwordEncoder.encode(user.getPassword()));
-		userRepository.save(persistedUser);
+        persistedUser.setFirstName(user.getFirstName());
+        persistedUser.setLastName(user.getLastName());
+        persistedUser.setEmail(user.getEmail());
+        persistedUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.save(persistedUser);
 		
-		navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
 		
-		return "show-account";
-	}
+        return "show-account";
+    }
 }
