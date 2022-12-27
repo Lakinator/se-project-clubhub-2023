@@ -2,6 +2,7 @@ package de.oth.seproject.clubhub.web.group;
 
 import de.oth.seproject.clubhub.config.ClubUserDetails;
 import de.oth.seproject.clubhub.persistence.model.*;
+import de.oth.seproject.clubhub.persistence.repository.GroupEventAttendanceRepository;
 import de.oth.seproject.clubhub.persistence.repository.GroupEventRepository;
 import de.oth.seproject.clubhub.persistence.repository.GroupRepository;
 import de.oth.seproject.clubhub.persistence.repository.LocationRepository;
@@ -37,13 +38,16 @@ public class GroupEventController {
     private final RoleRepository roleRepository;
 
     private final LocationRepository locationRepository;
+    
+    private final GroupEventAttendanceRepository groupEventAttendanceRepository;
 
-    public GroupEventController(NavigationService navigationService, GroupEventRepository groupEventRepository, GroupRepository groupRepository, RoleRepository roleRepository, LocationRepository locationRepository) {
+    public GroupEventController(NavigationService navigationService, GroupEventRepository groupEventRepository, GroupRepository groupRepository, RoleRepository roleRepository, LocationRepository locationRepository, GroupEventAttendanceRepository groupEventAttendanceRepository) {
         this.navigationService = navigationService;
         this.groupEventRepository = groupEventRepository;
         this.groupRepository = groupRepository;
         this.roleRepository = roleRepository;
         this.locationRepository = locationRepository;
+        this.groupEventAttendanceRepository = groupEventAttendanceRepository;
     }
 
     @GetMapping("/group/{groupId}/calendar")
@@ -128,6 +132,7 @@ public class GroupEventController {
 
         groupEvent.setGroup(group);
         groupEvent.setUser(roleInGroup.get().getUser());
+        groupEvent.setTeamIsFinal(false);
 
         if (eventExtraDTO.getWholeDay()) {
             groupEvent.setEventStart(LocalTime.MIN);
@@ -141,7 +146,18 @@ public class GroupEventController {
             }
         }
 
-        groupEventRepository.save(groupEvent);
+        List<Role> roles = roleRepository.findAllByGroup(group);
+        for (Role role : roles) {
+            GroupEventAttendance attendance = new GroupEventAttendance();
+            attendance.setUser(role.getUser());
+            attendance.setGroupEvent(groupEvent);
+            attendance.setStatus(AttendanceStatus.UNCLEAR);
+            attendance.setIsNotRemoved(true);
+            
+            groupEventAttendanceRepository.save(attendance);
+        }
+        
+        groupEventRepository.save(groupEvent);        
 
         return "redirect:/group/" + groupId + "/calendar";
     }
@@ -242,10 +258,134 @@ public class GroupEventController {
 
         // user has to be a trainer of this group
         if (isTrainerInGroup) {
+            List<GroupEventAttendance> persistedAttendances = groupEventAttendanceRepository.findAllByGroupEvent(groupEvent);
+            for (GroupEventAttendance attendance : persistedAttendances) {
+                groupEventAttendanceRepository.delete(attendance);
+            }
+        	
             groupEventRepository.delete(groupEvent);
         }
 
         return "redirect:/group/" + groupId + "/calendar";
     }
+    
+    @GetMapping("/group/{groupId}/event/{eventId}/attendance")
+    public String showEventAttendance(@AuthenticationPrincipal ClubUserDetails userDetails,
+                                      @PathVariable("groupId") long groupId, @PathVariable("eventId") long eventId, Model model) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
+        
+        GroupEvent activeEvent = groupEventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid event Id:" + eventId));
+    	
+        List<GroupEventAttendance> attendances = groupEventAttendanceRepository.findAllByGroupEvent(activeEvent);
 
+        model.addAttribute("activeEvent", activeEvent);
+        model.addAttribute("attendances", attendances);
+
+        navigationService.addNavigationAttributes(model, userDetails.getUser().getId(), group);
+        return "show-attendance";
+    }
+
+    @GetMapping("/group/{groupId}/event/{eventId}/attendance/update")
+    public String updateEventAttendance(@AuthenticationPrincipal ClubUserDetails userDetails,
+                                        @PathVariable("groupId") long groupId, @PathVariable("eventId") long eventId,
+                                        @RequestParam("type") Optional<Integer> type) {
+        GroupEvent groupEvent = groupEventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid event Id:" + eventId));
+        
+        if (groupEvent.isTeamIsFinal()) {
+            return "redirect:/group/" + groupId + "/event/" + eventId + "/attendance";
+        }
+    	
+        type.ifPresent(status -> {
+            Optional<GroupEventAttendance> persistedAttendance = groupEventAttendanceRepository.findByUserAndGroupEvent(userDetails.getUser(), groupEvent);
+        
+            persistedAttendance.ifPresent(attendance -> {
+                if (status == 1) attendance.setStatus(AttendanceStatus.IN);
+                else attendance.setStatus(AttendanceStatus.OUT);
+
+                groupEventAttendanceRepository.save(attendance);
+            });
+        });
+        return "redirect:/group/" + groupId + "/event/" + eventId + "/attendance";
+    }
+    
+    @GetMapping("/group/{groupId}/event/{eventId}/attendance/{attendanceId}/remove")
+    public String removeEventAttendance(@AuthenticationPrincipal ClubUserDetails userDetails,
+                                        @PathVariable("groupId") long groupId, @PathVariable("eventId") long eventId, 
+                                        @PathVariable("attendanceId") long attendanceId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
+        
+        GroupEvent groupEvent = groupEventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid event Id:" + eventId));
+
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
+
+        if (!isTrainerInGroup || groupEvent.isTeamIsFinal()) {
+            return "redirect:/group/" + groupId + "/event/" + eventId + "/attendance";
+        }
+    	
+        Optional<GroupEventAttendance> persistedAttendance = groupEventAttendanceRepository.findById(attendanceId);
+    	
+        persistedAttendance.ifPresent(attendance -> {
+            attendance.setIsNotRemoved(false);
+
+            groupEventAttendanceRepository.save(attendance);
+        });
+
+        return "redirect:/group/" + groupId + "/event/" + eventId + "/attendance";
+    }
+    
+    @GetMapping("/group/{groupId}/event/{eventId}/attendance/reset")
+    public String resetEventAttendance(@AuthenticationPrincipal ClubUserDetails userDetails,
+                                       @PathVariable("groupId") long groupId, @PathVariable("eventId") long eventId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
+        
+        GroupEvent groupEvent = groupEventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid event Id:" + eventId));
+
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
+
+        if (!isTrainerInGroup || groupEvent.isTeamIsFinal()) {
+            return "redirect:/group/" + groupId + "/event/" + eventId + "/attendance";
+        }
+
+        List<GroupEventAttendance> attendances = groupEventAttendanceRepository.findAllByGroupEvent(groupEvent);
+        for (GroupEventAttendance attendance : attendances) {
+            attendance.setIsNotRemoved(true);
+
+            groupEventAttendanceRepository.save(attendance);    		
+        }
+
+        return "redirect:/group/" + groupId + "/event/" + eventId + "/attendance";
+    }
+    
+    @GetMapping("/group/{groupId}/event/{eventId}/attendance/finalize")
+    public String finalizeEventAttendance(@AuthenticationPrincipal ClubUserDetails userDetails,
+                                          @PathVariable("groupId") long groupId, @PathVariable("eventId") long eventId, Model model) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + groupId));
+        
+        GroupEvent groupEvent = groupEventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group event Id:" + eventId));        
+
+        boolean isTrainerInGroup = roleRepository.existsByUserAndGroupAndRoleName(userDetails.getUser(), group, RoleType.TRAINER);
+
+        if (!isTrainerInGroup || groupEvent.isTeamIsFinal()) {
+            return "redirect:/group/" + groupId + "/event/" + eventId + "/attendance";
+        }
+        
+        List<GroupEventAttendance> persistedAttendances = groupEventAttendanceRepository.findAllByGroupEvent(groupEvent);
+        for (GroupEventAttendance attendance : persistedAttendances) {
+            if (!attendance.getIsNotRemoved()) groupEventAttendanceRepository.delete(attendance);
+        }
+        
+        groupEvent.setTeamIsFinal(true);
+        groupEventRepository.save(groupEvent);
+
+        return "redirect:/group/" + groupId + "/calendar";
+    }
 }

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}, activeGroup=${activeGroup}, roleInActiveGroup=${roleInActiveGroup}, isTrainerInActiveGroup=${isTrainerInActiveGroup}">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Group Attendance</title>
+</head>
+<body>
+
+<section layout:fragment="default-content">
+    <h2 class="m-4" th:text="${activeGroup.name} + ': Attendance for ' + ${activeEvent.title}"></h2>
+    
+    <div th:if="${!activeEvent.teamIsFinal}">
+        <h5>Do you have time?</h5>
+        
+        <p>
+            <a class="btn btn-success" th:href="@{/group/{groupId}/event/{eventId}/attendance/update?type=1(groupId=${activeGroup.id}, eventId=${activeEvent.id})}">Yes</a>
+            <a class="btn btn-danger" th:href="@{/group/{groupId}/event/{eventId}/attendance/update?type=0(groupId=${activeGroup.id}, eventId=${activeEvent.id})}">No</a>
+        </p>
+    </div>
+
+    <div th:switch="${attendances.isEmpty()}">
+        <h5 th:case="true">Empty in here, isn't it?</h5>
+        <div th:case="false">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <div th:if="${isTrainerInActiveGroup && !activeEvent.teamIsFinal}">
+                        <th>Remove</th>
+                    </div>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="attendance : ${attendances}">
+                    <td th:if="${attendance.isNotRemoved || !isTrainerInActiveGroup}" th:text="${attendance.user.firstName + ' ' + attendance.user.lastName}"></td>
+                    <td th:if="${attendance.isNotRemoved || !isTrainerInActiveGroup}" th:text="${attendance.status}"></td>
+                    <div th:if="${isTrainerInActiveGroup && attendance.isNotRemoved && !activeEvent.teamIsFinal}">
+                        <td>
+                            <a th:href="@{/group/{groupId}/event/{eventId}/attendance/{attendanceId}/remove(groupId=${activeGroup.id}, eventId=${activeEvent.id}, attendanceId=${attendance.id})}">
+                                <i class="bi bi-trash-fill text-danger"></i>
+                            </a>
+                        </td>
+                    </div>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div th:if="${!activeEvent.teamIsFinal}">
+        <p th:if="${isTrainerInActiveGroup}">
+            <a class="btn btn-primary" th:href="@{/group/{groupId}/event/{eventId}/attendance/finalize(groupId=${activeGroup.id}, eventId=${activeEvent.id})}">Finalize</a>
+            <a class="btn btn-secondary" th:href="@{/group/{groupId}/event/{eventId}/attendance/reset(groupId=${activeGroup.id}, eventId=${activeEvent.id})}">Reset</a>
+        </p>
+    </div>
+
+
+</section>
+
+</body>
+</html>

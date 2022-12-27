@@ -12,6 +12,8 @@ public class GroupEvent extends GenericEvent {
 
     @Enumerated(EnumType.STRING)
     private EventType eventType;
+    
+    private boolean teamIsFinal;
 
     public GroupEvent() {
         // -- //
@@ -32,4 +34,13 @@ public class GroupEvent extends GenericEvent {
     public void setEventType(EventType eventType) {
         this.eventType = eventType;
     }
+
+    public boolean isTeamIsFinal() {
+        return teamIsFinal;
+    }
+
+    public void setTeamIsFinal(boolean teamIsFinal) {
+        this.teamIsFinal = teamIsFinal;
+    }
+	
 }
