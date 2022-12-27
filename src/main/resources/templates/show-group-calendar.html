@@ -50,6 +50,7 @@
                     <th>Type</th>
                     <th>Description</th>
                     <th>Location</th>
+                    <th>Team</th>
                     <div th:if="${isTrainerInActiveGroup}">
                         <th>Edit</th>
                         <th>Delete</th>
@@ -69,6 +70,9 @@
                     <td th:text="${groupEvent.description}"></td>
                     <td th:if="${groupEvent.location != null}" th:text="${groupEvent.location.description}"></td>
                     <td th:if="${groupEvent.location == null}">No location set</td>
+                    <td>
+                        <a th:href="@{/group/{groupId}/event/{eventId}/attendance(groupId=${activeGroup.id}, eventId=${groupEvent.id})}">View</a>
+                    </td>
                     <div th:if="${isTrainerInActiveGroup}">
                         <td>
                             <a th:href="@{/group/{groupId}/event/{eventId}/edit(groupId=${activeGroup.id}, eventId=${groupEvent.id})}">
