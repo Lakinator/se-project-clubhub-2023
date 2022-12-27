@@ -11,7 +11,7 @@ public sealed interface UserRestController permits UserRestControllerImpl {
     /**
      * @return A list of all users
      */
-	List<UserDTO> getAllUsers();
+    List<UserDTO> getAllUsers();
     
     /**
      * @return A list of all users in a club
