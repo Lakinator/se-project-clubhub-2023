@@ -8,7 +8,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface ClubRepository extends JpaRepository<Club, Long> {
+	
+    /**
+     * @param name -
+     * @return A club with a name
+     */
     Optional<Club> findByName(String name);
 
+    /**
+     * @param pageable -
+     * @return A page with clubs
+     */
     Page<Club> findAll(Pageable pageable);
 }

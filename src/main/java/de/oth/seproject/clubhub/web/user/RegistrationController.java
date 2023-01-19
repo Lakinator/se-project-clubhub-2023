@@ -43,6 +43,12 @@ public class RegistrationController {
         this.navigationService = navigationService;
     }
 
+    /**
+     * Adds required attributes to the model and shows the registration html page
+     *
+     * @param model Model for the requested html page
+     * @return Name of the registration html page
+     */
     @GetMapping("/registration")
     public String registrationPage(Model model) {
         User user = new User();
@@ -54,6 +60,14 @@ public class RegistrationController {
         return "registration";
     }
 
+    /**
+     * Creates a new user and sends a confirmation email and shows the registration success html page if the creation was successful 
+     *
+     * @param user User received from the model as an attribute
+     * @param result Binding result
+     * @param model Model for the requested html page
+     * @return Name of the registration or registration success html page
+     */
     @PostMapping("/user/create")
     public String createUser(@Valid @ModelAttribute("user") final User user, BindingResult result, Model model) {
     	
@@ -85,24 +99,51 @@ public class RegistrationController {
         return "registration-success";
     }
 
+    /**
+     * Adds required attributes to the model and shows the show account html page
+     *
+     * @param userDetails User details of the current user
+     * @param model Model for the requested html page
+     * @return Name of the user html page
+     */
     @GetMapping("/user")
     public String accountPage(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
         navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
         return "show-account";
     }
 	
+    /**
+     * Adds required attributes to the model and shows the delete account confirm html page
+     *
+     * @param userDetails User details of the current user
+     * @param model Model for the requested html page
+     * @return Name of the delete account confirm html page
+     */
     @GetMapping("/user/delete")
     public String deleteUser(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
 	    navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
 	    return "delete-account-confirm";
     }
 	
+    /**
+     * Deletes the current user and redirects to /logout
+     *
+     * @param userDetails User details of the current user
+     * @return Name of the redirected logout html page
+     */
     @PostMapping("/user/delete")
     public String deleteUserConfirmation(@AuthenticationPrincipal ClubUserDetails userDetails) {
 	    userRepository.deleteById(userDetails.getUser().getId());
 	    return "redirect:/logout";
     }
 	
+    /**
+     * Adds required attributes to the model and shows the edit account html page
+     *
+     * @param userDetails User details of the current user
+     * @param model Model for the requested html page
+     * @return Name of the edit account html page
+     */
     @GetMapping("/user/edit")
     public String editUser(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
         User user = userRepository.findById(userDetails.getUser().getId())
@@ -114,6 +155,15 @@ public class RegistrationController {
         return "edit-account";
     }
 	
+    /**
+     * Saves the new user data and adds required attributes to the model and shows the show account html page
+     *
+     * @param userDetails User details of the current user
+     * @param user User received from the model as an attribute
+     * @param result Binding result
+     * @param model Model for the requested html page
+     * @return Name of the show account or edit account html page
+     */
     @PostMapping("/user/update")
     public String updateUser(@AuthenticationPrincipal ClubUserDetails userDetails, @Valid @ModelAttribute("user") User user, BindingResult result, Model model) {
         User persistedUser = userRepository.findById(userDetails.getUser().getId())

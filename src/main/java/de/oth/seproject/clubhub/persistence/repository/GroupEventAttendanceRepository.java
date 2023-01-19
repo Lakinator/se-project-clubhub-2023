@@ -11,8 +11,17 @@ import de.oth.seproject.clubhub.persistence.model.User;
 
 public interface GroupEventAttendanceRepository extends JpaRepository<GroupEventAttendance, Long> {
 
+    /**
+     * @param user       -
+     * @param groupEvent -
+     * @return A group event attendance from a group event and by a user
+     */
     Optional<GroupEventAttendance> findByUserAndGroupEvent(User user, GroupEvent groupEvent);
 
+    /**
+     * @param groupEvent -
+     * @return All group event attendances from a group event
+     */
     List<GroupEventAttendance> findAllByGroupEvent(GroupEvent groupEvent);
 
 }

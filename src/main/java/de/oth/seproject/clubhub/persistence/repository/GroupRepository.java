@@ -11,10 +11,24 @@ import java.util.Optional;
 
 public interface GroupRepository extends JpaRepository<Group, Long> {
 
+    /**
+     * @param club -
+     * @return All groups from a club
+     */
     List<Group> findAllByClub(Club club);
 
+    /**
+     * @param club     -
+     * @param pageable -
+     * @return A page with groups from a club
+     */
     Page<Group> findAllByClub(Club club, Pageable pageable);
 
+    /**
+     * @param clubName -
+     * @param name     -
+     * @return A group from a club with a name
+     */
     Optional<Group> findByClubNameAndName(String clubName, String name);
 
 }

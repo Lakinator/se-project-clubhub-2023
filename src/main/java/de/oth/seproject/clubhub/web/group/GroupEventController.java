@@ -269,6 +269,15 @@ public class GroupEventController {
         return "redirect:/group/" + groupId + "/calendar";
     }
     
+    /**
+     * Adds required attributes to the model and shows the show attendance html page
+     *
+     * @param userDetails User details of the current user
+     * @param groupId Received from the path
+     * @param eventId Received from the path
+     * @param model Model for the requested html page
+     * @return Name of the show attendance html page
+     */
     @GetMapping("/group/{groupId}/event/{eventId}/attendance")
     public String showEventAttendance(@AuthenticationPrincipal ClubUserDetails userDetails,
                                       @PathVariable("groupId") long groupId, @PathVariable("eventId") long eventId, Model model) {
@@ -287,6 +296,15 @@ public class GroupEventController {
         return "show-attendance";
     }
 
+    /**
+     * Changes the attendance status of the current user and redirects to /group/{groupId}/event/{eventId}/attendance
+     *
+     * @param userDetails User details of the current user
+     * @param groupId Received from the path
+     * @param eventId Received from the path
+     * @param type Received as a request parameter
+     * @return Name of the redirected show attendance html page
+     */
     @GetMapping("/group/{groupId}/event/{eventId}/attendance/update")
     public String updateEventAttendance(@AuthenticationPrincipal ClubUserDetails userDetails,
                                         @PathVariable("groupId") long groupId, @PathVariable("eventId") long eventId,
@@ -311,6 +329,15 @@ public class GroupEventController {
         return "redirect:/group/" + groupId + "/event/" + eventId + "/attendance";
     }
     
+    /**
+     * Marks an user from a group in an event as removed and redirects to /group/{groupId}/event/{eventId}/attendance
+     *
+     * @param userDetails User details of the current user
+     * @param groupId Received from the path
+     * @param eventId Received from the path
+     * @param attendanceId Received from the path
+     * @return Name of the redirected show attendance html page
+     */
     @GetMapping("/group/{groupId}/event/{eventId}/attendance/{attendanceId}/remove")
     public String removeEventAttendance(@AuthenticationPrincipal ClubUserDetails userDetails,
                                         @PathVariable("groupId") long groupId, @PathVariable("eventId") long eventId, 
@@ -338,6 +365,14 @@ public class GroupEventController {
         return "redirect:/group/" + groupId + "/event/" + eventId + "/attendance";
     }
     
+    /**
+     * Removes removed mark from all users and redirects to /group/{groupId}/event/{eventId}/attendance
+     *
+     * @param userDetails User details of the current user
+     * @param groupId Received from the path
+     * @param eventId Received from the path
+     * @return Name of the redirected show attendance html page
+     */
     @GetMapping("/group/{groupId}/event/{eventId}/attendance/reset")
     public String resetEventAttendance(@AuthenticationPrincipal ClubUserDetails userDetails,
                                        @PathVariable("groupId") long groupId, @PathVariable("eventId") long eventId) {
@@ -363,6 +398,15 @@ public class GroupEventController {
         return "redirect:/group/" + groupId + "/event/" + eventId + "/attendance";
     }
     
+    /**
+     * Changes the attendance of an event to final and deletes marked users and redirects to /group/{groupId}/calendar
+     *
+     * @param userDetails User details of the current user
+     * @param groupId Received from the path
+     * @param eventId Received from the path
+     * @param model Model for the requested html page
+     * @return Name of the redirected show group calendar html page
+     */
     @GetMapping("/group/{groupId}/event/{eventId}/attendance/finalize")
     public String finalizeEventAttendance(@AuthenticationPrincipal ClubUserDetails userDetails,
                                           @PathVariable("groupId") long groupId, @PathVariable("eventId") long eventId, Model model) {

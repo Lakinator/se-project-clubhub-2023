@@ -13,10 +13,24 @@ import java.util.Optional;
 
 public interface RoleRepository extends JpaRepository<Role, Long> {
 
+    /**
+     * @param group -
+     * @return All roles from a group
+     */
     List<Role> findAllByGroup(Group group);
 
+    /**
+     * @param group    -
+     * @param pageable -
+     * @return A page with roles from a group
+     */
     Page<Role> findAllByGroup(Group group, Pageable pageable);
 
+    /**
+     * @param user     -
+     * @param roleType -
+     * @return All roles from a user with a role name
+     */
     List<Role> findAllByUserAndRoleName(User user, RoleType roleType);
 
     /**

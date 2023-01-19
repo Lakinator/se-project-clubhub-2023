@@ -8,6 +8,10 @@ import java.util.List;
 
 public interface ClubEventRepository extends JpaRepository<ClubEvent, Long> {
 
+    /**
+     * @param club -
+     * @return All club events from a club
+     */
     List<ClubEvent> findAllByClub(Club club);
 
 }

@@ -10,8 +10,17 @@ import java.util.List;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
+    /**
+     * @param group -
+     * @return All chat rooms from a group
+     */
     List<ChatRoom> findAllByGroup(Group group);
 
+    /**
+     * @param group    -
+     * @param pageable -
+     * @return A page with chat rooms from a group
+     */
     Page<ChatRoom> findAllByGroup(Group group, Pageable pageable);
 
     /**

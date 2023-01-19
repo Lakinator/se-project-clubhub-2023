@@ -10,8 +10,17 @@ import java.util.List;
 
 public interface AnnouncementRepository extends JpaRepository<Announcement, Long> {
 
+    /**
+     * @param club -
+     * @return All announcements from a club
+     */
     List<Announcement> findAllByClub(Club club);
 
+    /**
+     * @param club     -
+     * @param pageable -
+     * @return A page with announcements from a club
+     */
     Page<Announcement> findAllByClub(Club club, Pageable pageable);
 
 }
