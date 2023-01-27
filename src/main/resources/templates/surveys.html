@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}, activeGroup=${activeGroup}, roleInActiveGroup=${roleInActiveGroup}, isTrainerInActiveGroup=${isTrainerInActiveGroup}">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Surveys</title>
+</head>
+<body>
+
+<section layout:fragment="default-content">
+    <h2 class="mb-4 mt-2">All surveys for this user</h2>
+
+    <div th:switch="${surveyPage.hasContent()}">
+        <h5 th:case="false">This user does not have any surveys in all groups!</h5>
+        <div th:case="true">
+            <div class="card mb-4" th:each="survey : ${surveyPage.getContent()}">
+                <h5 class="card-header"
+                    th:text="'Survey @ ' + ${#temporals.format(survey.createdOn)} + ${survey.updatedOn != null ? ' (edited ' + #temporals.format(survey.updatedOn) + ')' : ''}"></h5>
+                <div class="card-body">
+                    <blockquote class="blockquote mb-0">
+                        <p th:text="${survey.message}"></p>
+                        <footer class="blockquote-footer"
+                                th:text="${survey.user.firstName + ' ' + survey.user.lastName} + ${survey.user.id == activeUser.id ? ' (You)' : ''}"></footer>
+                    </blockquote>
+                </div>
+                <div class="card-footer text-muted" th:if="${isTrainerInClub}">
+                    <div class="container">
+                        <div class="row float-end">
+                            <div class="col" th:if="${survey.user.id == activeUser.id}">
+                                <a th:href="@{/surveys/{id}/edit(id=${survey.id})}">
+                                    <i class="bi bi-gear-fill"></i>
+                                </a>
+                            </div>
+                            <div class="col" th:if="${survey.user.id != activeUser.id}">
+                                <i class="bi bi-shield-slash"></i>
+                            </div>
+                            <div class="col" th:if="${isTrainerInClub}">
+                                <a th:href="@{/surveys/{id}/delete(id=${survey.id})}">
+                                    <i class="bi bi-trash-fill text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:insert="fragments/pagination :: default-pagination (hrefPrefix='/surveys', totalPages=${surveyPage.totalPages}, activePage=${surveyPage.number + 1}, pageSize=${surveyPage.size})"></div>
+        </div>
+        <p th:if="${isTrainerInClub}"><a href="/surveys/add">Add a new survey</a></p>
+    </div>
+</section>
+
+</body>
+</html>
