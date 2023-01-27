@@ -15,6 +15,8 @@ import java.util.Optional;
 /**
  * Defines attributes used by the main nav fragment.
  * The needed attributes need to be passed from the child view to its parent using th:with.
+ * <p>
+ * This basically adds some necessary values to the main nav fragment
  */
 @Service
 public class NavigationService {

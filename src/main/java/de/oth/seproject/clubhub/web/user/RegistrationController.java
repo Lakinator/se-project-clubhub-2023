@@ -7,8 +7,6 @@ import de.oth.seproject.clubhub.persistence.repository.ClubRepository;
 import de.oth.seproject.clubhub.persistence.repository.UserRepository;
 import de.oth.seproject.clubhub.web.service.EmailService;
 import de.oth.seproject.clubhub.web.service.NavigationService;
-
-import org.springframework.boot.origin.SystemEnvironmentOrigin;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
