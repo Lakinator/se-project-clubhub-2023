@@ -53,6 +53,13 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
      */
     Boolean existsByUserAndGroup(User user, Group group);
 
+
+    /**
+     * @param user  -
+     * @return All roles from a user
+     */
+    List<Role> findAllByUser(User user);
+
     /**
      * @param user     -
      * @param roleType -
