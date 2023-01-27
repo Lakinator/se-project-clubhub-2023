@@ -2,11 +2,7 @@ package de.oth.seproject.clubhub.web.group;
 
 import de.oth.seproject.clubhub.config.ClubUserDetails;
 import de.oth.seproject.clubhub.persistence.model.*;
-import de.oth.seproject.clubhub.persistence.repository.GroupEventAttendanceRepository;
-import de.oth.seproject.clubhub.persistence.repository.GroupEventRepository;
-import de.oth.seproject.clubhub.persistence.repository.GroupRepository;
-import de.oth.seproject.clubhub.persistence.repository.LocationRepository;
-import de.oth.seproject.clubhub.persistence.repository.RoleRepository;
+import de.oth.seproject.clubhub.persistence.repository.*;
 import de.oth.seproject.clubhub.web.dto.EventExtraDTO;
 import de.oth.seproject.clubhub.web.service.NavigationService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -50,6 +46,9 @@ public class GroupEventController {
         this.groupEventAttendanceRepository = groupEventAttendanceRepository;
     }
 
+    /**
+     * Shows the calendar for the given group
+     */
     @GetMapping("/group/{groupId}/calendar")
     public String showGroupPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId,
                                 @RequestParam("year") Optional<Integer> year,
@@ -83,6 +82,9 @@ public class GroupEventController {
         return "show-group-calendar";
     }
 
+    /**
+     * Show the page to add a new event, which can only be added by a trainer of the given group.
+     */
     @GetMapping("/group/{groupId}/events/add")
     public String addGroupEventPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, Model model) {
         Group group = groupRepository.findById(groupId)
@@ -108,6 +110,9 @@ public class GroupEventController {
         return "add-group-event";
     }
 
+    /**
+     * Creates a new event in the database with the given data and validates it.
+     */
     @PostMapping("/group/{groupId}/event/create")
     public String createGroupEvent(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @Valid GroupEvent groupEvent, BindingResult result, EventExtraDTO eventExtraDTO, Model model) {
         Group group = groupRepository.findById(groupId)
@@ -162,6 +167,9 @@ public class GroupEventController {
         return "redirect:/group/" + groupId + "/calendar";
     }
 
+    /**
+     * Shows the page for editing a given event.
+     */
     @GetMapping("/group/{groupId}/event/{eventId}/edit")
     public String editGroupEventPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("eventId") long eventId, Model model) {
         Group group = groupRepository.findById(groupId)
@@ -190,6 +198,9 @@ public class GroupEventController {
         return "edit-group-event";
     }
 
+    /**
+     * Persists/Updates the given event with validation.
+     */
     @PostMapping("/group/{groupId}/event/{eventId}/update")
     public String updateGroupEvent(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("eventId") long eventId, @Valid GroupEvent groupEvent,
                                    BindingResult result,
@@ -246,6 +257,9 @@ public class GroupEventController {
         return "redirect:/group/" + groupId + "/calendar";
     }
 
+    /**
+     * Deletes a given event if the user is a trainer of the group.
+     */
     @GetMapping("/group/{groupId}/event/{eventId}/delete")
     public String deleteGroupEvent(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("groupId") long groupId, @PathVariable("eventId") long eventId, Model model) {
         Group group = groupRepository.findById(groupId)

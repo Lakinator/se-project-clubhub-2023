@@ -7,6 +7,7 @@ import de.oth.seproject.clubhub.persistence.model.User;
 import de.oth.seproject.clubhub.persistence.repository.AnnouncementRepository;
 import de.oth.seproject.clubhub.persistence.repository.RoleRepository;
 import de.oth.seproject.clubhub.persistence.repository.UserRepository;
+import de.oth.seproject.clubhub.web.service.EmailService;
 import de.oth.seproject.clubhub.web.service.NavigationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,11 +36,14 @@ public class AnnouncementController {
 
     private final RoleRepository roleRepository;
 
-    public AnnouncementController(NavigationService navigationService, AnnouncementRepository announcementRepository, UserRepository userRepository, RoleRepository roleRepository) {
+    private final EmailService emailService;
+
+    public AnnouncementController(NavigationService navigationService, AnnouncementRepository announcementRepository, UserRepository userRepository, RoleRepository roleRepository, EmailService emailService) {
         this.navigationService = navigationService;
         this.announcementRepository = announcementRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.emailService = emailService;
     }
 
     @GetMapping("/announcements")
@@ -100,6 +104,11 @@ public class AnnouncementController {
             announcement.setCreatedOn(LocalDateTime.now());
 
             announcementRepository.save(announcement);
+
+            // send email to other users
+            userRepository.findAllByClub(user.getClub()).forEach(otherUser -> {
+                emailService.sendEmail(otherUser.getEmail(), announcement.getMessage(), "There is a new announcement in your club!");
+            });
         });
 
         if (optionalUser.isEmpty()) {
