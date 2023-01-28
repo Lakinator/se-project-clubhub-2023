@@ -15,24 +15,25 @@
     <div th:switch="${surveyPage.hasContent()}">
         <h5 th:case="false">This user does not have any surveys in all groups!</h5>
         <div th:case="true">
-            <div class="card mb-4" th:each="survey : ${surveyPage.getContent()}">
+            <div class="card mb-4" th:each="survey, i : ${surveyPage.getContent()}">
                 <h5 class="card-header"
-                    th:text="'Survey @ ' + ${#temporals.format(survey.createdOn)} + ${survey.updatedOn != null ? ' (edited ' + #temporals.format(survey.updatedOn) + ')' : ''}"></h5>
+                    th:text="'Survey @ ' + ${#temporals.format(survey.createdOn)} + ${survey.updatedOn != null ? ' (voted last on ' + #temporals.format(survey.updatedOn) + ')' : ''}"></h5>
                 <div class="card-body">
-                    <blockquote class="blockquote mb-0">
+                    <blockquote class="blockquote mb-4">
                         <p th:text="${survey.message}"></p>
                         <footer class="blockquote-footer"
                                 th:text="${survey.user.firstName + ' ' + survey.user.lastName} + ${survey.user.id == activeUser.id ? ' (You)' : ''}"></footer>
+                        <li th:each="optionItem, j : ${options.getContent()[i.count - 1]}">
+                            <form th:action="@{/surveys/vote(survey=${survey.id}, option=${j.count - 1})}" method="post">
+                                <button type="submit" class="btn btn-primary" th:text="${optionItem}"></button>
+                                <span th:text="${optionVotes.getContent()[i.count - 1][j.count - 1]}"></span>
+                            </form>
+                        </li>
                     </blockquote>
                 </div>
                 <div class="card-footer text-muted" th:if="${isTrainerInClub}">
                     <div class="container">
                         <div class="row float-end">
-                            <div class="col" th:if="${survey.user.id == activeUser.id}">
-                                <a th:href="@{/surveys/{id}/edit(id=${survey.id})}">
-                                    <i class="bi bi-gear-fill"></i>
-                                </a>
-                            </div>
                             <div class="col" th:if="${survey.user.id != activeUser.id}">
                                 <i class="bi bi-shield-slash"></i>
                             </div>

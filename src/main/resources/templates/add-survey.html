@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main}"
+      th:with="activeUser=${activeUser}, activeGroup=${activeGroup}, roleInActiveGroup=${roleInActiveGroup}, isTrainerInActiveGroup=${isTrainerInActiveGroup}">
+<head>
+    <meta charset="UTF-8">
+    <title>ClubHub Add Survey</title>
+</head>
+<body>
+<section layout:fragment="default-content">
+    <h2>Add a survey for <span th:text="${activeUser.club.name}"></span></h2>
+
+    <form th:action="@{/surveys/create}" th:object="${survey}" method="post">
+        <div class="mb-3">
+            <label for="message">Message</label>
+            <input type="text" th:field="*{message}" id="message" class="form-control" placeholder="What food would you prefer for the event?">
+            <label for="message">Survey Options</label>
+            <input type="text" th:field="*{options}" id="options" class="form-control" placeholder="All possible options of the survey separated by comma">
+            <p th:if="${#fields.hasErrors('message')}" th:errors="*{message}"></p>
+        </div>
+        <div class="mb-3">
+            <label for="groupSelect">Group</label>
+            <select id="groupSelect" class="form-select" th:field="*{group}">
+                <option th:each="group : ${groups}" th:value="${group.id}" th:text="${group.name}"></option>
+            </select>
+            <p class="alert alert-danger" role="alert"th:if="${#fields.hasErrors('group')}"
+               th:text="${#strings.listJoin(#fields.errors('group'), ', ')}"/>
+        </div>
+        <button type="submit" class="btn btn-primary">Add survey</button>
+    </form>
+</section>
+
+</body>
+</html>
