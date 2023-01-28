@@ -1,14 +1,14 @@
 package de.oth.seproject.clubhub.web.club;
 
 import de.oth.seproject.clubhub.config.ClubUserDetails;
-import de.oth.seproject.clubhub.persistence.model.Announcement;
-import de.oth.seproject.clubhub.persistence.model.RoleType;
-import de.oth.seproject.clubhub.persistence.model.User;
-import de.oth.seproject.clubhub.persistence.repository.AnnouncementRepository;
+import de.oth.seproject.clubhub.persistence.model.*;
 import de.oth.seproject.clubhub.persistence.repository.RoleRepository;
+import de.oth.seproject.clubhub.persistence.repository.SurveyRepository;
 import de.oth.seproject.clubhub.persistence.repository.UserRepository;
+import de.oth.seproject.clubhub.web.service.EmailService;
 import de.oth.seproject.clubhub.web.service.NavigationService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -31,12 +33,14 @@ public class SurveyController {
     private final SurveyRepository surveyRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final EmailService emailService;
 
-    public SurveyController(NavigationService navigationService, SurveyRepository surveyRepository, UserRepository userRepository, RoleRepository roleRepository) {
+    public SurveyController(NavigationService navigationService, SurveyRepository surveyRepository, UserRepository userRepository, RoleRepository roleRepository, EmailService emailService) {
         this.navigationService = navigationService;
         this.surveyRepository = surveyRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.emailService = emailService;
     }
 
     @GetMapping("/surveys")
@@ -56,7 +60,29 @@ public class SurveyController {
             surveys.addAll(surveysPerGroup);
         }
         // create page from all surveys
-        var surveyPage = new PageImpl<>(surveys, pageRequest, surveys.size());
+        int fromIndex = pageRequest.getPageNumber() * pageRequest.getPageSize();
+        int toIndex = Math.min(fromIndex + pageRequest.getPageSize(), surveys.size());
+        var surveyPage = new PageImpl<>(surveys.subList(fromIndex, toIndex), pageRequest, surveys.size());
+
+        List<List<String>> options = new LinkedList<>();
+        List<List<Integer>> optionVotes = new LinkedList<>();
+
+        for (var survey : surveys) {
+            List<String> currentSurveyOptions = new LinkedList<>();
+            List<Integer> currentSurveyOptionVotes = new LinkedList<>();
+            for (var option : survey.getOptions().split("\\|")) {
+                var optionItems = option.split("=");
+                currentSurveyOptions.add(optionItems[0]);
+                currentSurveyOptionVotes.add(Integer.parseInt(optionItems[1]));
+            }
+            options.add(currentSurveyOptions);
+            optionVotes.add(currentSurveyOptionVotes);
+        }
+
+        var optionsPage = new PageImpl<>(options.subList(fromIndex, toIndex), pageRequest, options.size());
+        model.addAttribute("options", optionsPage);
+        var optionVotesPage = new PageImpl<>(optionVotes.subList(fromIndex, toIndex), pageRequest, optionVotes.size());
+        model.addAttribute("optionVotes", optionVotesPage);
 
         model.addAttribute("isTrainerInClub", roleRepository.existsByUserAndRoleName(userDetails.getUser(), RoleType.TRAINER));
         model.addAttribute("surveyPage", surveyPage);
@@ -66,46 +92,61 @@ public class SurveyController {
     }
 
     @GetMapping("/surveys/add")
-    public String addAnnouncementPage(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
+    public String addSurveyPage(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
 
         boolean isTrainerInClub = roleRepository.existsByUserAndRoleName(userDetails.getUser(), RoleType.TRAINER);
 
         // user has to be a trainer of a group in this club
         if (!isTrainerInClub) {
-            return "redirect:/announcements";
+            return "redirect:/surveys";
         }
 
-        Announcement announcement = new Announcement();
-        model.addAttribute("announcement", announcement);
+        var newSurvey = new Survey();
+        model.addAttribute("survey", newSurvey);
+
+        // retrieve all groups for the current user
+        var currentUser = userDetails.getUser();
+        var currentUserRoles = roleRepository.findAllByUser(currentUser);
+        List<Group> groups = new LinkedList<>();
+        for (var role: currentUserRoles) {
+            groups.add(role.getGroup());
+        }
+
+        model.addAttribute("groups", groups);
 
         navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
-        return "add-announcement";
+        return "add-survey";
     }
 
     @PostMapping("/surveys/create")
-    public String createAnnouncement(@AuthenticationPrincipal ClubUserDetails userDetails, @Valid Announcement announcement, BindingResult result, Model model) {
+    public String createSurvey(@AuthenticationPrincipal ClubUserDetails userDetails, @Valid Survey survey, BindingResult result, Model model) {
 
         boolean isTrainerInClub = roleRepository.existsByUserAndRoleName(userDetails.getUser(), RoleType.TRAINER);
 
         // user has to be a trainer of a group in this club
         if (!isTrainerInClub) {
-            return "redirect:/announcements";
+            return "redirect:/surveys";
         }
 
         if (result.hasErrors()) {
             navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
-            return "add-announcement";
+            return "add-survey";
         }
 
         // need to retrieve user again because user from principal is a detached reference
         Optional<User> optionalUser = userRepository.findById(userDetails.getUser().getId());
 
         optionalUser.ifPresent(user -> {
-            announcement.setUser(user);
-            announcement.setClub(user.getClub());
-            announcement.setCreatedOn(LocalDateTime.now());
+            survey.setUser(user);
+            survey.setCreatedOn(LocalDateTime.now());
 
-            announcementRepository.save(announcement);
+            var formattedOptions = new LinkedList<String>();
+            for (var option : survey.getOptions().split(",")) {
+                formattedOptions.add(option + "=0");
+            }
+            survey.setOptions(String.join("|", formattedOptions));
+
+            surveyRepository.save(survey);
         });
 
         if (optionalUser.isEmpty()) {
@@ -113,54 +154,47 @@ public class SurveyController {
             return "redirect:/logout";
         }
 
-        return "redirect:/announcements";
+        // send email to all users in the group where the survey has been posted
+        var group = survey.getGroup();
+        for (var role : roleRepository.findAllByGroup(group)) {
+            var userToMessage = role.getUser();
+            emailService.sendEmail(userToMessage.getEmail(), "A new survey has been created for one of your clubs!", "New ClubHub Survey!");
+        }
+
+        return "redirect:/surveys";
     }
 
-    @GetMapping("/surveys/{id}/edit")
-    public String editAnnouncementPage(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
-        Announcement announcement = announcementRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid announcement Id:" + id));
+    @PostMapping("/surveys/vote")
+    public String voteOnSurvey(@AuthenticationPrincipal ClubUserDetails userDetails, @RequestParam(name = "survey", required = true) long survey, @RequestParam(name = "option", required = true) int option) {
+        Survey persistedSurvey = surveyRepository.findById(survey)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid survey Id:" + survey));
 
-        boolean isUserOwnerOfAnnouncement = announcement.getUser().getId().equals(userDetails.getUser().getId());
-
-        // user has to be the creator of this announcement
-        if (!isUserOwnerOfAnnouncement) {
-            return "redirect:/announcements";
+        List<String> nameItems = new LinkedList<>();
+        List<Integer> voteItems = new LinkedList<>();
+        for (var options : persistedSurvey.getOptions().split("\\|")) {
+            var item = options.split("=");
+            nameItems.add(item[0]);
+            voteItems.add(Integer.parseInt(item[1]));
         }
 
-        model.addAttribute("announcement", announcement);
+        voteItems.set(option, voteItems.get(option) + 1);
 
-        navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
-        return "edit-announcement";
-    }
-
-    @PostMapping("/surveys/{id}/update")
-    public String updateAnnouncement(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, @Valid Announcement announcement,
-                                     BindingResult result, Model model) {
-        Announcement persistedAnnouncement = announcementRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid announcement Id:" + id));
-
-        boolean isUserOwnerOfAnnouncement = persistedAnnouncement.getUser().getId().equals(userDetails.getUser().getId());
-
-        // user has to be the creator of this announcement
-        if (!isUserOwnerOfAnnouncement) {
-            return "redirect:/announcements";
+        List<String> optionItems = new LinkedList<>();
+        for (var i = 0; i < nameItems.size(); i += 1) {
+            optionItems.add(nameItems.get(i) + "=" + voteItems.get(i));
         }
+        var optionStr = String.join("|", optionItems);
 
-        if (result.hasErrors()) {
-            navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
-            return "edit-announcement";
-        }
 
-        persistedAnnouncement.setMessage(announcement.getMessage());
-        persistedAnnouncement.setUpdatedOn(LocalDateTime.now());
-        announcementRepository.save(persistedAnnouncement);
+        persistedSurvey.setOptions(optionStr);
+        persistedSurvey.setUpdatedOn(LocalDateTime.now());
+        surveyRepository.save(persistedSurvey);
 
-        return "redirect:/announcements";
+        return "redirect:/surveys";
     }
 
     @GetMapping("/surveys/{id}/delete")
-    public String deleteAnnouncement(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
+    public String deleteSurvey(@AuthenticationPrincipal ClubUserDetails userDetails, @PathVariable("id") long id, Model model) {
         Survey survey = surveyRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid survey id:" + id));
 
