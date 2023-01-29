@@ -9,6 +9,7 @@ import de.oth.seproject.clubhub.persistence.repository.RoleRepository;
 import de.oth.seproject.clubhub.persistence.repository.UserRepository;
 import de.oth.seproject.clubhub.web.service.EmailService;
 import de.oth.seproject.clubhub.web.service.NavigationService;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -37,13 +38,16 @@ public class RegistrationController {
 
     private final RoleRepository roleRepository;
 
-    public RegistrationController(PasswordEncoder passwordEncoder, UserRepository userRepository, ClubRepository clubRepository, EmailService emailService, NavigationService navigationService, RoleRepository roleRepository) {
+    private final MessageSource messageSource;
+
+    public RegistrationController(PasswordEncoder passwordEncoder, UserRepository userRepository, ClubRepository clubRepository, EmailService emailService, NavigationService navigationService, RoleRepository roleRepository, MessageSource messageSource) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.clubRepository = clubRepository;
         this.emailService = emailService;
         this.navigationService = navigationService;
         this.roleRepository = roleRepository;
+        this.messageSource = messageSource;
     }
 
     /**

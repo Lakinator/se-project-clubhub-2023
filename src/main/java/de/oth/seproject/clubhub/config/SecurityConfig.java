@@ -23,7 +23,7 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .antMatchers("/announcement/**", "/announcements/add/**", "/group/add/**", "/groups/create/**")
                 .hasAuthority(RoleType.TRAINER.name())
-                .antMatchers("/", "/home", "/login", "/registration", "/user/create", "/webjars/**", "/js/**", "/css/**")
+                .antMatchers("/", "/home", "/login", "/registration", "/clubs/register", "/clubs/create", "/user/create", "/webjars/**", "/js/**", "/css/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
