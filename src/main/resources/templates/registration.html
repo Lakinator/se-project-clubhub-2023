@@ -4,52 +4,54 @@
       layout:decorate="~{fragments/main}">
 <head>
     <meta charset="UTF-8">
-    <title>ClubHub Registrierung</title>
+    <title th:text="#{register_header}">ClubHub Registrierung</title>
 </head>
 <body>
 
 <section layout:fragment="default-content">
-    <h2>Registriere dich bei ClubHub</h2>
+    <a th:href="@{/registration?lang=en}">English</a>
+    <a th:href="@{/registration?lang=de}">German</a>
+    <h2 th:text="#{register_title}"></h2>
 
     <form th:action="@{/user/create}" th:object="${user}" method="post">
         <div class="mb-3">
-            <label for="firstNameInput">Vorname</label>
+            <label for="firstNameInput" th:text="#{register_first_name}"></label>
             <input id="firstNameInput" class="form-control" th:field="*{firstName}"/>
             <p class="alert alert-danger" role="alert"th:if="${#fields.hasErrors('firstName')}"
 	               th:text="${#strings.listJoin(#fields.errors('firstName'), ', ')}"/>
         </div>
         <div class="mb-3">
-            <label for="lastNameInput">Nachname</label>
+            <label for="lastNameInput" th:text="#{register_last_name}"></label>
             <input id="lastNameInput" class="form-control" th:field="*{lastName}"/>
             <p class="alert alert-danger" role="alert"th:if="${#fields.hasErrors('lastName')}"
 	               th:text="${#strings.listJoin(#fields.errors('lastName'), ', ')}"/>
         </div>
         <div class="mb-3">
-            <label for="emailInput">E-Mail</label>
+            <label for="emailInput" th:text="#{register_email}"}></label>
             <input id="emailInput" type="email" class="form-control" th:field="*{email}"/>
             <p class="alert alert-danger" role="alert"th:if="${#fields.hasErrors('email')}"
 	               th:text="${#strings.listJoin(#fields.errors('email'), ', ')}"/>
-            <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+            <div id="emailHelp" class="form-text" th:text="#{register_email_hint}"></div>
         </div>
         <div class="mb-3">
-            <label for="passwordInput">Passwort</label>
+            <label for="passwordInput" th:text="#{register_passwd}"></label>
             <input id="passwordInput" type="password" class="form-control" th:field="*{password}"/>
             <p class="alert alert-danger" role="alert"th:if="${#fields.hasErrors('password')}"
 	               th:text="${#strings.listJoin(#fields.errors('password'), ', ')}"/>
         </div>
         <div class="mb-3">
-            <label for="clubSelect">Club</label>
+            <label for="clubSelect" th:text="#{register_club}"></label>
             <select id="clubSelect" class="form-select" th:field="*{club}">
-                <option value="0">Wähle einen Club</option>
+                <option value="0" th:text="#{register_club_hint}"></option>
                 <option th:each="club : ${clubs}" th:value="${club.id}" th:text="${club.name}"></option>
             </select>
             <p class="alert alert-danger" role="alert"th:if="${#fields.hasErrors('club')}"
 	               th:text="${#strings.listJoin(#fields.errors('club'), ', ')}"/>
         </div>
         <div class="mb-3">
-            <a th:href="@{/clubs/register}">Register your club</a>
+            <a th:href="@{/clubs/register}" th:text="#{register_club_prompt}"></a>
         </div>
-        <button type="submit" class="btn btn-primary">Registrieren</button>
+        <button type="submit" class="btn btn-primary" th:text="#{register_button}"></button>
     </form>
 
 </section>
