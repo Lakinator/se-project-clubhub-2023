@@ -2,8 +2,10 @@ package de.oth.seproject.clubhub.web.user;
 
 import de.oth.seproject.clubhub.config.ClubUserDetails;
 import de.oth.seproject.clubhub.persistence.model.Club;
+import de.oth.seproject.clubhub.persistence.model.RoleType;
 import de.oth.seproject.clubhub.persistence.model.User;
 import de.oth.seproject.clubhub.persistence.repository.ClubRepository;
+import de.oth.seproject.clubhub.persistence.repository.RoleRepository;
 import de.oth.seproject.clubhub.persistence.repository.UserRepository;
 import de.oth.seproject.clubhub.web.service.EmailService;
 import de.oth.seproject.clubhub.web.service.NavigationService;
@@ -33,12 +35,15 @@ public class RegistrationController {
     
     private final NavigationService navigationService;
 
-    public RegistrationController(PasswordEncoder passwordEncoder, UserRepository userRepository, ClubRepository clubRepository, EmailService emailService, NavigationService navigationService) {
+    private final RoleRepository roleRepository;
+
+    public RegistrationController(PasswordEncoder passwordEncoder, UserRepository userRepository, ClubRepository clubRepository, EmailService emailService, NavigationService navigationService, RoleRepository roleRepository) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.clubRepository = clubRepository;
         this.emailService = emailService;
         this.navigationService = navigationService;
+        this.roleRepository = roleRepository;
     }
 
     /**
@@ -107,6 +112,8 @@ public class RegistrationController {
     @GetMapping("/user")
     public String accountPage(@AuthenticationPrincipal ClubUserDetails userDetails, Model model) {
         navigationService.addNavigationAttributes(model, userDetails.getUser().getId());
+        boolean isTrainerInClub = roleRepository.existsByUserAndRoleName(userDetails.getUser(), RoleType.TRAINER);
+        model.addAttribute("isTrainerInClub", isTrainerInClub);
         return "show-account";
     }
 	

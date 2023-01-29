@@ -46,6 +46,9 @@
             <p class="alert alert-danger" role="alert"th:if="${#fields.hasErrors('club')}"
 	               th:text="${#strings.listJoin(#fields.errors('club'), ', ')}"/>
         </div>
+        <div class="mb-3">
+            <a th:href="@{/clubs/register}">Register your club</a>
+        </div>
         <button type="submit" class="btn btn-primary">Registrieren</button>
     </form>
 

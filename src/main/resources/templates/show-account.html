@@ -36,6 +36,12 @@
     <div>
         <a th:href="@{/user/delete}">Account löschen</a>
     </div>
+    <div th:if="${isTrainerInClub}">
+        <a th:href="@{/clubs/delete}">Club löschen</a>
+    </div>
+    <div th:if="${isTrainerInClub}">
+        <a th:href="@{/clubs/edit}">Club bearbeiten</a>
+    </div>
 </section>
 
 </body>
